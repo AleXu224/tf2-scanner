@@ -103,9 +103,9 @@ void startScan() async {
       if (g.stopScan) break;
       await player.getInventory();
       if (!player.inventory.success) continue;
-      if (player.inventory.scrap / 9 > g.config.maxRef && g.config.maxRef > 0)
+      if (player.inventory.scrap / 9 > g.config.maxRef && g.config.maxRef >= 0)
         continue;
-      if (player.inventory.keys > g.config.maxKeys && g.config.maxKeys > 0)
+      if (player.inventory.keys > g.config.maxKeys && g.config.maxKeys >= 0)
         continue;
 
       List<Item> displayItems = List();
