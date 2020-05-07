@@ -12,7 +12,7 @@ class Config {
   double maxRef = -1;
   int maxKeys = -1;
   double minRef = -1;
-  int minKeys = -1;
+  double minKeys = -1;
   int maxHistory = -1;
   int maxHours = -1;
 
@@ -110,7 +110,7 @@ class Config {
     this.maxRef = double.tryParse(g.maxRef.text) ?? -1;
     this.maxKeys = int.tryParse(g.maxKeys.text) ?? -1;
     this.minRef = double.tryParse(g.minRef.text) ?? -1;
-    this.minKeys = int.tryParse(g.minKeys.text) ?? -1;
+    this.minKeys = double.tryParse(g.minKeys.text) ?? -1;
     this.maxHours = int.tryParse(g.maxHours.text) ?? -1;
     this.maxHistory = int.tryParse(g.maxHistory.text) ?? -1;
     this.pagesScan = int.tryParse(g.pagesScan.text) ?? 1;

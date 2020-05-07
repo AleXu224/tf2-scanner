@@ -107,13 +107,13 @@ void startScan() async {
       g.scanStatus = "$scanned/$toScan";
       g.homeState();
       if (g.stopScan) break;
+      if (player.visibility == 1 || player.visibility == 2) continue;
       await player.getInventory();
       if (!player.inventory.success) continue;
       if (player.inventory.scrap / 9 > g.config.maxRef && g.config.maxRef >= 0)
         continue;
       if (player.inventory.keys > g.config.maxKeys && g.config.maxKeys >= 0)
         continue;
-      if (player.visibility == 1 || player.visibility == 2) continue;
 
       List<Item> displayItems = List();
 
@@ -260,7 +260,7 @@ class Inventory {
     dynamic inventoryJson;
     int badTryCounter = 0;
     while (true) {
-      // await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(Duration(milliseconds: 100));
       var inventoryResponse = await g.fetchWithChecks(
           "https://steamcommunity.com/inventory/$steamid/440/2?l=english&count=4000");
       if (inventoryResponse == null) {
