@@ -70,6 +70,9 @@ void startScan() async {
 
   if (ids.length < 1) return;
 
+  int toScan = ids.length;
+  int scanned = 0;
+
   g.isScanning = true;
   g.sideBarState();
 
@@ -100,6 +103,9 @@ void startScan() async {
     }
 
     for (Player player in players) {
+      scanned++;
+      g.scanStatus = "$scanned/$toScan";
+      g.homeState();
       if (g.stopScan) break;
       await player.getInventory();
       if (!player.inventory.success) continue;
@@ -131,37 +137,42 @@ void startScan() async {
         displayItems.add(item);
       }
 
-      if (displayItems.length == 0) continue;
-
-      Comparator<Item> priceSorter =
-          (a, b) => (b.priceValue ?? 0).compareTo(a.priceValue ?? 0);
-
-      displayItems.sort(priceSorter);
-
-      await player.getHistory();
-      await player.getHours();
-      await player.getLevel();
-
-      if (player.histories == null && g.config.maxHistory >= 0)
+      if (displayItems.length == 0)
         continue;
-      else if (player.histories != null &&
-          g.config.maxHistory >= 0 &&
-          player.histories > g.config.maxHistory) continue;
-
-      if (player.hours == null && g.config.maxHours >= 0)
-        continue;
-      else if (player.hours != null &&
-          g.config.maxHours >= 0 &&
-          player.hours > g.config.maxHours) continue;
-
-      g.users.add(w.UserContainer(player, displayItems));
-      g.homeState();
+      else
+        addPlayer(player, displayItems);
     }
   }
   g.stopScan = false;
   g.isScanning = false;
   g.sideBarState();
   print("Scanning done");
+}
+
+void addPlayer(Player player, List<Item> displayItems) async {
+  Comparator<Item> priceSorter =
+      (a, b) => (b.priceValue ?? 0).compareTo(a.priceValue ?? 0);
+
+  displayItems.sort(priceSorter);
+
+  await player.getHistory();
+  await player.getHours();
+  await player.getLevel();
+
+  if (player.histories == null && g.config.maxHistory >= 0)
+    return;
+  else if (player.histories != null &&
+      g.config.maxHistory >= 0 &&
+      player.histories > g.config.maxHistory) return;
+
+  if (player.hours == null && g.config.maxHours >= 0)
+    return;
+  else if (player.hours != null &&
+      g.config.maxHours >= 0 &&
+      player.hours > g.config.maxHours) return;
+
+  g.users.add(w.UserContainer(player, displayItems));
+  g.homeState();
 }
 
 class Player {
@@ -246,7 +257,7 @@ class Inventory {
     dynamic inventoryJson;
     int badTryCounter = 0;
     while (true) {
-      await Future.delayed(Duration(milliseconds: 100));
+      // await Future.delayed(Duration(milliseconds: 100));
       var inventoryResponse = await g.fetchWithChecks(
           "https://steamcommunity.com/inventory/$steamid/440/2?l=english&count=4000");
       if (inventoryResponse == null) {
