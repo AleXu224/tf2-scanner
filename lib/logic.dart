@@ -118,6 +118,8 @@ class Config {
 
     this.totalMinPrice = (this.minKeys >= 0 ? this.minKeys : 0) +
         (this.minRef >= 0 ? this.minRef : 0) / g.keyPrice;
+
+    store();
   }
 
   apply() {
