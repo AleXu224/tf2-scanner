@@ -113,6 +113,7 @@ void startScan() async {
         continue;
       if (player.inventory.keys > g.config.maxKeys && g.config.maxKeys >= 0)
         continue;
+      if (player.visibility == 1 || player.visibility == 2) continue;
 
       List<Item> displayItems = List();
 
@@ -180,6 +181,7 @@ class Player {
   String name;
   String avatarUrl;
   String playerId;
+  int visibility;
   int level;
   int histories;
   int hours;
@@ -190,6 +192,7 @@ class Player {
     this.avatarUrl = data["avatarmedium"];
     this.playerId = "${data["steamid"]}_${Random().nextInt(256000)}";
     print(this.playerId);
+    this.visibility = data["communityvisibilitystate"];
   }
   Future<bool> getInventory() async {
     this.inventory = Inventory();
