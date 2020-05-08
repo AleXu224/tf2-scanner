@@ -70,6 +70,9 @@ void startScan() async {
 
   if (ids.length < 1) return;
 
+  int toScan = ids.length;
+  int scanned = 0;
+
   g.isScanning = true;
   g.sideBarState();
 
@@ -100,12 +103,16 @@ void startScan() async {
     }
 
     for (Player player in players) {
+      scanned++;
+      g.scanStatus = "$scanned/$toScan";
+      g.homeState();
       if (g.stopScan) break;
+      if (player.visibility == 1 || player.visibility == 2) continue;
       await player.getInventory();
       if (!player.inventory.success) continue;
-      if (player.inventory.scrap / 9 > g.config.maxRef && g.config.maxRef > 0)
+      if (player.inventory.scrap / 9 > g.config.maxRef && g.config.maxRef >= 0)
         continue;
-      if (player.inventory.keys > g.config.maxKeys && g.config.maxKeys > 0)
+      if (player.inventory.keys > g.config.maxKeys && g.config.maxKeys >= 0)
         continue;
 
       List<Item> displayItems = List();
@@ -131,31 +138,10 @@ void startScan() async {
         displayItems.add(item);
       }
 
-      if (displayItems.length == 0) continue;
-
-      Comparator<Item> priceSorter =
-          (a, b) => (b.priceValue ?? 0).compareTo(a.priceValue ?? 0);
-
-      displayItems.sort(priceSorter);
-
-      await player.getHistory();
-      await player.getHours();
-      await player.getLevel();
-
-      if (player.histories == null && g.config.maxHistory >= 0)
+      if (displayItems.length == 0)
         continue;
-      else if (player.histories != null &&
-          g.config.maxHistory >= 0 &&
-          player.histories > g.config.maxHistory) continue;
-
-      if (player.hours == null && g.config.maxHours >= 0)
-        continue;
-      else if (player.hours != null &&
-          g.config.maxHours >= 0 &&
-          player.hours > g.config.maxHours) continue;
-
-      g.users.add(w.UserContainer(player, displayItems));
-      g.homeState();
+      else
+        addPlayer(player, displayItems);
     }
   }
   g.stopScan = false;
@@ -164,11 +150,38 @@ void startScan() async {
   print("Scanning done");
 }
 
+void addPlayer(Player player, List<Item> displayItems) async {
+  Comparator<Item> priceSorter =
+      (a, b) => (b.priceValue ?? 0).compareTo(a.priceValue ?? 0);
+
+  displayItems.sort(priceSorter);
+
+  await player.getHistory();
+  await player.getHours();
+  await player.getLevel();
+
+  if (player.histories == null && g.config.maxHistory >= 0)
+    return;
+  else if (player.histories != null &&
+      g.config.maxHistory >= 0 &&
+      player.histories > g.config.maxHistory) return;
+
+  if (player.hours == null && g.config.maxHours >= 0)
+    return;
+  else if (player.hours != null &&
+      g.config.maxHours >= 0 &&
+      player.hours > g.config.maxHours) return;
+
+  g.users.add(w.UserContainer(player, displayItems));
+  g.homeState();
+}
+
 class Player {
   String steamid;
   String name;
   String avatarUrl;
   String playerId;
+  int visibility;
   int level;
   int histories;
   int hours;
@@ -179,6 +192,7 @@ class Player {
     this.avatarUrl = data["avatarmedium"];
     this.playerId = "${data["steamid"]}_${Random().nextInt(256000)}";
     print(this.playerId);
+    this.visibility = data["communityvisibilitystate"];
   }
   Future<bool> getInventory() async {
     this.inventory = Inventory();

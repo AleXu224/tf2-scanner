@@ -63,13 +63,38 @@ class _HomeState extends State<Home> {
         children: [
           widgets.SideBar(),
           Expanded(
-            child: Scrollbar(
-              child: ListView.builder(
-                itemCount: g.users.length,
-                itemBuilder: (buildContext, i) {
-                  return g.users[i];
-                },
-              ),
+            child: Stack(
+              children: [
+                Scrollbar(
+                  child: ListView.builder(
+                    itemCount: g.users.length,
+                    itemBuilder: (buildContext, i) {
+                      return g.users[i];
+                    },
+                  ),
+                ),
+                if (g.isScanning)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      margin: EdgeInsets.all(20),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: g.secondary,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        g.scanStatus,
+                        style: TextStyle(
+                          color: g.white80,
+                          fontSize: 15,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],

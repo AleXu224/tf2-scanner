@@ -151,6 +151,8 @@ double keyPrice;
 bool isScanning = false;
 bool stopScan = false;
 
+String scanStatus;
+
 TextEditingController apiKey = new TextEditingController();
 
 TextEditingController maxRef = new TextEditingController();
@@ -187,12 +189,12 @@ Future<dynamic> fetchWithChecks(String url) async {
   var request = await HttpClient().getUrl(Uri.parse(url));
   var response = await request.close();
 
-  if (response.statusCode == 403) return 403;
+  if (response.statusCode == 403)
+    return 403;
   else if (response.statusCode == 429) {
     await Future.delayed(Duration(seconds: 5));
     return null;
-  }
-  else if (response.statusCode != 200) return null;
+  } else if (response.statusCode != 200) return null;
   var body = await response.transform(Utf8Decoder(allowMalformed: true)).join();
   return body;
 }
