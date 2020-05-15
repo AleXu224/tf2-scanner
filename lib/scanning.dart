@@ -14,6 +14,8 @@ void startScan() async {
   List ids = List();
   g.config.obtain();
 
+  if (g.inputList.text == "") g.inputList.text = g.lastScan;
+
   String scanningInput = "";
 
   if (g.config.groupScan) {
@@ -67,6 +69,9 @@ void startScan() async {
     ids.add(_id);
   }
   print(ids);
+
+  g.lastScan = g.inputList.text;
+  g.inputList.text = "";
 
   if (ids.length < 1) return;
 
@@ -123,10 +128,9 @@ void startScan() async {
         if (item.currency != null && g.config.totalMinPrice > 0) {
           if (item.currency == 1 && (item.priceValue) < g.config.totalMinPrice)
             continue;
-          if (item.currency == 2 &&
-              item.priceValue < g.config.totalMinPrice * g.keyPrice) continue;
-          if (item.currency == 3 && 1.33 < g.config.totalMinPrice * g.keyPrice)
+          if (item.currency == 2 && item.priceValue < g.config.totalMinPrice)
             continue;
+          if (item.currency == 3 && 1.33 < g.config.totalMinPrice) continue;
         }
 
         if (item.currency == 4 && !g.config.skins) continue;

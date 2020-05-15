@@ -168,6 +168,8 @@ bool skins = false;
 
 bool groupScan = false;
 
+String lastScan = "";
+
 TextEditingController pagesScan = new TextEditingController();
 TextEditingController pagesSkip = new TextEditingController();
 
