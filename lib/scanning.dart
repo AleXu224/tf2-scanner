@@ -123,10 +123,9 @@ void startScan() async {
         if (item.currency != null && g.config.totalMinPrice > 0) {
           if (item.currency == 1 && (item.priceValue) < g.config.totalMinPrice)
             continue;
-          if (item.currency == 2 &&
-              item.priceValue < g.config.totalMinPrice * g.keyPrice) continue;
-          if (item.currency == 3 && 1.33 < g.config.totalMinPrice * g.keyPrice)
+          if (item.currency == 2 && item.priceValue < g.config.totalMinPrice)
             continue;
+          if (item.currency == 3 && 1.33 < g.config.totalMinPrice) continue;
         }
 
         if (item.currency == 4 && !g.config.skins) continue;
