@@ -436,12 +436,12 @@ class Item {
     }
 
     if (name.contains("#")) {
-      crate = int.parse(RegExp(r'\d+').firstMatch(name).group(0));
+      crate = int.parse(RegExp(r'\d+$').firstMatch(name).group(0));
       name = name.replaceFirst(" Series #$crate", "");
       name = name.replaceFirst(" #$crate", "");
     }
 
-    if (name.contains(" Unusualifier")) {
+    if (name.contains(" Unusualifier") || name.contains(" Strangifier")) {
       targetName = RegExp(r'^[\w:\s]+(?=\s)').firstMatch(name).group(0);
       name = name.replaceFirst("$targetName ", "");
       for (var it in g.schema) {
@@ -480,7 +480,7 @@ class Item {
     }
 
     int _serial = 0;
-    if (quality == 5 || quality2 == 5) {
+    if (quality == 5 || quality2 == 5 || _name.contains("Strangifier")) {
       if (target != null)
         _serial = target;
       else if (effect != null) _serial = effect;
