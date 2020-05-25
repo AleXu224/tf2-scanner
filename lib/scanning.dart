@@ -465,7 +465,9 @@ class Item {
     if (quality == 5) _displayQuality = quality.toString();
     String _craftable = "${craftable == 1 ? "Craftable" : "Non-Craftable"}";
 
-    dynamic p1 = g.prices["response"]["items"][_name] ?? {};
+    dynamic p1 = g.prices["response"]["items"][_name] ??
+        g.prices["response"]["items"]["The $_name"] ??
+        {};
     dynamic p2 = p1["prices"] ?? {};
     dynamic p3 = p2[_displayQuality] ?? {};
     dynamic p4 = p3["Tradable"] ?? {};
