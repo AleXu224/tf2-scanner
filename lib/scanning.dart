@@ -157,6 +157,9 @@ void startScan() async {
 void addPlayer(Player player, List<Item> displayItems) async {
   Comparator<Item> priceSorter =
       (a, b) => (b.priceValue ?? 0).compareTo(a.priceValue ?? 0);
+  // Used for debugging
+  // Comparator<Item> priceSorter =
+  //     (a, b) => (a.priceValue ?? 0).compareTo(b.priceValue ?? 0);
 
   displayItems.sort(priceSorter);
 
@@ -406,8 +409,7 @@ class Item {
       if (value.contains("★ Unusual Effect: ") && !value.contains("''")) {
         // effectName = RegExp(r'(?!\s)[\w\s]*$').firstMatch(value).group(0);
         effectName = value.replaceFirst("★ Unusual Effect: ", "");
-      } else if (value
-          .contains("( Not Tradable, Marketable, or Usable in Crafting )")) {
+      } else if (value.contains("Usable in Crafting")) {
         craftable = -1;
       }
     }
@@ -415,8 +417,9 @@ class Item {
     if (!isStrangePart) name = name.replaceFirst("$qualityName ", "");
 
     for (var qualityData in g.qualitieList) {
-      if (name.contains("${qualityData["name"]} ")) {
+      if (name.startsWith("${qualityData["name"]} ")) {
         if (qualityData["index"] == 11 && isStrangePart) continue;
+        if (quality == qualityData["index"]) break;
         name = name.replaceFirst("${qualityData["name"]} ", "");
         quality2 = qualityData["index"];
         quality2Name = qualityData["name"];
@@ -436,12 +439,12 @@ class Item {
     }
 
     if (name.contains("#")) {
-      crate = int.parse(RegExp(r'\d+').firstMatch(name).group(0));
+      crate = int.parse(RegExp(r'\d+$').firstMatch(name).group(0));
       name = name.replaceFirst(" Series #$crate", "");
       name = name.replaceFirst(" #$crate", "");
     }
 
-    if (name.contains(" Unusualifier")) {
+    if (name.contains(" Unusualifier") || name.contains(" Strangifier")) {
       targetName = RegExp(r'^[\w:\s]+(?=\s)').firstMatch(name).group(0);
       name = name.replaceFirst("$targetName ", "");
       for (var it in g.schema) {
@@ -465,7 +468,9 @@ class Item {
     if (quality == 5) _displayQuality = quality.toString();
     String _craftable = "${craftable == 1 ? "Craftable" : "Non-Craftable"}";
 
-    dynamic p1 = g.prices["response"]["items"][_name] ?? {};
+    dynamic p1 = g.prices["response"]["items"][_name] ??
+        g.prices["response"]["items"]["The $_name"] ??
+        {};
     dynamic p2 = p1["prices"] ?? {};
     dynamic p3 = p2[_displayQuality] ?? {};
     dynamic p4 = p3["Tradable"] ?? {};
@@ -478,7 +483,7 @@ class Item {
     }
 
     int _serial = 0;
-    if (quality == 5 || quality2 == 5) {
+    if (quality == 5 || quality2 == 5 || _name.contains("Strangifier")) {
       if (target != null)
         _serial = target;
       else if (effect != null) _serial = effect;
