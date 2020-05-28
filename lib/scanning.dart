@@ -444,8 +444,9 @@ class Item {
       name = name.replaceFirst(" #$crate", "");
     }
 
-    if (name.contains(" Unusualifier") || name.contains(" Strangifier")) {
-      targetName = RegExp(r'^[\w:\s]+(?=\s)').firstMatch(name).group(0);
+    if (name.contains(" Unusualifier") || name.endsWith(" Strangifier")) {
+      targetName = RegExp(r'^[\w:\s]+(?=\s)').firstMatch(name)?.group(0);
+      debugger(when: targetName == null);
       name = name.replaceFirst("$targetName ", "");
       for (var it in g.schema) {
         if (it["item_name"] == targetName) {
@@ -456,7 +457,7 @@ class Item {
     }
 
     if (quality == 5 && effectName != null) {
-      effect = g.effects[effectName];
+      effect = g.effects[effectName] ?? g.effects["The " + effectName];
       debugger(when: effect == null);
       nameComplete = nameComplete.replaceFirst("Unusual", effectName);
       effectImage =
