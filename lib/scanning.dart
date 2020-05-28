@@ -457,7 +457,7 @@ class Item {
     }
 
     if (quality == 5 && effectName != null) {
-      effect = g.effects[effectName];
+      effect = g.effects[effectName] ?? g.effects["The " + effectName];
       debugger(when: effect == null);
       nameComplete = nameComplete.replaceFirst("Unusual", effectName);
       effectImage =
