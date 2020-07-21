@@ -659,8 +659,7 @@ class _UserContainerState extends State<UserContainer> {
                 Expanded(
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount:
-                        widget.items.length < 5 ? widget.items.length : 5,
+                    itemCount: widget.items.length,
                     itemBuilder: (context, i) {
                       return InventoryItem(widget.items[i]);
                     },
