@@ -203,8 +203,10 @@ void initializeGlobalVariables() async {
   File skinsFile = File("skins.json");
   g.skinsArray = jsonDecode(await skinsFile.readAsString());
 
-  g.keyPrice = g.prices["response"]["items"]["Mann Co. Supply Crate Key"]
+  dynamic keyPrice = g.prices["response"]["items"]["Mann Co. Supply Crate Key"]
       ["prices"]["6"]["Tradable"]["Craftable"][0]["value"];
+
+  g.keyPrice = keyPrice.toDouble();
 
   File effectsFile = File("effects.json");
   g.effects = jsonDecode(await effectsFile.readAsString());
