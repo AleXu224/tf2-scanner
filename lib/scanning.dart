@@ -445,7 +445,7 @@ class Item {
     }
 
     if (name.contains(" Unusualifier") || name.endsWith(" Strangifier")) {
-      targetName = RegExp(r'^[\w:\s]+(?=\s)').firstMatch(name)?.group(0);
+      targetName = RegExp(r"^[\w:\s\']+(?=\s)").firstMatch(name)?.group(0);
       debugger(when: targetName == null);
       name = name.replaceFirst("$targetName ", "");
       for (var it in g.schema) {
