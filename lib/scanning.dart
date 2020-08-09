@@ -40,7 +40,7 @@ void startScan() async {
     ids.add(scanningInput.substring(element.start, element.end));
   });
 
-  RegExp exp3 = RegExp(r'\[U:1:[0-9]{9}\]');
+  RegExp exp3 = RegExp(r'\[U:1:[0-9]*\]');
   List ids3 = List();
   exp3.allMatches(scanningInput).forEach((element) {
     ids3.add(scanningInput.substring(element.start, element.end));
