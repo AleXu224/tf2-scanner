@@ -18,5 +18,8 @@ If you find any bugs or have a request please let me know by making an issue in 
 ### The program asks for an api key and I don't know where to get it from
 You can get your api key from this [page](https://steamcommunity.com/dev/apikey)
 
+### The program shows and error at the start regarding VCRUNTIME140_1.dll
+You need to download the [C++ Runtime](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
+
 ### Where can I report bugs or request a feature
 You can report bugs and request features in the [issues](https://github.com/AleXu224/tf2-scanner/issues) tab or by [adding me on Steam](http://steamcommunity.com/id/Squizell/)
