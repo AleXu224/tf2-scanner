@@ -14,6 +14,9 @@ void startScan() async {
   List ids = List();
   g.config.obtain();
 
+  g.isScanning = true;
+  g.sideBarState();
+
   if (g.inputList.text == "") g.inputList.text = g.lastScan;
 
   String scanningInput = "";
@@ -73,13 +76,14 @@ void startScan() async {
   g.lastScan = g.inputList.text;
   g.inputList.text = "";
 
-  if (ids.length < 1) return;
+  if (ids.length < 1) {
+    g.isScanning = false;
+    g.sideBarState();
+    return;
+  }
 
   int toScan = ids.length;
   int scanned = 0;
-
-  g.isScanning = true;
-  g.sideBarState();
 
   var len = ids.length;
   int size = 100;
@@ -209,7 +213,8 @@ class Player {
 
   Future<bool> getHours() async {
     var gamesPage = await g.fetchWithChecks(
-        "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${g.config.apiKey}&steamid=$steamid&format=json&include_played_free_games=1");
+        "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${g.config.apiKey}&steamid=$steamid&format=json&include_played_free_games=1",
+        true);
     var games;
     if (gamesPage != null)
       games = jsonDecode(gamesPage);
@@ -228,7 +233,7 @@ class Player {
 
   Future<bool> getHistory() async {
     String historyPage =
-        await g.fetchWithChecks("https://backpack.tf/profiles/$steamid");
+        await g.fetchWithChecks("https://backpack.tf/profiles/$steamid", true);
     if (historyPage == null) return false;
 
     if (historyPage.contains(RegExp(r'Most Recent[\S\s]*<\/select'))) {
@@ -245,7 +250,8 @@ class Player {
 
   Future<bool> getLevel() async {
     var levelPage = await g.fetchWithChecks(
-        "https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${g.config.apiKey}&steamid=$steamid");
+        "https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${g.config.apiKey}&steamid=$steamid",
+        true);
     var level;
     if (levelPage != null)
       level = jsonDecode(levelPage);
