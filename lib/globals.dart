@@ -187,11 +187,11 @@ Future<String> fetch(String url) async {
   return body;
 }
 
-Future<dynamic> fetchWithChecks(String url) async {
+Future<dynamic> fetchWithChecks(String url, [bool nullOnly = false]) async {
   var request = await HttpClient().getUrl(Uri.parse(url));
   var response = await request.close();
 
-  if (response.statusCode == 403)
+  if (response.statusCode == 403 && !nullOnly)
     return 403;
   else if (response.statusCode == 429) {
     await Future.delayed(Duration(seconds: 5));
