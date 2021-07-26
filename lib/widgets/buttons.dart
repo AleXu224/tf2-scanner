@@ -57,64 +57,6 @@ class _UserButtonState extends State<UserButton> {
   }
 }
 
-class SideButton extends StatefulWidget {
-  final IconData buttonIcon;
-  final String tooltip;
-  final Function action;
-  SideButton(this.buttonIcon, this.tooltip, this.action);
-  @override
-  _SideButtonState createState() => _SideButtonState();
-}
-
-class _SideButtonState extends State<SideButton> {
-  Color bgColor = ThemeColors.primary;
-  double radius = 20;
-  Color iconColor = Colors.white60;
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (PointerEvent details) {
-        setState(() {
-          this.bgColor = ThemeColors.secondaryLight;
-          this.radius = 10;
-          this.iconColor = Colors.white70;
-        });
-      },
-      onExit: (PointerEvent details) {
-        setState(() {
-          this.bgColor = ThemeColors.primary;
-          this.radius = 20;
-          this.iconColor = Colors.white60;
-        });
-      },
-      child: GestureDetector(
-        onTap: () {
-          widget.action();
-        },
-        child: CustomTooltip(
-          message: widget.tooltip,
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
-            width: 40,
-            height: 40,
-            margin: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(this.radius),
-              ),
-              color: this.bgColor,
-            ),
-            child: Icon(
-              widget.buttonIcon,
-              color: this.iconColor,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class AppBarButton extends StatefulWidget {
   final String displayText;
   final Function action;

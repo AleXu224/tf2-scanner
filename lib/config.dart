@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/appSettings.dart';
 import 'utilities.dart';
 import 'globals.dart';
 import 'dart:io';
@@ -52,11 +51,7 @@ class Config {
 
     apiKey = prefs.getString("apiKey") ?? "";
     if (apiKey == "") {
-      changeScreen(
-        AppSettings(
-          showBackButton: false,
-        ),
-      );
+      // TODO: open options
     } else {
       fetchRequirements();
     }

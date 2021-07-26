@@ -19,21 +19,57 @@ class SwitchInput extends StatefulWidget {
 class _SwitchInputState extends State<SwitchInput> {
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.all(0),
-      title: Text(
-        widget.switchText,
-        style: TextStyle(color: Colors.white70),
+    return Container(
+      height: 16,
+      margin: EdgeInsets.only(top: 16, right: 16, left: 16),
+      child: Row(
+        children: [
+          Text(
+            widget.switchText,
+            style: TextStyle(
+              fontSize: 16,
+              color: ThemeColors.t,
+              height: 1,
+            ),
+          ),
+          Expanded(child: Container()),
+          SwitchInputButton(controller: widget.controller),
+        ],
       ),
-      trailing: Switch(
-        value: widget.controller.state,
-        onChanged: (newState) {
-          setState(() {
-            widget.controller.state = newState;
-          });
-          widget.stateUpdate();
-        },
-        activeColor: ThemeColors.secondary,
+    );
+  }
+}
+
+class SwitchInputButton extends StatefulWidget {
+  final SwitchController controller;
+  const SwitchInputButton({Key? key, required this.controller}) : super(key: key);
+
+  @override
+  _SwitchInputButtonState createState() => _SwitchInputButtonState();
+}
+
+class _SwitchInputButtonState extends State<SwitchInputButton> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        widget.controller.state = !widget.controller.state;
+        setState(() {});
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 100),
+        height: 16,
+        width: 16,
+        margin: EdgeInsets.only(right: 8),
+        decoration: BoxDecoration(
+          color: widget.controller.state ? ThemeColors.s : ThemeColors.p,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: ThemeColors.s,
+            width: 2,
+            style: BorderStyle.solid,
+          ),
+        ),
       ),
     );
   }
