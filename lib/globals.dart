@@ -43,6 +43,11 @@ class Controllers {
   static TextController skip = new TextController();
   static TextController scanSettingsInput = new TextController();
   static TextController apiKey = new TextController();
+  static ListController scanMode = new ListController();
+}
+
+class ListController {
+  int option = 0;
 }
 
 class SwitchController {

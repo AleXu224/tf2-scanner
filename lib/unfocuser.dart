@@ -2,27 +2,42 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class Unfocuser extends StatelessWidget {
-  const Unfocuser({required this.child});
+  const Unfocuser({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerUp: (e) {
+      onPointerDown: (e) {
         final rb = context.findRenderObject() as RenderBox;
         final result = BoxHitTestResult();
         rb.hitTest(result, position: e.position);
 
-        final hitTargetIsEditable =
-            result.path.any((entry) => entry.target is RenderEditable);
+        for (final e in result.path) {
+          if (e.target is RenderEditable || e.target is IgnoreUnfocuserRenderBox) {
+            return;
+          }
+        }
 
-        if (!hitTargetIsEditable) {
-          final currentFocus = FocusScope.of(context);
-          currentFocus.unfocus();
+        final primaryFocus = FocusManager.instance.primaryFocus;
+
+        if (primaryFocus!.context!.widget is EditableText) {
+          primaryFocus.unfocus();
         }
       },
       child: child,
     );
   }
 }
+
+class IgnoreUnfocuser extends SingleChildRenderObjectWidget {
+  IgnoreUnfocuser({required this.child}) : super(child: child);
+
+  final Widget child;
+
+  @override
+  IgnoreUnfocuserRenderBox createRenderObject(BuildContext context) => IgnoreUnfocuserRenderBox();
+}
+
+class IgnoreUnfocuserRenderBox extends RenderPointerListener {}
