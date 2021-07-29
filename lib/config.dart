@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bpscanner/widgets/loadingCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'utilities.dart';
 import 'globals.dart';
@@ -51,7 +52,9 @@ class Config {
 
     apiKey = prefs.getString("apiKey") ?? "";
     if (apiKey == "") {
-      // TODO: open options
+      Scanner.popupScreen = 0;
+      Scanner.showPopup = true;
+      States.setState();
     } else {
       fetchRequirements();
     }
@@ -80,27 +83,19 @@ class Config {
     untradable = Controllers.untradable.state;
     noValue = Controllers.noValue.state;
     skins = Controllers.skins.state;
-
-    groupScan = Controllers.group.state;
-    pagesScan = int.tryParse(Controllers.pages.controller.text) ?? 1;
-    pagesSkip = int.tryParse(Controllers.skip.controller.text) ?? 0;
   }
 
   setValues() {
-    Controllers.maxRef.controller.text = maxRef.toString();
-    Controllers.maxKeys.controller.text = maxKeys.toString();
-    Controllers.minRef.controller.text = minRef.toString();
-    Controllers.minKeys.controller.text = minKeys.toString();
-    Controllers.maxHistories.controller.text = maxHistory.toString();
-    Controllers.maxHours.controller.text = maxHours.toString();
+    Controllers.maxRef.controller.text = maxRef == -1 ? "" : maxRef.toString();
+    Controllers.maxKeys.controller.text = maxKeys == -1 ? "" : maxKeys.toString();
+    Controllers.minRef.controller.text = minRef == -1 ? "" : minRef.toString();
+    Controllers.minKeys.controller.text = minKeys == -1 ? "" : minKeys.toString();
+    Controllers.maxHistories.controller.text = maxHistory == -1 ? "" : maxHistory.toString();
+    Controllers.maxHours.controller.text = maxHours == -1 ? "" : maxHours.toString();
 
     Controllers.untradable.state = untradable;
     Controllers.noValue.state = noValue;
     Controllers.skins.state = skins;
-
-    Controllers.group.state = groupScan;
-    Controllers.pages.controller.text = pagesScan.toString();
-    Controllers.skip.controller.text = pagesSkip.toString();
   }
 
   initializeFiles() async {
@@ -119,10 +114,24 @@ class Config {
 
     Map<String, dynamic> skinsFile = json.decode(await File("skins.json").readAsString());
     this.skinsData = Skins(skinsFile);
-    print("A");
   }
 
   fetchRequirements() async {
+    // Initialize popup screen
+    Scanner.showPopup = true;
+    Scanner.popupScreen = 1;
+    Scanner.loadingData = [];
+
+    Controllers.schemaCard.isLoading = true;
+    Scanner.loadingData.insert(
+      0,
+      new LoadingCard(
+        controller: Controllers.schemaCard,
+        name: "Getting Item Schema",
+      ),
+    );
+    States.setState();
+
     File schemaFile = File("schema.json");
     bool schemaFileExists = await schemaFile.exists();
     if (!schemaFileExists) {
@@ -134,6 +143,13 @@ class Config {
         );
         // If response code wasn't 200 then try again
         if (!schemaJsonResponse.success) {
+          if (schemaJsonResponse.status == 403) {
+            Scanner.popupScreen = 0;
+            Scanner.showPopup = true;
+            States.setState();
+            showSnack(GlobalNav.navKey.currentContext!, "Api key was invalid. Make sure you typed it correctly and that there are no spaces");
+            return;
+          }
           await Future.delayed(Duration(seconds: 5));
           continue;
         }
@@ -149,7 +165,17 @@ class Config {
       }
       await schemaFile.writeAsString(jsonEncode(schema));
     }
+    Controllers.schemaCard.isLoading = false;
 
+    Controllers.bptfCard.isLoading = true;
+    Scanner.loadingData.insert(
+      0,
+      new LoadingCard(
+        controller: Controllers.bptfCard,
+        name: "Getting Bptf Prices",
+      ),
+    );
+    States.setState();
     File bptfFile = File("bptf.json");
     bool bptfFileExists = await bptfFile.exists();
     if (!bptfFileExists) {
@@ -164,7 +190,17 @@ class Config {
       var bptfSchema = jsonDecode(bptfSchemaResponse.body);
       await bptfFile.writeAsString(jsonEncode(bptfSchema));
     }
+    Controllers.bptfCard.isLoading = false;
 
+    Controllers.skinsCard.isLoading = true;
+    Scanner.loadingData.insert(
+      0,
+      new LoadingCard(
+        controller: Controllers.skinsCard,
+        name: "Getting Skins Data",
+      ),
+    );
+    States.setState();
     File skinsFile = File("skins.json");
     bool skinsFileExists = await skinsFile.exists();
     if (!skinsFileExists) {
@@ -179,7 +215,17 @@ class Config {
       var skinsPage = jsonDecode(skinsPageResponse.body);
       await skinsFile.writeAsString(jsonEncode(skinsPage));
     }
+    Controllers.skinsCard.isLoading = false;
 
+    Controllers.effectsCard.isLoading = true;
+    Scanner.loadingData.insert(
+      0,
+      new LoadingCard(
+        controller: Controllers.effectsCard,
+        name: "Getting Effects",
+      ),
+    );
+    States.setState();
     File effectsFile = File("effects.json");
     bool effectsFileExists = await effectsFile.exists();
     if (!effectsFileExists) {
@@ -194,6 +240,9 @@ class Config {
       var effectsJson = jsonDecode(effectsJsonResponse.body);
       await effectsFile.writeAsString(jsonEncode(effectsJson));
     }
+    Controllers.effectsCard.isLoading = false;
+    Scanner.showPopup = false;
+    States.setState();
 
     this.setValues();
     this.initializeFiles();

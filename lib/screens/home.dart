@@ -5,6 +5,7 @@ import 'package:bpscanner/widgets/userContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:bpscanner/globals.dart';
 import 'package:bpscanner/utilities.dart';
+import 'popup.dart';
 import 'options.dart';
 
 class Home extends StatefulWidget {
@@ -29,34 +30,41 @@ class _HomeState extends State<Home> {
       child: Scaffold(
         endDrawer: OptionsDrawer(),
         backgroundColor: ThemeColors.pD,
-        body: Column(
+        body: Stack(
           children: [
-            AppBarCustom(
-              leftButtons: [
-                AppBarButton(
-                  displayText: "Start Scan",
-                  // TODO: start scan
-                  action: () {},
+            // Main content
+            Column(
+              children: [
+                AppBarCustom(
+                  leftButtons: [
+                    AppBarButton(
+                      displayText: "Start Scan",
+                      // TODO: start scan
+                      action: () {},
+                    ),
+                  ],
+                  rightButtons: [
+                    Builder(builder: (context) {
+                      return AppBarButton(
+                        displayText: "Options",
+                        action: () {
+                          Scaffold.of(context).openEndDrawer();
+                        },
+                      );
+                    }),
+                  ],
+                ),
+                Expanded(
+                  child: Scrollbar(
+                    child: ListView(
+                      children: Scanner.users,
+                    ),
+                  ),
                 ),
               ],
-              rightButtons: [
-                Builder(builder: (context) {
-                  return AppBarButton(
-                    displayText: "Options",
-                    action: () {
-                      Scaffold.of(context).openEndDrawer();
-                    },
-                  );
-                }),
-              ],
             ),
-            Expanded(
-              child: Scrollbar(
-                child: ListView(
-                  children: Scanner.users,
-                ),
-              ),
-            ),
+            // Loading screen
+            PopupScreen(),
           ],
         ),
       ),

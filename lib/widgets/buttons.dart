@@ -109,3 +109,62 @@ class _AppBarButtonState extends State<AppBarButton> {
     );
   }
 }
+
+class OptionsButton extends StatefulWidget {
+  final String name;
+  final Function action;
+  final bool isImportant;
+  const OptionsButton({Key? key, required this.name, required this.action, this.isImportant: false}) : super(key: key);
+
+  @override
+  _OptionsButtonState createState() => _OptionsButtonState();
+}
+
+class _OptionsButtonState extends State<OptionsButton> {
+  Color b = ThemeColors.pL;
+  Color t = ThemeColors.t;
+  @override
+  void initState() {
+    super.initState();
+    b = widget.isImportant ? ThemeColors.e : ThemeColors.pL;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        widget.action();
+      },
+      child: MouseRegion(
+        onEnter: (e) {
+          b = widget.isImportant ? ThemeColors.eL : ThemeColors.s;
+          t = widget.isImportant ? ThemeColors.tL : ThemeColors.p;
+          setState(() {});
+        },
+        onExit: (e) {
+          b = widget.isImportant ? ThemeColors.e : ThemeColors.pL;
+          t = ThemeColors.t;
+          setState(() {});
+        },
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 100),
+          height: 32,
+          margin: EdgeInsets.only(top: 16, left: 16, right: 16),
+          decoration: BoxDecoration(
+            color: b,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Center(
+            child: Text(
+              widget.name,
+              style: TextStyle(
+                color: t,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

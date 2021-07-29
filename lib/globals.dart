@@ -3,20 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:bpscanner/widgets/userContainer.dart';
 
 class ThemeColors {
-  static Color primary = Color(0xFF2D2E33);
-  static Color primaryDark = Color(0xFF202124);
-  static Color primaryDarkMid = Color(0xFF27282C);
-  static Color secondary = Color(0xFF5D5DF2);
-  static Color secondaryDark = Color(0xFF4E4ECC);
-  static Color secondaryLight = Color(0xFF6161FF);
-  static Color textInputBackground = Color(0xFF37383D);
-  static Color textInputBackgroundHover = Color(0xFF424247);
-
   static Color p = Color(0xFF212121);
   static Color pL = Color(0xFF2C2C2C);
   static Color pD = Color(0xFF0D0D0D);
   static Color s = Color(0xFF23C681);
   static Color t = Color(0xFFB8B8B8);
+  static Color tL = Color(0xFFFFFFFF);
+  static Color e = Color(0xFFB22D2D);
+  static Color eL = Color(0xFFE63939);
 }
 
 class GlobalNav {
@@ -29,6 +23,7 @@ class States {
 }
 
 class Controllers {
+  static ListController scanMode = new ListController();
   static TextController maxRef = new TextController();
   static TextController maxKeys = new TextController();
   static TextController minRef = new TextController();
@@ -38,12 +33,13 @@ class Controllers {
   static SwitchController untradable = new SwitchController();
   static SwitchController noValue = new SwitchController();
   static SwitchController skins = new SwitchController();
-  static SwitchController group = new SwitchController();
-  static TextController pages = new TextController();
-  static TextController skip = new TextController();
   static TextController scanSettingsInput = new TextController();
   static TextController apiKey = new TextController();
-  static ListController scanMode = new ListController();
+
+  static LoadingCardController schemaCard = new LoadingCardController();
+  static LoadingCardController bptfCard = new LoadingCardController();
+  static LoadingCardController skinsCard = new LoadingCardController();
+  static LoadingCardController effectsCard = new LoadingCardController();
 }
 
 class ListController {
@@ -58,7 +54,14 @@ class TextController {
   TextEditingController controller = new TextEditingController();
 }
 
+class LoadingCardController {
+  bool isLoading = true;
+}
+
 class Scanner {
   static Config config = new Config();
   static List<UserContainer> users = [];
+  static bool showPopup = false;
+  static int popupScreen = 0;
+  static List<Widget> loadingData = [];
 }

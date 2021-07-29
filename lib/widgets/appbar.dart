@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:bpscanner/globals.dart';
-import 'buttons.dart';
 
 class AppBarCustom extends StatelessWidget {
   final List<Widget>? leftButtons;

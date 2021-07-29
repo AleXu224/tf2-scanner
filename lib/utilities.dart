@@ -10,8 +10,7 @@ void changeScreen(Widget newScreen) {
         return newScreen;
       },
       transitionDuration: Duration(milliseconds: 200),
-      transitionsBuilder: (BuildContext context, Animation<double> animation,
-          Animation<double> secondAnimation, Widget child) {
+      transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondAnimation, Widget child) {
         var begin = Offset(-1.0, 0.0);
         var end = Offset.zero;
         var tween = Tween(begin: begin, end: end);
@@ -21,6 +20,21 @@ void changeScreen(Widget newScreen) {
           child: child,
         );
       },
+    ),
+  );
+}
+
+void showSnack(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: TextStyle(
+          color: ThemeColors.t,
+          fontSize: 14,
+        ),
+      ),
+      backgroundColor: ThemeColors.p,
     ),
   );
 }
