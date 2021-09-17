@@ -1,4 +1,5 @@
 import 'package:bpscanner/config.dart';
+import 'package:bpscanner/scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:bpscanner/widgets/userContainer.dart';
 
@@ -58,10 +59,11 @@ class LoadingCardController {
   bool isLoading = true;
 }
 
-class Scanner {
+class App {
   static Config config = new Config();
   static List<UserContainer> users = [];
   static bool showPopup = false;
   static int popupScreen = 0;
   static List<Widget> loadingData = [];
+  static Scanner scanner = new Scanner();
 }

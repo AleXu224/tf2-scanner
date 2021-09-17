@@ -39,7 +39,7 @@ class UserContainer extends StatelessWidget {
                     bottom: 16,
                   ),
                   child: UserButton(Icons.close, "Remove user", () {
-                    Scanner.users = Scanner.users.where((e) => e.id != id).toList();
+                    App.users = App.users.where((e) => e.id != id).toList();
                     States.setState();
                   }),
                 ),

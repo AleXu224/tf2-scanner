@@ -74,7 +74,7 @@ class OptionsContent extends StatelessWidget {
                     return;
                   }
 
-                  Scanner.config.saveApiKey();
+                  App.config.saveApiKey();
                 },
               ),
               OptionsButton(
@@ -83,7 +83,7 @@ class OptionsContent extends StatelessWidget {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
                   Navigator.pop(context);
-                  Scanner.config.init();
+                  App.config.init();
                 },
                 isImportant: true,
               ),
@@ -106,6 +106,7 @@ class _OptionsInputState extends State<OptionsInput> {
   String h = "If you see this message then something went really wrong";
   FocusNode _focus = new FocusNode();
   BoxBorder b = Border.all(color: ThemeColors.pL, width: 2);
+  int prevScanMode = Controllers.scanMode.option;
   @override
   void initState() {
     super.initState();
@@ -128,10 +129,8 @@ class _OptionsInputState extends State<OptionsInput> {
         break;
       case 1:
         h = "Group link";
-        Controllers.scanSettingsInput.controller.text = Controllers.scanSettingsInput.controller.value.text.replaceAll("\n", " ");
         break;
       case 2:
-        Controllers.scanSettingsInput.controller.text = Controllers.scanSettingsInput.controller.value.text.replaceAll("\n", " ");
         h = "Profile link";
         break;
     }

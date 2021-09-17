@@ -17,8 +17,8 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    Scanner.config.init();
-    Scanner.users = List.generate(50, (index) => UserContainer());
+    App.config.init();
+    App.users = List.generate(50, (index) => UserContainer());
     States.setState = () {
       setState(() {});
     };
@@ -37,11 +37,14 @@ class _HomeState extends State<Home> {
               children: [
                 AppBarCustom(
                   leftButtons: [
-                    AppBarButton(
-                      displayText: "Start Scan",
-                      // TODO: start scan
-                      action: () {},
-                    ),
+                    Builder(builder: (context) {
+                      return AppBarButton(
+                        displayText: "Start Scan",
+                        action: () {
+                          App.scanner.scan(context);
+                        },
+                      );
+                    }),
                   ],
                   rightButtons: [
                     Builder(builder: (context) {
@@ -57,7 +60,7 @@ class _HomeState extends State<Home> {
                 Expanded(
                   child: Scrollbar(
                     child: ListView(
-                      children: Scanner.users,
+                      children: App.users,
                     ),
                   ),
                 ),

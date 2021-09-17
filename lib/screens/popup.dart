@@ -17,8 +17,8 @@ class _PopupScreenState extends State<PopupScreen> {
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: Scanner.showPopup,
-      child: Scanner.popupScreen == 0 ? ApiKeyInput() : LoadingScreen(),
+      visible: App.showPopup,
+      child: App.popupScreen == 0 ? ApiKeyInput() : LoadingScreen(),
     );
   }
 }
@@ -41,16 +41,16 @@ class _LoadingScreenState extends State<LoadingScreen> {
           Container(
             child: CircularProgressIndicator(
               color: ThemeColors.s,
-              value: Scanner.loadingData.length / 4,
+              value: App.loadingData.length / 4,
             ),
           ),
           Expanded(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: 304),
               child: ListView.builder(
-                itemCount: Scanner.loadingData.length,
+                itemCount: App.loadingData.length,
                 itemBuilder: (context, i) {
-                  return Scanner.loadingData[i];
+                  return App.loadingData[i];
                 },
               ),
             ),
@@ -94,7 +94,7 @@ class ApiKeyInput extends StatelessWidget {
                       return;
                     }
 
-                    Scanner.config.saveApiKey();
+                    App.config.saveApiKey();
                   },
                 ),
               ],

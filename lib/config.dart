@@ -46,14 +46,10 @@ class Config {
     noValue = prefs.getBool("noValue") ?? false;
     skins = prefs.getBool("skins") ?? true;
 
-    groupScan = prefs.getBool("groupScan") ?? true;
-    pagesScan = prefs.getInt("pagesScan") ?? 1;
-    pagesSkip = prefs.getInt("pagesSkip") ?? 0;
-
     apiKey = prefs.getString("apiKey") ?? "";
     if (apiKey == "") {
-      Scanner.popupScreen = 0;
-      Scanner.showPopup = true;
+      App.popupScreen = 0;
+      App.showPopup = true;
       States.setState();
     } else {
       fetchRequirements();
@@ -118,12 +114,12 @@ class Config {
 
   fetchRequirements() async {
     // Initialize popup screen
-    Scanner.showPopup = true;
-    Scanner.popupScreen = 1;
-    Scanner.loadingData = [];
+    App.showPopup = true;
+    App.popupScreen = 1;
+    App.loadingData = [];
 
     Controllers.schemaCard.isLoading = true;
-    Scanner.loadingData.insert(
+    App.loadingData.insert(
       0,
       new LoadingCard(
         controller: Controllers.schemaCard,
@@ -144,8 +140,8 @@ class Config {
         // If response code wasn't 200 then try again
         if (!schemaJsonResponse.success) {
           if (schemaJsonResponse.status == 403) {
-            Scanner.popupScreen = 0;
-            Scanner.showPopup = true;
+            App.popupScreen = 0;
+            App.showPopup = true;
             States.setState();
             showSnack(GlobalNav.navKey.currentContext!, "Api key was invalid. Make sure you typed it correctly and that there are no spaces");
             return;
@@ -168,7 +164,7 @@ class Config {
     Controllers.schemaCard.isLoading = false;
 
     Controllers.bptfCard.isLoading = true;
-    Scanner.loadingData.insert(
+    App.loadingData.insert(
       0,
       new LoadingCard(
         controller: Controllers.bptfCard,
@@ -193,7 +189,7 @@ class Config {
     Controllers.bptfCard.isLoading = false;
 
     Controllers.skinsCard.isLoading = true;
-    Scanner.loadingData.insert(
+    App.loadingData.insert(
       0,
       new LoadingCard(
         controller: Controllers.skinsCard,
@@ -218,7 +214,7 @@ class Config {
     Controllers.skinsCard.isLoading = false;
 
     Controllers.effectsCard.isLoading = true;
-    Scanner.loadingData.insert(
+    App.loadingData.insert(
       0,
       new LoadingCard(
         controller: Controllers.effectsCard,
@@ -241,7 +237,7 @@ class Config {
       await effectsFile.writeAsString(jsonEncode(effectsJson));
     }
     Controllers.effectsCard.isLoading = false;
-    Scanner.showPopup = false;
+    App.showPopup = false;
     States.setState();
 
     this.setValues();

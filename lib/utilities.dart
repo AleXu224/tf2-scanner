@@ -50,16 +50,23 @@ Future<FetchResponse> fetch({required String url}) async {
     success: success,
     status: request.statusCode,
     body: response,
+    request: request,
   );
+}
+
+List<String> regExpAll(RegExp exp, String search) {
+  return exp.allMatches(search).map((e) => search.substring(e.start, e.end)).toList();
 }
 
 class FetchResponse {
   bool success;
   int status;
   String body;
+  Response request;
   FetchResponse({
     required this.success,
     required this.status,
     required this.body,
+    required this.request,
   });
 }

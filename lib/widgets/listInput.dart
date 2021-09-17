@@ -70,6 +70,8 @@ class _ListInputButtonState extends State<ListInputButton> {
       child: GestureDetector(
         onTap: () {
           widget.controller.option = widget.index;
+          Controllers.scanSettingsInput.controller.text = "";
+          Controllers.scanSettingsInput.controller.selection = TextSelection.collapsed(offset: 0);
           States.setState();
         },
         child: MouseRegion(
