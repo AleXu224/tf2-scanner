@@ -9,7 +9,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 class UserContainer extends StatelessWidget {
   UserContainer({Key? key}) : super(key: key);
 
-  final String id = base64Encode(List<int>.generate(32, (index) => Random().nextInt(255)));
+  final String id =
+      base64Encode(List<int>.generate(32, (index) => Random().nextInt(255)));
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +108,8 @@ class InfoCard extends StatelessWidget {
 class UserAvatar extends StatelessWidget {
   final String avatarUrl;
   final String name;
-  const UserAvatar({Key? key, required this.avatarUrl, required this.name}) : super(key: key);
+  const UserAvatar({Key? key, required this.avatarUrl, required this.name})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

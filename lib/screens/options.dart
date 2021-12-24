@@ -42,7 +42,7 @@ class OptionsContent extends StatelessWidget {
               ListView(
                 controller: ScrollController(),
                 children: [
-                  ListInput(labelText: "Scan Mode", controller: Controllers.scanMode, options: ["Server", "Group", "Scrape"]),
+                  ListInput(labelText: "Scan Mode", controller: Controllers.scanMode, options: ["Server", "Group", "Friendlist"]),
                   TextInput(labelText: "Max Refined", controller: Controllers.maxRef),
                   TextInput(labelText: "Max Keys", controller: Controllers.maxKeys),
                   TextInput(labelText: "Min Refined", controller: Controllers.minRef),

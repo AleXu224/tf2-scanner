@@ -41,6 +41,13 @@ class Controllers {
   static LoadingCardController bptfCard = new LoadingCardController();
   static LoadingCardController skinsCard = new LoadingCardController();
   static LoadingCardController effectsCard = new LoadingCardController();
+
+  static ScanStatusController scanStatus = new ScanStatusController();
+}
+
+class ScanStatusController {
+  String status = "";
+  Function() redraw = () {};
 }
 
 class ListController {
@@ -60,6 +67,7 @@ class LoadingCardController {
 }
 
 class App {
+  static List<int> timestamps = [];
   static Config config = new Config();
   static List<UserContainer> users = [];
   static bool showPopup = false;

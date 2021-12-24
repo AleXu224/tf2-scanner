@@ -70,3 +70,26 @@ class FetchResponse {
     required this.request,
   });
 }
+
+class RequestLimiter {
+  static List<int> requestQueue = [];
+  // The ammount of requests allowed per second
+  static int requestLimit = 30;
+
+  // Returns the time until a request can be made
+  // requestQueue stores the timestamps at which requests are going to be made
+  // Only 30 requests per minute
+  static int nextRequestTime() {
+    RequestLimiter.cleanRequestQueue();
+    int now = DateTime.now().millisecondsSinceEpoch;
+    int nextRequest = 0;
+    if (RequestLimiter.requestQueue.length != 0) nextRequest = RequestLimiter.requestQueue.last - now + (60 / requestLimit * 1000).round();
+    RequestLimiter.requestQueue.add(now + nextRequest);
+    return nextRequest;
+  }
+
+  // Cleans the requestQueue
+  static void cleanRequestQueue() {
+    RequestLimiter.requestQueue.removeWhere((e) => e < DateTime.now().millisecondsSinceEpoch - (60 / requestLimit * 1000).round());
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:bpscanner/unfocuser.dart';
 import 'package:bpscanner/widgets/buttons.dart';
 import 'package:bpscanner/widgets/appbar.dart';
+import 'package:bpscanner/widgets/scanStatus.dart';
 import 'package:bpscanner/widgets/userContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:bpscanner/globals.dart';
@@ -39,9 +40,17 @@ class _HomeState extends State<Home> {
                   leftButtons: [
                     Builder(builder: (context) {
                       return AppBarButton(
-                        displayText: "Start Scan",
+                        displayText: App.scanner.isScanning
+                            ? App.scanner.stopScanning
+                                ? "Stopping scan..."
+                                : "Stop scan"
+                            : "Start scan",
                         action: () {
-                          App.scanner.scan(context);
+                          if (App.scanner.isScanning) {
+                            App.scanner.stopScan();
+                          } else {
+                            App.scanner.scan(context);
+                          }
                         },
                       );
                     }),
@@ -68,6 +77,15 @@ class _HomeState extends State<Home> {
             ),
             // Loading screen
             PopupScreen(),
+            if (App.scanner.isScanning)
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: ScanStatus(),
+                ),
+              ),
           ],
         ),
       ),
