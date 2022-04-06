@@ -8,22 +8,11 @@ class Unfocuser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (e) {
-        final rb = context.findRenderObject() as RenderBox;
-        final result = BoxHitTestResult();
-        rb.hitTest(result, position: e.position);
-
-        for (final e in result.path) {
-          if (e.target is RenderEditable || e.target is IgnoreUnfocuserRenderBox) {
-            return;
-          }
-        }
-
-        final primaryFocus = FocusManager.instance.primaryFocus;
-
-        if (primaryFocus!.context!.widget is EditableText) {
-          primaryFocus.unfocus();
+    return GestureDetector(
+      onTap: (){
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
         }
       },
       child: child,
@@ -37,7 +26,8 @@ class IgnoreUnfocuser extends SingleChildRenderObjectWidget {
   final Widget child;
 
   @override
-  IgnoreUnfocuserRenderBox createRenderObject(BuildContext context) => IgnoreUnfocuserRenderBox();
+  IgnoreUnfocuserRenderBox createRenderObject(BuildContext context) =>
+      IgnoreUnfocuserRenderBox();
 }
 
 class IgnoreUnfocuserRenderBox extends RenderPointerListener {}
