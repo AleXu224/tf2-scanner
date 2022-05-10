@@ -18,7 +18,7 @@ target_include_directories(imgui PUBLIC imgui/backends)
 add_subdirectory(glfw)
 include_directories(glfw/include)
 
-add_executable(bpscanner main.cpp)
+add_executable(bpscanner main.cpp fonts/Roboto.cpp fonts/MaterialIcons.cpp components/TopBar.hpp components/TopBar.cpp components/StatsInfo.cpp components/StatsInfo.hpp globals.hpp components/MainBody.cpp components/MainBody.hpp globals.cpp components/SideBar.cpp components/SideBar.hpp)
 
 target_link_libraries(bpscanner PRIVATE imgui)
 target_link_libraries(bpscanner PRIVATE glfw)
