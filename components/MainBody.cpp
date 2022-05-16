@@ -22,7 +22,6 @@ struct ButtonStatus {
 };
 
 bool UserButton(const std::string &value) {
-    // TODO: make this be able to display icons
     // Invisible button and size calculation
     ImVec2 size = CalcTextSize(value.c_str(), nullptr, true);
     bool returnValue = InvisibleButton(value.c_str(), ImVec2(32, 32));
@@ -34,7 +33,6 @@ bool UserButton(const std::string &value) {
     ImGuiIO &io = ImGui::GetIO();
     ImVec4 buttonColor;
     ImVec4 textColor;
-    // TODO: check if cursor is also on screen
     if (IsItemHovered()) {
         buttons[id].progress += io.DeltaTime * (1.0f / 0.2f);
         if (buttons[id].progress > 1.0f) {

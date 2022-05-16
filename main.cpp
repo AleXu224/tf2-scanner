@@ -4,12 +4,12 @@
 #include "imgui_impl_opengl3_loader.h"
 #include <GLFW/glfw3.h>
 
+#include "globals.hpp"
+
 #include "components/TopBar.hpp"
 #include "components/StatsInfo.hpp"
 #include "components/MainBody.hpp"
 #include "components/SideBar.hpp"
-
-#include "globals.hpp"
 
 #include "fonts/Roboto.cpp"
 #include "fonts/MaterialIcons.cpp"
@@ -32,6 +32,7 @@ int main(int, char**)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -45,7 +46,7 @@ int main(int, char**)
     ImFontGlyphRangesBuilder icons_builder;
     icons_builder.AddChar(0xe145); // add icon
     icons_builder.AddChar(0xe1a1); // inventory icon
-    icons_builder.AddChar(0xe5cd); // close button
+    icons_builder.AddChar(0xe5cd); // close icon
     icons_builder.BuildRanges(&icons_ranges);
     ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(MaterialIcons_compressed_data, MaterialIcons_compressed_size, 24.0f, &icons_config, icons_ranges.Data));
@@ -54,19 +55,24 @@ int main(int, char**)
     style.FrameBorderSize = 0.0f;
     style.WindowBorderSize = 0.0f;
 
+    GLOBALS::scanner.config.fetchRequirements();
+
     bool show_stats = false;
     bool show_demo_window = false;
-    bool show_sidebar = false;
+    bool show_console = false;
 
     while (!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
         if (ImGui::IsKeyPressed(GLFW_KEY_F12) && !io.WantCaptureKeyboard) {
             show_stats = !show_stats;
         }
         if (ImGui::IsKeyPressed(GLFW_KEY_GRAVE_ACCENT) && !io.WantCaptureKeyboard) {
             show_demo_window = !show_demo_window;
         }
-        glfwPollEvents();
+        if (ImGui::IsKeyPressed(GLFW_KEY_F1) && !io.WantCaptureKeyboard) {
+            show_console = !show_console;
+        }
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -74,9 +80,10 @@ int main(int, char**)
 
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
+        ConsoleWindow(show_console);
         StatsInfo(&show_stats);
-        SideBar(show_sidebar);
-        TopBar(show_sidebar);
+        SideBar();
+        TopBar();
         MainBody();
 
         // Rendering

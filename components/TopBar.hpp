@@ -5,6 +5,6 @@
 #ifndef RAYLIBTESTING_TOPBAR_HPP
 #define RAYLIBTESTING_TOPBAR_HPP
 
-void TopBar(bool &show_sidebar);
+void TopBar();
 
 #endif //RAYLIBTESTING_TOPBAR_HPP

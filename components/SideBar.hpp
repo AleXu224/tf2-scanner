@@ -6,7 +6,7 @@
 #define RAYLIBTESTING_SIDEBAR_HPP
 
 
-void SideBar(bool &show);
+void SideBar();
 
 
 #endif //RAYLIBTESTING_SIDEBAR_HPP

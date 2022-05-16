@@ -7,6 +7,8 @@
 
 #include "imgui.h"
 #include "vector"
+#include "scanning/Scanner.hpp"
+#include "components/Console.hpp"
 
 #define FLAGS 8455
 //ImGuiWindowFlags window_flags = 0;
@@ -23,16 +25,17 @@ public:
     constexpr static ImVec4 BACKGROUND = ImVec4(13.0f/255, 13.0f/255, 13.0f/255, 1.0f);
     constexpr static ImVec4 TEXT = ImVec4(184.0f/255, 184.0f/255, 184.0f/255, 1.0f);
     constexpr static ImVec4 SECONDARY = ImVec4(35.0f/255, 198.0f/255, 129.0f/255, 1.0f);
+
 };
 
 class GLOBALS {
 public:
     static std::vector<ImFont*> FONTS;
-//    static ImFont* FONTS[3];
+    static Console console;
+    static Scanner scanner;
 };
 
 float BezierBlend(float t);
-
 
 #define ROBOTO_12 0
 #define ROBOTO_10 1

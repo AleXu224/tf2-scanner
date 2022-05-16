@@ -27,7 +27,6 @@ bool TopBarButton(const std::string& value) {
     ImGuiIO &io = ImGui::GetIO();
     ImVec4 buttonColor;
     ImVec4 textColor;
-    // TODO: check if cursor is on screen
     if (IsItemHovered()) {
         buttons[id].progress += io.DeltaTime * (1.0f / 0.2f);
         if (buttons[id].progress > 1.0f) {
@@ -57,7 +56,7 @@ bool TopBarButton(const std::string& value) {
     return returnValue;
 }
 
-void TopBar(bool &show_sidebar) {
+void TopBar() {
     // Styling
     PushStyleColor(ImGuiCol_WindowBg, COLORS::PRIMARY);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
@@ -79,7 +78,7 @@ void TopBar(bool &show_sidebar) {
     TopBarButton("Scan");
     SameLine(GetIO().DisplaySize.x - 16 * 2 - CalcTextSize("Settings").x);
     if (TopBarButton("Settings")) {
-        show_sidebar = true;
+        GLOBALS::scanner.showDrawer = true;
     }
     End();
 

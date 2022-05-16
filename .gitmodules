@@ -4,3 +4,9 @@
 [submodule "glfw"]
 	path = glfw
 	url = https://github.com/glfw/glfw
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json
+[submodule "cpr"]
+	path = cpr
+	url = https://github.com/libcpr/cpr
