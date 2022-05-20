@@ -123,7 +123,7 @@ Item::Item(JsonInventory::InventoryDescription &itemData)
     if (itemData.descriptions) {
         for (auto &description : *itemData.descriptions) {
             if (quality == QUALITY::UNUSUAL && description.value.find("★ Unusual Effect: ") != std::string::npos) {
-                effectName = description.value.substr(description.value.find("★ Unusual Effect: ") + 19);
+                effectName = description.value.substr(description.value.find("Unusual Effect: ") + 16);
                 effectID = GLOBALS::scanner.config.itemEffects.at(effectName);
                 if (effectID == -1) {
                     consoleLog("Couldn't find effect: " + effectName, SEVERITY::ERR);
@@ -139,7 +139,7 @@ Item::Item(JsonInventory::InventoryDescription &itemData)
 
     // Check for secondary quality
     for (auto &qualityID : QUALITY_STRINGS) {
-        if (workingName.find(qualityID.second) != std::string::npos) {
+        if (workingName.find(qualityID.second + " ") != std::string::npos) {
             qualitySecondary = qualityID.first;
             workingName.replace(workingName.find(qualityID.second + " "), qualityID.second.length() + 1, "");
         }
@@ -151,16 +151,15 @@ Item::Item(JsonInventory::InventoryDescription &itemData)
         // But it does support lookaheads, so we can just reverse the name
         std::regex crateRegex("[0-9]+(?=# )");
 
-        std::reverse(workingName.begin(), workingName.end());
+        std::string reversedString = workingName;
+        std::reverse(reversedString.begin(), reversedString.end());
         std::smatch match;
-        bool found = std::regex_search(workingName, match, crateRegex);
-        std::reverse(workingName.begin(), workingName.end());
 
-        if (found) {
+        if (std::regex_search(reversedString, match, crateRegex)) {
             std::string crateIDstr = match.str();
             std::reverse(crateIDstr.begin(), crateIDstr.end());
             crateID = std::stoi(crateIDstr);
-            workingName.replace(workingName.find(" #" + match.str()), match.str().length() + 2, "");
+            workingName.replace(workingName.find(" Series #" + crateIDstr), crateIDstr.length() + 9, "");
         }
     }
 

@@ -59,8 +59,6 @@ int main(int, char**)
 
     GLOBALS::scanner.config.fetchRequirements();
 
-    auto response = cpr::Get(cpr::Url{"https://api.github.com/repos/matthew-d-brown/wew/releases/latest"});
-
     bool show_stats = false;
     bool show_demo_window = false;
     bool show_console = false;
