@@ -9,6 +9,7 @@
 #include "vector"
 #include "scanning/Scanner.hpp"
 #include "components/Console.hpp"
+#include "string"
 
 #define FLAGS 8455
 //ImGuiWindowFlags window_flags = 0;
@@ -34,6 +35,11 @@ public:
     static Console console;
     static Scanner scanner;
 };
+
+#define CURRENCY_SCRAP "Scrap Metal"
+#define CURRENCY_RECLAIMED "Reclaimed Metal"
+#define CURRENCY_REFINED "Refined Metal"
+#define CURRENCY_KEY "Mann Co. Supply Crate Key"
 
 float BezierBlend(float t);
 

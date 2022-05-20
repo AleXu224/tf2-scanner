@@ -8,51 +8,58 @@
 #include <string>
 #include <vector>
 #include <imgui.h>
+#include <iostream>
+#include <../scanning/Player.hpp>
+#include <../scanning/Inventory.hpp>
+#include <../scanning/Item.hpp>
 
-struct TYPES {
-    static constexpr int STRING = 0;
+enum TYPES {
+    STRING = 0,
+    PLAYER = 1,
+    INVENTORY = 2,
+    ITEM = 3
 };
 
-struct SEVERITY {
-    static constexpr int INFO = 0;
-    static constexpr int WARNING = 1;
-    static constexpr int ERR = 2;
+enum SEVERITY {
+    INFO = 0,
+    WARNING = 1,
+    ERR = 2
 };
 
-class ConsoleOutput {
+class Output {
 public:
-    int type = 0;
-    int severity = 0;
+    TYPES type = STRING;
+    SEVERITY severity = INFO;
     std::string message;
+    int index;
+
+    Output(std::string message, SEVERITY severity) {
+        this->message = message;
+        this->severity = severity;
+    }
+
+    Output(int arrayPos, TYPES type) {
+        this->type = type;
+        this->index = arrayPos;
+    }
 };
 
 class Console {
 public:
-    std::vector<ConsoleOutput> output;
+    std::vector<Output> output;
+    std::vector<Player> playerList;
+    std::vector<Inventory> inventoryList;
+    std::vector<Item> itemList;
 
-    void addOutput(std::string message, int severity = 0) {
-        ConsoleOutput outputMessage;
-        outputMessage.type = TYPES::STRING;
-        outputMessage.severity = severity;
-        outputMessage.message = message;
-        this->output.push_back(outputMessage);
-    }
+    void addOutput(std::string message, SEVERITY severity = INFO);
+    void addOutput(Player &player);
+    void addOutput(Inventory &inventory);
+    void addOutput(Item &item);
+    
+    // void addOutput(Inventory inventory, int severity = 0);
+    // void addOutput(Item item, int severity = 0);
 
-    void printOutput() {
-        for (auto &outputMessage : this->output) {
-            if (outputMessage.type == TYPES::STRING) {
-                if (outputMessage.severity == SEVERITY::ERR) {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(219.0f/255, 67.0f/255, 67.0f/255, 1.0f));
-                } else if (outputMessage.severity == SEVERITY::WARNING) {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(235.0f/255, 214.0f/255, 116.0f/255, 1.0f));
-                }
-
-                ImGui::Text(outputMessage.message.c_str());
-
-                if (outputMessage.severity != SEVERITY::INFO) ImGui::PopStyleColor();
-            }
-        }
-    }
+    void printOutput();
 };
 
 void ConsoleWindow(bool &showConsole);

@@ -23,10 +23,15 @@ add_subdirectory(json)
 include_directories(json/include)
 
 # CPR
-add_subdirectory(cpr)
-include_directories(cpr/include)
+#add_subdirectory(cpr)
+#include_directories(cpr/include)
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
+        GIT_TAG ee7f91f5566b6279aadf6d0b1aaf56b11963f527) # The commit hash for 1.8.2. Replace with the latest from: https://github.com/libcpr/cpr/releases
+FetchContent_MakeAvailable(cpr)
 
-add_executable(bpscanner main.cpp fonts/Roboto.cpp fonts/MaterialIcons.cpp components/TopBar.hpp components/TopBar.cpp components/StatsInfo.cpp components/StatsInfo.hpp globals.hpp components/MainBody.cpp components/MainBody.hpp globals.cpp components/SideBar.cpp components/SideBar.hpp scanning/user.cpp scanning/user.hpp scanning/Scanner.cpp scanning/Scanner.hpp scanning/Config.cpp scanning/Config.hpp components/Console.cpp components/Console.hpp json_schemas/Schema.hpp)
+
+add_executable(bpscanner main.cpp fonts/Roboto.cpp fonts/MaterialIcons.cpp components/TopBar.hpp components/TopBar.cpp components/StatsInfo.cpp components/StatsInfo.hpp globals.hpp components/MainBody.cpp components/MainBody.hpp globals.cpp components/SideBar.cpp components/SideBar.hpp scanning/user.cpp scanning/user.hpp scanning/Scanner.cpp scanning/Scanner.hpp scanning/Config.cpp scanning/Config.hpp components/Console.cpp components/Console.hpp json_schemas/Schema.hpp json_schemas/Prices.hpp json_schemas/Skins.hpp json_schemas/Effects.hpp scanning/Player.hpp scanning/Player.cpp scanning/Inventory.hpp scanning/Inventory.cpp scanning/Item.hpp scanning/Item.cpp json_schemas/PlayerData.hpp json_schemas/InventoryData.hpp)
 
 target_link_libraries(bpscanner PRIVATE imgui)
 target_link_libraries(bpscanner PRIVATE glfw)

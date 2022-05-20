@@ -2,6 +2,7 @@
 #include "../globals.hpp"
 #include "imgui.h"
 #include "string"
+#include "thread"
 
 using namespace ImGui;
 
@@ -44,7 +45,7 @@ void SideBarMenu() {
     CustomIntInput("Max history", GLOBALS::scanner.config.maxHistory);
 
     SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
-    InputText("API Key", GLOBALS::scanner.config.apikey, 32);
+    InputText("API Key", GLOBALS::scanner.config.apikey, 33);
 
     SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
     Checkbox("Untradable", &GLOBALS::scanner.config.untradable);
@@ -52,6 +53,38 @@ void SideBarMenu() {
     Checkbox("No Value", &GLOBALS::scanner.config.noValue);
     SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
     Checkbox("Skins", &GLOBALS::scanner.config.skins);
+
+    if(Button("Load requirements")) {
+        // run fetchRequirements in a different thread without blocking the main thread
+        std::thread t1([]() {
+            GLOBALS::scanner.config.fetchRequirements();
+        });
+        t1.detach();
+        // std::thread t(&Config::fetchRequirements, &GLOBALS::scanner.config);
+        // t.join();
+        // GLOBALS::scanner.config.fetchRequirements();
+    }
+
+    if (Button("Init")) {
+        std::thread t1([]() {
+            GLOBALS::scanner.config.init();
+        });
+        t1.detach();
+    }
+
+    if (Button("\"Scan\"")) {
+        std::thread t1([]() {
+            GLOBALS::scanner.Scan();
+        });
+        t1.detach();
+    }
+
+    if (Button("Clean memory")) {
+        GLOBALS::scanner.config.itemSchema.clear();
+        GLOBALS::scanner.config.itemPrices = JsonPrices::Pricelist();
+        GLOBALS::scanner.config.skinsData = JsonSkins::Skins();
+        GLOBALS::scanner.config.itemEffects = JsonEffects::Effects();
+    }
 
     EndChild();
 
@@ -82,7 +115,11 @@ void SideBar() {
     SetNextWindowPos(ImVec2(0, 0));
 
     Begin("SideBar", nullptr, (FLAGS | ImGuiWindowFlags_NoScrollWithMouse) - ImGuiWindowFlags_NoFocusOnAppearing);
-    if (InvisibleButton("SideBarBg", ImVec2(io.DisplaySize.x - SidebarWidth * BezierBlend(progress), io.DisplaySize.y))) {
+    ImVec2 buttonSize = ImVec2(io.DisplaySize.x - SidebarWidth * BezierBlend(progress), io.DisplaySize.y);
+    // This is so the program doesn't crash when the window is minimized
+    if (buttonSize.x <= 0) buttonSize.x = 1;
+    if (buttonSize.y <= 0) buttonSize.y = 1;
+    if (InvisibleButton("SideBarBg", buttonSize)) {
         GLOBALS::scanner.showDrawer = false;
     }
     SameLine();

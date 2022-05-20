@@ -6,10 +6,15 @@
 #define BPSCANNER_CONFIG_HPP
 
 #include "iostream"
+#include "sstream"
 #include "../components/Console.hpp"
 #include "filesystem"
 #include "cpr/cpr.h"
 #include "regex"
+#include "../json_schemas/Schema.hpp"
+#include "../json_schemas/Prices.hpp"
+#include "../json_schemas/Skins.hpp"
+#include "../json_schemas/Effects.hpp"
 
 class Config {
 public:
@@ -27,41 +32,20 @@ public:
 
     char apikey[32] = "";
 
-
-    void fetchRequirements() {
-        consoleLog("Fetching requirements...");
-
-        std::string version = "v1.2.3";
-        // get version numbers from string
-
-        std::regex versionRegex("[0-9]+");
-        std::smatch versionMatch;
-        std::regex_search(version, versionMatch, versionRegex);
-        consoleLog("Version: " + std::string(versionMatch[0].str()));
+    std::vector<JsonSchema::Item> itemSchema = {};
+    JsonPrices::Pricelist itemPrices;
+    JsonSkins::Skins skinsData;
+    JsonEffects::Effects itemEffects;
 
 
+    void fetchRequirements();
 
-        if (strlen(apikey) < 32) {
-            consoleLog("API key is empty, can't fetch requirements", SEVERITY::ERR);
-            return;
-        }
+    void init();
 
-        std::string localAppData = std::getenv("LOCALAPPDATA");
-        std::string storagePath = localAppData + "\\BPScanner\\";
-        consoleLog("Storage Path: " + storagePath);
-
-        if (!std::filesystem::exists(storagePath)) {
-            consoleLog("Storage folder does not exist, creating...");
-            std::filesystem::create_directory(storagePath);
-        }
-
-        using namespace cpr;
-
-
-    }
+    static std::vector<int> parseVersion(std::string version);
 
 private:
-    void consoleLog(std::string message, int severity = 0);
+    static void consoleLog(std::string message, SEVERITY severity = SEVERITY::INFO);
 };
 
 

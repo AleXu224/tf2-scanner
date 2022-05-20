@@ -3,6 +3,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_opengl3_loader.h"
 #include <GLFW/glfw3.h>
+#include "cpr/cpr.h"
 
 #include "globals.hpp"
 
@@ -28,6 +29,7 @@ int main(int, char**)
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -56,6 +58,8 @@ int main(int, char**)
     style.WindowBorderSize = 0.0f;
 
     GLOBALS::scanner.config.fetchRequirements();
+
+    auto response = cpr::Get(cpr::Url{"https://api.github.com/repos/matthew-d-brown/wew/releases/latest"});
 
     bool show_stats = false;
     bool show_demo_window = false;

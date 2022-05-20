@@ -7,8 +7,11 @@
 class Scanner {
 public:
     Config config;
+    std::vector<Player> playerList;
 
     bool showDrawer = false;
+    bool isScanning = false;
+    void Scan();
 };
 
 
