@@ -78,6 +78,8 @@ private:
     std::string workingName;
 public:
     bool tradable = true;
+    bool isRecipe = false;
+    bool isTool = false;
 
     int defindex;
     std::string name;
@@ -102,8 +104,12 @@ public:
     int skinID = -1;
     WEAR skinWear = WEAR::NONE;
 
-    int targetDefindex;
-    std::string targetName;
+    int toolDefindex = -1;
+    std::string toolName;
+
+    int recipeDefindex = -1;
+    std::string recipeName;
+
     TF2CURRENCY currency;
     float price;
 

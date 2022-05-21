@@ -32,40 +32,90 @@ Item::Item(JsonInventory::InventoryDescription &itemData)
 {
     if (itemData.tradable == 0) tradable = false;
 
-    int longestMatch = 0;
-    for (auto &schemaItem : GLOBALS::scanner.config.itemSchema) {
-        if (schemaItem.item_name == "") continue;
-        if (itemData.market_name.find(schemaItem.item_name) != std::string::npos) {
-            // Check if this is the longest match
-            // this is needed for items like strangifiers
-            if (schemaItem.item_name.size() < longestMatch) continue;
-            longestMatch = schemaItem.item_name.size();
-            
-            nameSimple = schemaItem.item_name;
-            properName = schemaItem.proper_name;
-            defindex = schemaItem.defindex;
-        }
-        if (itemData.market_name.find(schemaItem.name) != std::string::npos) {
-            // We also need to check this because for some reason
-            // strangifiers have their data here instead of item_name
-            if (schemaItem.name.size() < longestMatch) continue;
-            longestMatch = schemaItem.name.size();
-            
-            nameSimple = schemaItem.name;
-            properName = schemaItem.proper_name;
-            defindex = schemaItem.defindex;
-        }
-    }
-    if (longestMatch == 0) {
-        consoleLog("Couldn't find item in schema: " + itemData.market_name, SEVERITY::ERR);
-        fail = true;
-        return;
-    }
-
     name = workingName = itemData.market_name;
 
-    // remove the name without prefixed or suffixes
-    workingName.replace(workingName.find(nameSimple), nameSimple.length(), "");
+    for (int i = 0; i < 3; i++) {
+    {
+        int longestName = 0;
+        for (auto &schemaItem : GLOBALS::scanner.config.itemSchema)
+        {
+            if (i == 0 && schemaItem.item_type_name != "Recipe")
+                continue;
+            if (i == 1 && schemaItem.item_class != JsonSchema::ItemClass::TOOL)
+                continue;
+            
+            if (workingName.find(schemaItem.item_name) != std::string::npos)
+            {
+                if (schemaItem.item_name.size() > longestName)
+                if (i == 0) {
+                    recipeName = schemaItem.item_name;
+                    recipeDefindex = schemaItem.defindex;
+                } else if (i == 1) {
+                    toolName = schemaItem.item_name;
+                    toolDefindex = schemaItem.defindex;
+                } else {
+                    nameSimple = schemaItem.item_name;
+                    defindex = schemaItem.defindex;
+                }
+            }
+        }
+    }
+
+    // Quality, crate and tool, wear check
+    for (auto &tag : itemData.tags)
+    {
+        if (tag.category == JsonInventory::Category::QUALITY)
+        {
+            quality = QUALITY_JSON.at(tag.localized_tag_name);
+            // Remove quality from name
+            if (workingName.find(QUALITY_STRINGS.at(quality)) != std::string::npos)
+            {
+                workingName.replace(workingName.find(QUALITY_STRINGS.at(quality) + " "), QUALITY_STRINGS.at(quality).length() + 1, "");
+            }
+        }
+        else if (tag.category == JsonInventory::Category::TYPE)
+        {
+            if (tag.localized_tag_name == JsonInventory::LocalizedTagName::CRATE)
+                isCrate = true;
+            if (tag.localized_tag_name == JsonInventory::LocalizedTagName::TOOL)
+                isTool = true;  
+            if (tag.localized_tag_name == JsonInventory::LocalizedTagName::RECIPE)
+                isRecipe = true;
+            
+        }
+        else if (tag.category == JsonInventory::Category::EXTERIOR)
+        {
+            skinWear = WEAR_JSON.at(tag.localized_tag_name);
+            workingName.replace(workingName.find(" (" + WEAR_STRINGS.at(skinWear) + ")"), WEAR_STRINGS.at(skinWear).length() + 3, "");
+            for (auto &skinData : GLOBALS::scanner.config.skinsData)
+            {
+                if (workingName.find(skinData.second) != std::string::npos)
+                {
+                    skinID = std::stoi(skinData.first);
+                    workingName.replace(workingName.find(skinData.second + " "), skinData.second.length() + 1, "");
+                    break;
+                }
+            }
+            if (skinID == -1)
+            {
+                consoleLog("Couldn't find skin ID for: " + workingName, SEVERITY::ERR);
+                fail = true;
+                return;
+            }
+        }
+    }
+
+    // bool success = false;
+    // if (isRecipe) success = getRecipeData();
+    // else if (isTool) success = getToolData();
+    // else success = getTargetData();
+
+    // if (!success)
+    // {
+    //     consoleLog("Couldn't find item: " + workingName, SEVERITY::ERR);
+    //     fail = true;
+    //     return;
+    // }
 
     // Need to add the prefix of the url later on
     imageUrl = itemData.icon_url;
@@ -88,35 +138,6 @@ Item::Item(JsonInventory::InventoryDescription &itemData)
     if (workingName.find("Australium ") != std::string::npos) {
         australium = true;
         workingName.replace(workingName.find("Australium "), 11, "");
-    }
-
-    // Quality, crate, wear check
-    for (auto &tag : itemData.tags) {
-        if (tag.category == JsonInventory::Category::QUALITY) {
-            quality = QUALITY_JSON.at(tag.localized_tag_name);
-            // Remove quality from name
-            if (workingName.find(QUALITY_STRINGS.at(quality)) != std::string::npos) {
-                workingName.replace(workingName.find(QUALITY_STRINGS.at(quality) + " "), QUALITY_STRINGS.at(quality).length() + 1, "");
-            }
-        } else if (tag.category == JsonInventory::Category::TYPE) {
-            if (tag.localized_tag_name == JsonInventory::LocalizedTagName::CRATE)
-                isCrate = true;
-        } else if (tag.category == JsonInventory::Category::EXTERIOR) {
-            skinWear = WEAR_JSON.at(tag.localized_tag_name);
-            workingName.replace(workingName.find(" (" + WEAR_STRINGS.at(skinWear) + ")"), WEAR_STRINGS.at(skinWear).length() + 3, "");
-            for (auto &skinData : GLOBALS::scanner.config.skinsData) {
-                if (workingName.find(skinData.second) != std::string::npos) {
-                    skinID = std::stoi(skinData.first);
-                    workingName.replace(workingName.find(skinData.second + " "), skinData.second.length() + 1, "");
-                    break;
-                }
-            }
-            if (skinID == -1) {
-                consoleLog("Couldn't find skin ID for: " + workingName, SEVERITY::ERR);
-                fail = true;
-                return;
-            }
-        }
     }
 
     // Unusual effect and craftable check
@@ -146,21 +167,19 @@ Item::Item(JsonInventory::InventoryDescription &itemData)
     }
 
     // Get crate id if item is a crate
-    if (isCrate) {
-        // For some reason C++ regex doesn't support lookbehind
-        // But it does support lookaheads, so we can just reverse the name
-        std::regex crateRegex("[0-9]+(?=# )");
+    // For some reason C++ regex doesn't support lookbehind
+    // But it does support lookaheads, so we can just reverse the name
+    std::regex crateRegex("[0-9]+(?=# )");
 
-        std::string reversedString = workingName;
-        std::reverse(reversedString.begin(), reversedString.end());
-        std::smatch match;
+    std::string reversedString = workingName;
+    std::reverse(reversedString.begin(), reversedString.end());
+    std::smatch match;
 
-        if (std::regex_search(reversedString, match, crateRegex)) {
-            std::string crateIDstr = match.str();
-            std::reverse(crateIDstr.begin(), crateIDstr.end());
-            crateID = std::stoi(crateIDstr);
-            workingName.replace(workingName.find(" Series #" + crateIDstr), crateIDstr.length() + 9, "");
-        }
+    if (std::regex_search(reversedString, match, crateRegex)) {
+        std::string crateIDstr = match.str();
+        std::reverse(crateIDstr.begin(), crateIDstr.end());
+        crateID = std::stoi(crateIDstr);
+        workingName.replace(workingName.find(" Series #" + crateIDstr), crateIDstr.length() + 9, "");
     }
 
     if (properName && quality == QUALITY::UNIQUE) {

@@ -103,8 +103,8 @@ namespace JsonSchema {
     struct Item {
         std::string name;
         int64_t defindex;
-        // ItemClass item_class;
-        // std::string item_type_name;
+        ItemClass item_class;
+        std::string item_type_name;
         std::string item_name;
         bool proper_name;
         // std::shared_ptr<ItemSlot> item_slot;
@@ -258,8 +258,8 @@ namespace nlohmann {
     inline void from_json(const json & j, JsonSchema::Item& x) {
         x.name = j.at("name").get<std::string>();
         x.defindex = j.at("defindex").get<int64_t>();
-        // x.item_class = j.at("item_class").get<JsonSchema::ItemClass>();
-        // x.item_type_name = j.at("item_type_name").get<std::string>();
+        x.item_class = j.at("item_class").get<JsonSchema::ItemClass>();
+        x.item_type_name = j.at("item_type_name").get<std::string>();
         x.item_name = j.at("item_name").get<std::string>();
         x.proper_name = j.at("proper_name").get<bool>();
         // x.item_slot = JsonSchema::get_optional<JsonSchema::ItemSlot>(j, "item_slot");
@@ -288,8 +288,8 @@ namespace nlohmann {
         j = json::object();
         j["name"] = x.name;
         j["defindex"] = x.defindex;
-        // j["item_class"] = x.item_class;
-        // j["item_type_name"] = x.item_type_name;
+        j["item_class"] = x.item_class;
+        j["item_type_name"] = x.item_type_name;
         j["item_name"] = x.item_name;
         j["proper_name"] = x.proper_name;
         // j["item_slot"] = x.item_slot;
