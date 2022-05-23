@@ -1,11 +1,8 @@
-//
-// Created by Squizell on 27/04/2022.
-//
-
-#include <string>
 #include "StatsInfo.hpp"
-#include "imgui.h"
+
 #include "../globals.hpp"
+#include "imgui.h"
+#include "string"
 
 using namespace ImGui;
 

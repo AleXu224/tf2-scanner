@@ -1,12 +1,8 @@
-//
-// Created by Squizell on 15/05/2022.
-//
-
 #include "Config.hpp"
 
-#include <utility>
 #include "../globals.hpp"
 #include "nlohmann/json.hpp"
+#include "utility"
 #include "vector"
 
 void Config::consoleLog(std::string message, SEVERITY severity) {
@@ -173,7 +169,6 @@ void Config::fetchRequirements() {
     }
 
     consoleLog("Loading complete");
-
 }
 
 void Config::init() {
@@ -228,7 +223,6 @@ void Config::init() {
         configFileOut << config.dump();
         configFileOut.close();
     }
-        
 }
 
 std::vector<int> Config::parseVersion(std::string version) {

@@ -1,7 +1,6 @@
 #include "Player.hpp"
-#include "Inventory.hpp"
 
-Player::Player(JsonPlayer::Player &player) : inventory(this) {
+Player::Player(JsonPlayer::Player &player) : inventory(player.steamid) {
     steamid = player.steamid;
     name = player.personaname;
     avatarUrl = player.avatarmedium;
@@ -10,7 +9,7 @@ Player::Player(JsonPlayer::Player &player) : inventory(this) {
 
 void Player::ToConsole() {
     using namespace ImGui;
-    if (TreeNode((void*)(intptr_t)this, "Name %s", name.c_str())) {
+    if (TreeNode((void *)(intptr_t)this, "Name %s", name.c_str())) {
         Text("SteamID: %s", steamid.c_str());
         Text("Name: %s", name.c_str());
         Text("Avatar: %s", avatarUrl.c_str());

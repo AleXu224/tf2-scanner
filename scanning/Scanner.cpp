@@ -1,10 +1,11 @@
 #include "Scanner.hpp"
-#include "cpr/cpr.h"
-#include "Player.hpp"
-#include "../json_schemas/PlayerData.hpp"
+
 #include "../globals.hpp"
-#include "string"
+#include "../json_schemas/PlayerData.hpp"
+#include "Player.hpp"
+#include "cpr/cpr.h"
 #include "sstream"
+#include "string"
 #include "vector"
 
 #define consoleLog GLOBALS::console.addOutput
@@ -13,7 +14,7 @@ void Scanner::Scan() {
     if (isScanning) return;
     isScanning = true;
 
-    std::vector<std::string> playerids = {"76561198077264681","76561198082497772","76561198143252042","76561199113821000","76561198164651434"};
+    std::vector<std::string> playerids = {"76561198077264681", "76561198082497772", "76561198143252042", "76561199113821000", "76561198164651434", "76561198095022965", "76561198974533953", "76561198372127799", "76561198068064085"};
 
     for (auto &id : playerids) {
         // placeholder scan
@@ -29,14 +30,9 @@ void Scanner::Scan() {
 
         playerData = nlohmann::json::parse(response.text);
 
-
-
-
         Player player(playerData.response.players[0]);
         player.inventory.GetInventory();
         playerList.push_back(player);
-        GLOBALS::console.addOutput(player);
-
     }
 
     isScanning = false;

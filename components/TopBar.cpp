@@ -1,21 +1,19 @@
-//
-// Created by Squizell on 27/04/2022.
-//
-#include <iostream>
 #include "TopBar.hpp"
-#include "imgui.h"
+
 #include "../globals.hpp"
-#include "string"
-#include "map"
+#include "imgui.h"
 #include "imgui_internal.h"
+#include "iostream"
+#include "map"
+#include "string"
 
 using namespace ImGui;
 
 struct ButtonStatus {
-    double progress = 0.0f; // 0.0 - 1.0
+    double progress = 0.0f;  // 0.0 - 1.0
 };
 
-bool TopBarButton(const std::string& value) {
+bool TopBarButton(const std::string &value) {
     // Invisible button and size calculation
     ImVec2 size = CalcTextSize(value.c_str(), nullptr, true);
     bool returnValue = InvisibleButton(value.c_str(), ImVec2(size.x + 16 * 2, 48));
@@ -41,16 +39,14 @@ bool TopBarButton(const std::string& value) {
     buttonColor = ImLerp(COLORS::PRIMARY_LIGHT, COLORS::SECONDARY, buttons[id].progress);
     textColor = ImLerp(COLORS::TEXT, COLORS::PRIMARY, buttons[id].progress);
 
-
     // Visible button and text
     ImDrawList *draw_list = GetWindowDrawList();
     draw_list->AddRectFilled(GetItemRectMin(), GetItemRectMax(), ImColor(buttonColor));
 
     ImVec2 rectsize = GetItemRectSize();
     ImVec2 textPos = {
-            GetItemRectMin().x + rectsize.x / 2 - size.x / 2,
-            GetItemRectMin().y + rectsize.y / 2 - size.y / 2
-    };
+        GetItemRectMin().x + rectsize.x / 2 - size.x / 2,
+        GetItemRectMin().y + rectsize.y / 2 - size.y / 2};
     draw_list->AddText(textPos, ImColor(textColor), value.c_str());
 
     return returnValue;
@@ -87,5 +83,3 @@ void TopBar() {
     PopStyleVar(3);
     PopFont();
 }
-
-

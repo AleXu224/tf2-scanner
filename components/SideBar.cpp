@@ -1,4 +1,5 @@
 #include "SideBar.hpp"
+
 #include "../globals.hpp"
 #include "imgui.h"
 #include "string"
@@ -54,7 +55,7 @@ void SideBarMenu() {
     SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
     Checkbox("Skins", &GLOBALS::scanner.config.skins);
 
-    if(Button("Load requirements")) {
+    if (Button("Load requirements")) {
         // run fetchRequirements in a different thread without blocking the main thread
         std::thread t1([]() {
             GLOBALS::scanner.config.fetchRequirements();

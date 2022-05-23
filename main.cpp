@@ -1,23 +1,20 @@
+#include "components/MainBody.hpp"
+#include "components/SideBar.hpp"
+#include "components/StatsInfo.hpp"
+#include "components/TopBar.hpp"
+#include "cpr/cpr.h"
+#include "fonts/IconsMaterialDesign.h"
+#include "fonts/MaterialIcons.cpp"
+#include "fonts/Roboto.cpp"
+#include "globals.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_opengl3_loader.h"
-#include <GLFW/glfw3.h>
-#include "cpr/cpr.h"
+#include "GLFW/glfw3.h"
+#include "utilities/Texture.hpp"
 
-#include "globals.hpp"
-
-#include "components/TopBar.hpp"
-#include "components/StatsInfo.hpp"
-#include "components/MainBody.hpp"
-#include "components/SideBar.hpp"
-
-#include "fonts/Roboto.cpp"
-#include "fonts/MaterialIcons.cpp"
-#include "fonts/IconsMaterialDesign.h"
-
-int main(int, char**)
-{
+int main(int, char**) {
     if (!glfwInit())
         return 1;
 
@@ -41,30 +38,32 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 14.0f));
-    GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 10.0f));
+    GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 12.0f));
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 19.0f));
 
     ImVector<ImWchar> icons_ranges;
     ImFontGlyphRangesBuilder icons_builder;
-    icons_builder.AddChar(0xe145); // add icon
-    icons_builder.AddChar(0xe1a1); // inventory icon
-    icons_builder.AddChar(0xe5cd); // close icon
+    icons_builder.AddChar(0xe145);  // add icon
+    icons_builder.AddChar(0xe1a1);  // inventory icon
+    icons_builder.AddChar(0xe5cd);  // close icon
     icons_builder.BuildRanges(&icons_ranges);
-    ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(MaterialIcons_compressed_data, MaterialIcons_compressed_size, 24.0f, &icons_config, icons_ranges.Data));
 
-    ImGuiStyle &style = ImGui::GetStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
     style.FrameBorderSize = 0.0f;
     style.WindowBorderSize = 0.0f;
 
+    GLOBALS::scanner.config.init();
     GLOBALS::scanner.config.fetchRequirements();
 
     bool show_stats = false;
     bool show_demo_window = false;
     bool show_console = false;
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         if (ImGui::IsKeyPressed(GLFW_KEY_F12) && !io.WantCaptureKeyboard) {
             show_stats = !show_stats;

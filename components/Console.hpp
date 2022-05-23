@@ -1,35 +1,32 @@
-//
-// Created by Squizell on 15/05/2022.
-//
-
 #ifndef BPSCANNER_CONSOLE_HPP
 #define BPSCANNER_CONSOLE_HPP
 
-#include <string>
-#include <vector>
 #include <imgui.h>
-#include <iostream>
-#include <../scanning/Player.hpp>
+
 #include <../scanning/Inventory.hpp>
 #include <../scanning/Item.hpp>
+#include <../scanning/Player.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
-enum TYPES {
+enum class TYPES {
     STRING = 0,
     PLAYER = 1,
     INVENTORY = 2,
     ITEM = 3
 };
 
-enum SEVERITY {
+enum class SEVERITY {
     INFO = 0,
     WARNING = 1,
     ERR = 2
 };
 
 class Output {
-public:
-    TYPES type = STRING;
-    SEVERITY severity = INFO;
+   public:
+    TYPES type = TYPES::STRING;
+    SEVERITY severity = SEVERITY::INFO;
     std::string message;
     int index;
 
@@ -45,17 +42,17 @@ public:
 };
 
 class Console {
-public:
+   public:
     std::vector<Output> output;
     std::vector<Player> playerList;
     std::vector<Inventory> inventoryList;
     std::vector<Item> itemList;
 
-    void addOutput(std::string message, SEVERITY severity = INFO);
+    void addOutput(std::string message, SEVERITY severity = SEVERITY::INFO);
     void addOutput(Player &player);
     void addOutput(Inventory &inventory);
     void addOutput(Item &item);
-    
+
     // void addOutput(Inventory inventory, int severity = 0);
     // void addOutput(Item item, int severity = 0);
 
@@ -64,5 +61,4 @@ public:
 
 void ConsoleWindow(bool &showConsole);
 
-
-#endif //BPSCANNER_CONSOLE_HPP
+#endif  // BPSCANNER_CONSOLE_HPP

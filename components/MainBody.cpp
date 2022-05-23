@@ -1,24 +1,30 @@
-#include <string>
-#include <map>
-#include <iostream>
 #include "MainBody.hpp"
-#include "imgui.h"
-#include "../globals.hpp"
-#include "imgui_internal.h"
+
+#include <iostream>
+#include <map>
+#include <string>
+
 #include "../fonts/IconsMaterialDesign.h"
+#include "../globals.hpp"
+#include "../utilities/Texture.hpp"
+#include "imgui.h"
+#include "imgui_internal.h"
 
 using namespace ImGui;
 
-void UserAvatar() {
+#define players GLOBALS::scanner.playerList
+
+void UserAvatar(int &playerIndex) {
     SetCursorPos({GetCursorPosX() + 16, GetCursorPosY() + 16});
     InvisibleButton("UserAvatar", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
 
     draw_list->AddRectFilled(GetItemRectMin(), GetItemRectMax(), GetColorU32(COLORS::SECONDARY), 16.0f);
+    draw_list->AddImageRounded((void *)(intptr_t)Texture::getFromUrl(players[playerIndex].avatarUrl).id, GetItemRectMin(), GetItemRectMax(), {0, 0}, {1, 1}, ImColor(255, 255, 255, 255), 8.0f);
 }
 
 struct ButtonStatus {
-    double progress = 0.0f; // 0.0 - 1.0
+    double progress = 0.0f;  // 0.0 - 1.0
 };
 
 bool UserButton(const std::string &value) {
@@ -47,16 +53,15 @@ bool UserButton(const std::string &value) {
     buttonColor = ImLerp(COLORS::PRIMARY_LIGHT, COLORS::SECONDARY, buttons[id].progress);
     textColor = ImLerp(COLORS::TEXT, COLORS::PRIMARY, buttons[id].progress);
 
-
     // Visible button and text
     ImDrawList *draw_list = GetWindowDrawList();
     draw_list->AddRectFilled(GetItemRectMin(), GetItemRectMax(), ImColor(buttonColor), 4.0f);
 
     ImVec2 rectsize = GetItemRectSize();
     ImVec2 textPos = {
-            GetItemRectMin().x + rectsize.x / 2 - size.x / 2,
-            // magic numbers here, just ignore
-            GetItemRectMin().y + 24.0f / 2
+        GetItemRectMin().x + rectsize.x / 2 - size.x / 2,
+        // magic numbers here, just ignore
+        GetItemRectMin().y + 24.0f / 2
 
     };
     draw_list->AddText(textPos, ImColor(textColor), value.c_str());
@@ -64,12 +69,11 @@ bool UserButton(const std::string &value) {
     return returnValue;
 }
 
-void UserButtons(int &userid) {
+void UserButtons() {
     PushFont(GLOBALS::FONTS[ICONS]);
     SameLine();
     SetCursorPos({GetCursorPosX() + 16, GetCursorPosY() + 16});
     if (UserButton(ICON_MD_ADD)) {
-        std::cout << userid << std::endl;
     }
     SameLine();
     SetCursorPosX(GetCursorPosX() + 8);
@@ -79,32 +83,54 @@ void UserButtons(int &userid) {
     PopFont();
 }
 
-void Item() {
+void UserItem(Item &item) {
     InvisibleButton("Item", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
     const ImVec2 secondary_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 48};
-    draw_list->AddRectFilled(GetItemRectMin(), secondary_pos_max, GetColorU32(COLORS::BACKGROUND), 8.0f, ImDrawFlags_RoundCornersTop);
+    ImColor secondaryColor = item.qualitySecondary == QUALITY::NONE ? QUALITY_COLORS.at(item.quality) : QUALITY_COLORS.at(item.qualitySecondary);
+    draw_list->AddRectFilled(GetItemRectMin(), secondary_pos_max, secondaryColor, 8.0f, ImDrawFlags_RoundCornersTop);
 
-    const ImVec2 main_pos_max = {GetItemRectMax().x , GetItemRectMax().y - 16};
+    const ImVec2 main_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 16};
     const ImVec2 main_pos_min = {GetItemRectMin().x, GetItemRectMin().y + 8};
-    draw_list->AddRectFilled(main_pos_min, main_pos_max, GetColorU32(COLORS::SECONDARY), 8.0f, ImDrawFlags_RoundCornersTop);
+    draw_list->AddRectFilled(main_pos_min, main_pos_max, QUALITY_COLORS.at(item.quality), 8.0f, ImDrawFlags_RoundCornersTop);
+    
+    if (item.effectID != -1)
+        draw_list->AddImage((void *)(intptr_t)Texture::getFromUrl(effectUrlPrefix + std::to_string(item.effectID) + effecturlSuffix, true).id, GetItemRectMin(), GetItemRectMax());
+    draw_list->AddImage((void *)(intptr_t)Texture::getFromUrl(imageUrlPrefix + item.imageUrl, true).id, GetItemRectMin(), GetItemRectMax());
 
+    PushFont(GLOBALS::FONTS[ROBOTO_10]);
     const ImVec2 bottomPartPosition = {GetItemRectMin().x, GetItemRectMin().y + 48};
     draw_list->AddRectFilled(bottomPartPosition, GetItemRectMax(), GetColorU32(COLORS::BACKGROUND), 8.0f, ImDrawFlags_RoundCornersBottom);
+    std::stringstream priceString;
+
+    int precision = 0;
+    if (remainder(item.price, 1) != 0) precision = 2;
+    priceString << std::fixed << std::setprecision(precision) << item.price << " " << TF2CURRENCY_STRINGS.at(item.currency);
+
+    ImVec2 priceSize = CalcTextSize(priceString.str().c_str(), nullptr, true);
+    ImVec2 pricePos = {
+        GetItemRectMin().x + 32 - priceSize.x / 2,
+        GetItemRectMin().y + 56 - priceSize.y / 2};
+    draw_list->AddText(pricePos, GetColorU32(COLORS::TEXT), priceString.str().c_str());
+    PopFont();
+
+    if (IsItemHovered()) {
+        ImGui::SetTooltip("%s", item.name.c_str());
+    }
 }
 
-void UserItems() {
+void UserItems(int &playerIndex) {
     ImGuiIO &io = ImGui::GetIO();
     SameLine();
     SetCursorPos({GetCursorPosX() + 8, GetCursorPosY()});
     //                    width - space before items - scrollbar
-    const int maxItems = (io.DisplaySize.x - 176 - 14 - 64) / (64 + 8);
+    const int maxItems = min((io.DisplaySize.x - 176 - 14 - 64) / (64 + 8), players[playerIndex].inventory.items.size());
     for (int i = 0; i < maxItems; i++) {
         if (i != 0) {
             SameLine();
         }
         SetCursorPosX(GetCursorPosX() + 8);
-        Item();
+        UserItem(players[playerIndex].inventory.items[i]);
     }
 }
 
@@ -118,27 +144,37 @@ void UserTag(const std::string &tag) {
     draw_list->AddText(textPos, GetColorU32(COLORS::TEXT), tag.c_str());
 }
 
-void UserTags() {
+void UserTags(int &playerIndex) {
     SetCursorPos({GetWindowPos().x + 8, GetWindowPos().x + 104});
 
-    for (int i = 0; i < 5; i++) {
-        if (i != 0) {
-            SameLine();
-        }
-        SetCursorPosX(GetCursorPosX() + 8);
-        const std::string tag = "Tag " + std::to_string(i);
-        UserTag(tag);
-    }
+    // for (int i = 0; i < 5; i++) {
+    //     if (i != 0) {
+    //         SameLine();
+    //     }
+    //     SetCursorPosX(GetCursorPosX() + 8);
+    //     const std::string tag = "Tag " + std::to_string(i);
+    //     UserTag(tag);
+    // }
+    std::stringstream refInInv;
+    refInInv << std::fixed << std::setprecision(2) << players[playerIndex].inventory.scrapCount / 9.0f << " Ref";
+    SetCursorPosX(GetCursorPosX() + 8);
+    UserTag(refInInv.str());
+
+    SameLine();
+    SetCursorPosX(GetCursorPosX() + 8);
+    std::stringstream keysInInv;
+    keysInInv << players[playerIndex].inventory.keysCount << " Keys";
+    UserTag(keysInInv.str());
 }
 
-void UserChild(int windowID, int &userID) {
+void UserChild(int windowID, int &playerIndex) {
     ImGuiIO &io = GetIO();
 
     // top elements
     BeginChild(windowID + 1, ImVec2(GetWindowSize().x, 136), false, FLAGS);
-    UserAvatar();
-    UserButtons(userID);
-    UserItems();
+    UserAvatar(playerIndex);
+    UserButtons();
+    UserItems(playerIndex);
     SameLine();
     SetCursorPos({GetWindowSize().x - 14 - 16 - 32, GetCursorPosY() + 16});
 
@@ -147,7 +183,7 @@ void UserChild(int windowID, int &userID) {
     PopFont();
 
     // bottom elements
-    UserTags();
+    UserTags(playerIndex);
 
     EndChild();
 }
@@ -172,10 +208,14 @@ void MainBody() {
     int stop = GetWindowSize().y / childheight + 1 + skipChildren;
     SetCursorPosY(GetCursorPosY() + skipChildren * childheight);
 
-    int listSize = 100;
+    const int listSize = players.size();
     for (int i = skipChildren; i < listSize && i <= stop; i++) {
         // We repurpose the IDs so that only the minimum amount of windows are created
         // Creating a window for every user would slow the frame time by a lot
+
+        // Fun fact: if you pass a reference of a player in here sometimes the vector will
+        // be updated mid frame and you will end up a reference pointing to junk memory
+        // FUN TIMES
         UserChild(i - skipChildren, i);
     }
 

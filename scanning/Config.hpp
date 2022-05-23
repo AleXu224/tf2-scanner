@@ -1,23 +1,19 @@
-//
-// Created by Squizell on 15/05/2022.
-//
-
 #ifndef BPSCANNER_CONFIG_HPP
 #define BPSCANNER_CONFIG_HPP
 
-#include "iostream"
-#include "sstream"
 #include "../components/Console.hpp"
-#include "filesystem"
-#include "cpr/cpr.h"
-#include "regex"
-#include "../json_schemas/Schema.hpp"
-#include "../json_schemas/Prices.hpp"
-#include "../json_schemas/Skins.hpp"
 #include "../json_schemas/Effects.hpp"
+#include "../json_schemas/Prices.hpp"
+#include "../json_schemas/Schema.hpp"
+#include "../json_schemas/Skins.hpp"
+#include "cpr/cpr.h"
+#include "filesystem"
+#include "iostream"
+#include "regex"
+#include "sstream"
 
 class Config {
-public:
+   public:
     float maxRef = -1;
     float maxKeys = -1;
     float minRef = -1;
@@ -37,16 +33,14 @@ public:
     JsonSkins::Skins skinsData;
     JsonEffects::Effects itemEffects;
 
-
     void fetchRequirements();
 
     void init();
 
     static std::vector<int> parseVersion(std::string version);
 
-private:
+   private:
     static void consoleLog(std::string message, SEVERITY severity = SEVERITY::INFO);
 };
 
-
-#endif //BPSCANNER_CONFIG_HPP
+#endif  // BPSCANNER_CONFIG_HPP

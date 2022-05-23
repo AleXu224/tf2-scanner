@@ -3,7 +3,7 @@ project(bpscanner)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG")
-set(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++")
+# set(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++")
 set(BUILD_SHARED_LIBS OFF)
 
 # Imgui
@@ -30,9 +30,48 @@ FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
         GIT_TAG ee7f91f5566b6279aadf6d0b1aaf56b11963f527) # The commit hash for 1.8.2. Replace with the latest from: https://github.com/libcpr/cpr/releases
 FetchContent_MakeAvailable(cpr)
 
+add_executable(
+        bpscanner 
+        main.cpp 
+        fonts/Roboto.cpp 
+        fonts/MaterialIcons.cpp 
+        components/TopBar.hpp 
+        components/TopBar.cpp 
+        components/StatsInfo.cpp 
+        components/StatsInfo.hpp 
+        globals.hpp 
+        components/MainBody.cpp 
+        components/MainBody.hpp 
+        globals.cpp 
+        components/SideBar.cpp 
+        components/SideBar.hpp 
+        scanning/Scanner.cpp 
+        scanning/Scanner.hpp 
+        scanning/Config.cpp 
+        scanning/Config.hpp 
+        components/Console.cpp 
+        components/Console.hpp 
+        json_schemas/Schema.hpp 
+        json_schemas/Prices.hpp 
+        json_schemas/Skins.hpp 
+        json_schemas/Effects.hpp 
+        scanning/Player.hpp 
+        scanning/Player.cpp 
+        scanning/Inventory.hpp 
+        scanning/Inventory.cpp 
+        scanning/Item.hpp 
+        scanning/Item.cpp 
+        json_schemas/PlayerData.hpp 
+        json_schemas/InventoryData.hpp
+        utilities/stb_image.h
+        utilities/Texture.hpp
+        utilities/Texture.cpp
+        utilities/stb_image_resize.h)
 
-add_executable(bpscanner main.cpp fonts/Roboto.cpp fonts/MaterialIcons.cpp components/TopBar.hpp components/TopBar.cpp components/StatsInfo.cpp components/StatsInfo.hpp globals.hpp components/MainBody.cpp components/MainBody.hpp globals.cpp components/SideBar.cpp components/SideBar.hpp scanning/user.cpp scanning/user.hpp scanning/Scanner.cpp scanning/Scanner.hpp scanning/Config.cpp scanning/Config.hpp components/Console.cpp components/Console.hpp json_schemas/Schema.hpp json_schemas/Prices.hpp json_schemas/Skins.hpp json_schemas/Effects.hpp scanning/Player.hpp scanning/Player.cpp scanning/Inventory.hpp scanning/Inventory.cpp scanning/Item.hpp scanning/Item.cpp json_schemas/PlayerData.hpp json_schemas/InventoryData.hpp)
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIRS})
 
+target_link_libraries(bpscanner PRIVATE ${OPENGL_LIBRARIES})
 target_link_libraries(bpscanner PRIVATE imgui)
 target_link_libraries(bpscanner PRIVATE glfw)
 target_link_libraries(bpscanner PRIVATE nlohmann_json)
