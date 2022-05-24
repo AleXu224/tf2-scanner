@@ -69,7 +69,7 @@ bool UserButton(const std::string &value) {
     return returnValue;
 }
 
-void UserButtons() {
+void UserButtons(int &playerIndex) {
     PushFont(GLOBALS::FONTS[ICONS]);
     SameLine();
     SetCursorPos({GetCursorPosX() + 16, GetCursorPosY() + 16});
@@ -78,15 +78,18 @@ void UserButtons() {
     SameLine();
     SetCursorPosX(GetCursorPosX() + 8);
     SetCursorPosY(GetCursorPosY() + 16);
-    UserButton(ICON_MD_INVENTORY_2);
+    if (UserButton(ICON_MD_INVENTORY_2)) {
+        ShellExecute(0, 0, (std::string("https://backpack.tf/profiles/") + players[playerIndex].steamid).c_str(), 0, 0, SW_SHOW);
+    }
     SameLine();
     PopFont();
 }
 
-void UserItem(Item &item) {
+void UserItem(int &playerIndex, int &itemIndex) {
     InvisibleButton("Item", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
     const ImVec2 secondary_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 48};
+    #define item players[playerIndex].inventory.items[itemIndex] 
     ImColor secondaryColor = item.qualitySecondary == QUALITY::NONE ? QUALITY_COLORS.at(item.quality) : QUALITY_COLORS.at(item.qualitySecondary);
     draw_list->AddRectFilled(GetItemRectMin(), secondary_pos_max, secondaryColor, 8.0f, ImDrawFlags_RoundCornersTop);
 
@@ -130,7 +133,7 @@ void UserItems(int &playerIndex) {
             SameLine();
         }
         SetCursorPosX(GetCursorPosX() + 8);
-        UserItem(players[playerIndex].inventory.items[i]);
+        UserItem(playerIndex, i);
     }
 }
 
@@ -173,7 +176,7 @@ void UserChild(int windowID, int &playerIndex) {
     // top elements
     BeginChild(windowID + 1, ImVec2(GetWindowSize().x, 136), false, FLAGS);
     UserAvatar(playerIndex);
-    UserButtons();
+    UserButtons(playerIndex);
     UserItems(playerIndex);
     SameLine();
     SetCursorPos({GetWindowSize().x - 14 - 16 - 32, GetCursorPosY() + 16});
@@ -208,14 +211,15 @@ void MainBody() {
     int stop = GetWindowSize().y / childheight + 1 + skipChildren;
     SetCursorPosY(GetCursorPosY() + skipChildren * childheight);
 
+    // Pushes the user queue into the player vector before doing anything
+    // turns out vector.push_back is not thread safe (:
+    GLOBALS::scanner.pushPlayers();
+
     const int listSize = players.size();
     for (int i = skipChildren; i < listSize && i <= stop; i++) {
         // We repurpose the IDs so that only the minimum amount of windows are created
         // Creating a window for every user would slow the frame time by a lot
 
-        // Fun fact: if you pass a reference of a player in here sometimes the vector will
-        // be updated mid frame and you will end up a reference pointing to junk memory
-        // FUN TIMES
         UserChild(i - skipChildren, i);
     }
 

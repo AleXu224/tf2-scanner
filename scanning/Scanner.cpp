@@ -32,8 +32,19 @@ void Scanner::Scan() {
 
         Player player(playerData.response.players[0]);
         player.inventory.GetInventory();
-        playerList.push_back(player);
+        playerPushList.push_back(player);
     }
 
     isScanning = false;
+}
+
+// This should be executed in the main thread so that the vector isn't resized while iterating
+void Scanner::pushPlayers() {
+    if (playerPushList.empty()) return;
+
+    for (auto &player : playerPushList) {
+        playerList.push_back(player);
+    }
+
+    playerPushList.clear();
 }
