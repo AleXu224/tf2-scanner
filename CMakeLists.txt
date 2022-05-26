@@ -8,11 +8,13 @@ set(BUILD_SHARED_LIBS OFF)
 
 # Imgui
 file(GLOB imgui_files "imgui/*.cpp")
+file(GLOB imgui_misc_files "imgui/misc/cpp/*.cpp")
 file(GLOB imgui_glfw_files "imgui/backends/imgui_impl_glfw.cpp")
 file(GLOB imgui_opengl3_files "imgui/backends/imgui_impl_opengl3.cpp")
-add_library(imgui ${imgui_files} ${imgui_glfw_files} ${imgui_opengl3_files})
+add_library(imgui ${imgui_files} ${imgui_glfw_files} ${imgui_opengl3_files} ${imgui_misc_files})
 target_include_directories(imgui PUBLIC imgui)
 target_include_directories(imgui PUBLIC imgui/backends)
+target_include_directories(imgui PUBLIC imgui/misc/cpp)
 
 # GLFW
 add_subdirectory(glfw)
@@ -66,7 +68,11 @@ add_executable(
         utilities/stb_image.h
         utilities/Texture.hpp
         utilities/Texture.cpp
-        utilities/stb_image_resize.h)
+        utilities/stb_image_resize.h
+        components/ApiKeyPrompt.hpp
+        components/ApiKeyPrompt.cpp
+        components/LoadingScreen.hpp
+        components/LoadingScreen.cpp)
 
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS})

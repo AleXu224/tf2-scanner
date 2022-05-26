@@ -11,6 +11,7 @@
 #define consoleLog GLOBALS::console.addOutput
 
 void Scanner::Scan() {
+    // consoleLog("Scanning for players...");
     if (isScanning) return;
     isScanning = true;
 

@@ -11,6 +11,7 @@ void Config::consoleLog(std::string message, SEVERITY severity) {
 
 void Config::fetchRequirements() {
     consoleLog("Fetching requirements...");
+    GLOBALS::scanner.showLoadingScreen = true;
 
     if (strlen(apikey) < 32) {
         consoleLog("API key is empty, can't fetch requirements", SEVERITY::ERR);
@@ -169,6 +170,7 @@ void Config::fetchRequirements() {
     }
 
     consoleLog("Loading complete");
+    GLOBALS::scanner.showLoadingScreen = false;
 }
 
 void Config::init() {
@@ -223,6 +225,44 @@ void Config::init() {
         configFileOut << config.dump();
         configFileOut.close();
     }
+
+    if (strlen(apikey) < 32) {
+        consoleLog("API key is invalid, opening prompt..", SEVERITY::WARNING);
+        GLOBALS::scanner.showApiKeyPrompt = true;
+    } else {
+        fetchRequirements();
+    }
+}
+
+void Config::save() {
+    consoleLog("Saving config...");
+
+    std::string localAppData = std::getenv("LOCALAPPDATA");
+    std::string storagePath = localAppData + "\\BPScanner\\";
+    consoleLog("Storage Path: " + storagePath);
+
+    if (!std::filesystem::exists(storagePath)) {
+        consoleLog("Storage folder does not exist, creating...");
+        std::filesystem::create_directory(storagePath);
+    }
+
+    nlohmann::json config;
+    config["maxRef"] = maxRef;
+    config["maxKeys"] = maxKeys;
+    config["minRef"] = minRef;
+    config["minKeys"] = minKeys;
+    config["minKeys"] = minKeys;
+    config["maxHistory"] = maxHistory;
+    config["maxHours"] = maxHours;
+    config["untradable"] = untradable;
+    config["noValue"] = noValue;
+    config["skins"] = skins;
+    config["apikey"] = apikey;
+
+    std::ofstream configFileOut;
+    configFileOut.open(storagePath + "config.json");
+    configFileOut << config.dump();
+    configFileOut.close();
 }
 
 std::vector<int> Config::parseVersion(std::string version) {

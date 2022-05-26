@@ -1,3 +1,5 @@
+#include "components/ApiKeyPrompt.hpp"
+#include "components/LoadingScreen.hpp"
 #include "components/MainBody.hpp"
 #include "components/SideBar.hpp"
 #include "components/StatsInfo.hpp"
@@ -56,12 +58,14 @@ int main(int, char**) {
     style.FrameBorderSize = 0.0f;
     style.WindowBorderSize = 0.0f;
 
-    GLOBALS::scanner.config.init();
-    GLOBALS::scanner.config.fetchRequirements();
+    std::thread t([]() {
+        GLOBALS::scanner.config.init();
+    });
 
     bool show_stats = false;
     bool show_demo_window = false;
     bool show_console = false;
+    bool drawerOpened = false;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -79,10 +83,13 @@ int main(int, char**) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
         ConsoleWindow(show_console);
-        StatsInfo(&show_stats);
+        StatsInfo(show_stats);
+        LoadingScreen();
+        ApiKeyPrompt();
         SideBar();
         TopBar();
         MainBody();
@@ -91,6 +98,13 @@ int main(int, char**) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
+
+        // This makes absolutely no sense but for some reason
+        // opening the drawer for 1 frame fixes a memory leak
+        if (!drawerOpened) {
+            GLOBALS::scanner.showDrawer = false;
+            drawerOpened = true;
+        }
     }
 
     // Cleanup

@@ -14,20 +14,21 @@ using namespace ImGui;
 
 #define players GLOBALS::scanner.playerList
 
-void UserAvatar(int &playerIndex) {
+bool UserAvatar(int &playerIndex) {
     SetCursorPos({GetCursorPosX() + 16, GetCursorPosY() + 16});
-    InvisibleButton("UserAvatar", ImVec2(64, 64));
+    auto ret = InvisibleButton("UserAvatar", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
 
     draw_list->AddRectFilled(GetItemRectMin(), GetItemRectMax(), GetColorU32(COLORS::SECONDARY), 16.0f);
     draw_list->AddImageRounded((void *)(intptr_t)Texture::getFromUrl(players[playerIndex].avatarUrl).id, GetItemRectMin(), GetItemRectMax(), {0, 0}, {1, 1}, ImColor(255, 255, 255, 255), 8.0f);
+    return ret;   
 }
 
 struct ButtonStatus {
     double progress = 0.0f;  // 0.0 - 1.0
 };
 
-bool UserButton(const std::string &value) {
+bool TextButton(const std::string &value) {
     // Invisible button and size calculation
     ImVec2 size = CalcTextSize(value.c_str(), nullptr, true);
     bool returnValue = InvisibleButton(value.c_str(), ImVec2(32, 32));
@@ -73,12 +74,12 @@ void UserButtons(int &playerIndex) {
     PushFont(GLOBALS::FONTS[ICONS]);
     SameLine();
     SetCursorPos({GetCursorPosX() + 16, GetCursorPosY() + 16});
-    if (UserButton(ICON_MD_ADD)) {
+    if (TextButton(ICON_MD_ADD)) {
     }
     SameLine();
     SetCursorPosX(GetCursorPosX() + 8);
     SetCursorPosY(GetCursorPosY() + 16);
-    if (UserButton(ICON_MD_INVENTORY_2)) {
+    if (TextButton(ICON_MD_INVENTORY_2)) {
         ShellExecute(0, 0, (std::string("https://backpack.tf/profiles/") + players[playerIndex].steamid).c_str(), 0, 0, SW_SHOW);
     }
     SameLine();
@@ -175,14 +176,16 @@ void UserChild(int windowID, int &playerIndex) {
 
     // top elements
     BeginChild(windowID + 1, ImVec2(GetWindowSize().x, 136), false, FLAGS);
-    UserAvatar(playerIndex);
+    if (UserAvatar(playerIndex)) {
+        ShellExecute(0, 0, (std::string("http://steamcommunity.com/profiles/") + players[playerIndex].steamid).c_str(), 0, 0, SW_SHOW);
+    }
     UserButtons(playerIndex);
     UserItems(playerIndex);
     SameLine();
     SetCursorPos({GetWindowSize().x - 14 - 16 - 32, GetCursorPosY() + 16});
 
     PushFont(GLOBALS::FONTS[ICONS]);
-    UserButton(ICON_MD_CLOSE);
+    TextButton(ICON_MD_CLOSE);
     PopFont();
 
     // bottom elements

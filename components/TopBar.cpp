@@ -71,7 +71,12 @@ void TopBar() {
 
     // Window
     Begin("Top Bar", nullptr, FLAGS);
-    TopBarButton("Scan");
+    if (TopBarButton("Scan")) {
+        std::thread scanThread([]() {
+            GLOBALS::scanner.Scan();
+        });
+        scanThread.detach();
+    }
     SameLine(GetIO().DisplaySize.x - 16 * 2 - CalcTextSize("Settings").x);
     if (TopBarButton("Settings")) {
         GLOBALS::scanner.showDrawer = true;

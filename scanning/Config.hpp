@@ -37,6 +37,8 @@ class Config {
 
     void init();
 
+    void save();
+
     static std::vector<int> parseVersion(std::string version);
 
    private:

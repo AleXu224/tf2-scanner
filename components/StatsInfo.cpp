@@ -6,9 +6,9 @@
 
 using namespace ImGui;
 
-void StatsInfo(const bool *showWindow) {
+void StatsInfo(const bool &showWindow) {
+    if (!showWindow) return;
     ImGuiIO &io = ImGui::GetIO();
-    if (!*showWindow) return;
     PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.5f));
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImVec2 work_pos = viewport->WorkPos;
@@ -21,7 +21,7 @@ void StatsInfo(const bool *showWindow) {
     Text("%s", fps.c_str());
     const std::string frame_time = "Frame time: " + std::to_string(io.DeltaTime * 1000) + " ms";
     Text("%s", frame_time.c_str());
-    const std::string show_window = "Show Window: " + std::to_string(*showWindow);
+    const std::string show_window = "Show Window: " + std::to_string(showWindow);
     Text("%s", show_window.c_str());
     const std::string show_drawer = "Show Drawer: " + std::to_string(GLOBALS::scanner.showDrawer);
     Text("%s", show_drawer.c_str());
