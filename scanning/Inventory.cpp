@@ -74,6 +74,7 @@ void Inventory::GetInventory() {
 
                 Item item(desc);
                 if (item.currency == TF2CURRENCY::NONE) break;
+                if (item.getKeyPrice() < GLOBALS::scanner.config.getMinPriceInKeys()) break;
                 if (item.tradable && !item.fail) items.push_back(item);
                 break;
             }

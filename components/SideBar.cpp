@@ -57,7 +57,7 @@ bool CustomTextButton(const std::string &value) {
 
 void CustomIntInput(std::string input_name, int &input_value) {
     static std::map<std::string, bool> input_map;
-    PushFont(GLOBALS::FONTS[ROBOTO_16]);
+    PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
@@ -82,6 +82,7 @@ void CustomIntInput(std::string input_name, int &input_value) {
 
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
     InputInt("", &input_value, 0, 0);
+    PopID();
 
     // It's gonna be one frame late but it's the best solution I could find
     if (IsItemActive())
@@ -96,7 +97,7 @@ void CustomIntInput(std::string input_name, int &input_value) {
 
 void CustomTextInput(std::string input_name, char* input_value) {
     static std::map<std::string, bool> input_map;
-    PushFont(GLOBALS::FONTS[ROBOTO_16]);
+    PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
@@ -121,6 +122,7 @@ void CustomTextInput(std::string input_name, char* input_value) {
 
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
     InputText("", GLOBALS::scanner.config.apikey, 33);
+    PopID();
 
     // It's gonna be one frame late but it's the best solution I could find
     if (IsItemActive())
@@ -135,7 +137,7 @@ void CustomTextInput(std::string input_name, char* input_value) {
 
 void CustomFloatInput(std::string input_name, float &input_value) {
     static std::map<std::string, bool> input_map;
-    PushFont(GLOBALS::FONTS[ROBOTO_16]);
+    PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
@@ -160,6 +162,7 @@ void CustomFloatInput(std::string input_name, float &input_value) {
 
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
     InputFloat("", &input_value, 0, 0, "%.2f");
+    PopID();
 
     // It's gonna be one frame late but it's the best solution I could find
     if (IsItemActive())
@@ -191,6 +194,7 @@ void ScanTypeButton(ScanType buttonType, const float &buttonWidth, const float &
     if (IsItemActive()) {
         scanType = buttonType;
     }
+    PopFont();
 }
 
 void ScanTypeSelection() {
@@ -224,7 +228,7 @@ bool Tab(std::string tabName, bool tabActive) {
     ImDrawList *draw_list = GetWindowDrawList();
     draw_list->AddRectFilled(GetItemRectMin(), GetItemRectMax(), ImColor(COLORS::PRIMARY));
 
-    PushFont(GLOBALS::FONTS[ROBOTO_12]);
+    PushFont(GLOBALS::FONTS[ROBOTO_14]);
     ImVec2 textSize = CalcTextSize(tabName.c_str(), nullptr, true);
     ImVec2 textPos = {GetItemRectMin().x + (tabWidth / 2) - (textSize.x / 2), GetItemRectMin().y + (tabHeight / 2) - (textSize.y / 2)};
     draw_list->AddText(textPos, ImColor(COLORS::TEXT), tabName.c_str());
@@ -278,16 +282,20 @@ void CustomCheckbox(std::string name, bool &value) {
 }
 
 void MainInput() {
-    const float inputWidth = GetWindowSize().x - 8 * 2;
-    const float inputHeight = 200;
+    const float inputWidth = GetWindowSize().x - 16 * 2;
+    float inputHeight = 200;
+    if (GLOBALS::scanner.scanType != ScanType::Steamids) inputHeight = 32;
 
     ImGuiIO &io = ImGui::GetIO();
 
     static std::map<std::string, bool> input_map;
-    PushFont(GLOBALS::FONTS[ROBOTO_16]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
+    PushFont(GLOBALS::FONTS[ROBOTO_14]);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
+    if (GLOBALS::scanner.scanType == ScanType::Steamids) Text("Scan input");
+    else if (GLOBALS::scanner.scanType == ScanType::Group) Text("Group link");
+    else if (GLOBALS::scanner.scanType == ScanType::Friends) Text("Profile link");
     PopStyleColor();
     PopFont();
 
@@ -297,8 +305,7 @@ void MainInput() {
 
     PushStyleColor(ImGuiCol_FrameBg, COLORS::PRIMARY_LIGHT);
 
-    SetCursorPosY(GetWindowHeight() - 200 - 8 + GetScrollY());
-    SetCursorPosX(8);
+    SetCursorPosX(16);
     PushID("Main Input");
 
     static bool isActive = false;
@@ -309,7 +316,8 @@ void MainInput() {
         PushStyleColor(ImGuiCol_Border, COLORS::PRIMARY_LIGHT);
 
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
-    ImGui::InputTextMultiline("", &GLOBALS::scanner.scanInput, {GetWindowWidth() - 8*2, 200});
+    ImGui::InputTextMultiline("", &GLOBALS::scanner.scanInput, {inputWidth, inputHeight});
+    PopID();
 
     // It's gonna be one frame late but it's the best solution I could find
     if (IsItemActive())
@@ -334,6 +342,15 @@ void SideBarMenu() {
     if (selectedTab == 0) {
         ScanTypeSelection();
 
+        MainInput();
+        if (CustomTextButton("Start Scan")) {
+            GLOBALS::scanner.showDrawer = false;
+            std::thread t([]() {
+                GLOBALS::scanner.Scan();
+            });
+            t.detach();
+        }
+
         CustomFloatInput("Max Refined", GLOBALS::scanner.config.maxRef);
         CustomFloatInput("Max Keys", GLOBALS::scanner.config.maxKeys);
         CustomFloatInput("Min Refined", GLOBALS::scanner.config.minRef);
@@ -347,7 +364,8 @@ void SideBarMenu() {
         CustomCheckbox("No Value", GLOBALS::scanner.config.noValue);
         SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
         CustomCheckbox("Skins", GLOBALS::scanner.config.skins);
-        MainInput();
+
+        SetCursorPosY(GetCursorPosY() + 16);
     } else if (selectedTab == 1) {
         CustomTextInput("API Key", GLOBALS::scanner.config.apikey);
         if (CustomTextButton("Save")) {

@@ -41,6 +41,10 @@ class Config {
 
     static std::vector<int> parseVersion(std::string version);
 
+    float getKeyPrice();
+
+    float getMinPriceInKeys();
+
    private:
     static void consoleLog(std::string message, SEVERITY severity = SEVERITY::INFO);
 };

@@ -281,3 +281,15 @@ std::vector<int> Config::parseVersion(std::string version) {
 
     return versionNumbers;
 }
+
+float Config::getKeyPrice() {
+#define PRICES GLOBALS::scanner.config.itemPrices.response.items
+    auto keyPriceCraftable = PRICES.at(CURRENCY_KEY).prices.at("6").tradable.craftable;
+    auto keyPriceVector = std::get<std::vector<JsonPrices::CraftableElement>>(*keyPriceCraftable);
+    auto keyPrice = *keyPriceVector.at(0).value;
+    return keyPrice;
+}
+
+float Config::getMinPriceInKeys() {
+    return max(minKeys, 0) + max(minRef / getKeyPrice(), 0);
+}

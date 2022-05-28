@@ -9,12 +9,12 @@
 
 class Texture {
    private:
-    static std::map<std::string, Texture> textures;
     bool gotContent = false;
     unsigned char *data;
     bool loaded = false;
     bool rgba = false;
    public:
+    static std::map<std::string, Texture> textures;
     GLuint id;
     int width;
     int height;

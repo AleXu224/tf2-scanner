@@ -26,6 +26,7 @@ class Scanner {
     bool showApiKeyPrompt = false;
     bool showLoadingScreen = false;
     ScanType scanType = ScanType::Steamids;
+    std::string scanStatus;
     void Scan();
     void pushPlayers();
     

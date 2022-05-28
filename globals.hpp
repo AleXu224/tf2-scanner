@@ -41,6 +41,7 @@ float BezierBlend(float t);
 #define ROBOTO_12 0
 #define ROBOTO_10 1
 #define ROBOTO_16 2
-#define ICONS 3
+#define ROBOTO_14 3
+#define ICONS 4
 
 #endif  // RAYLIBTESTING_GLOBALS_HPP

@@ -42,6 +42,7 @@ int main(int, char**) {
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 14.0f));
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 12.0f));
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 19.0f));
+    GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 17.0f));
 
     ImVector<ImWchar> icons_ranges;
     ImFontGlyphRangesBuilder icons_builder;
@@ -57,6 +58,11 @@ int main(int, char**) {
     ImGuiStyle& style = ImGui::GetStyle();
     style.FrameBorderSize = 0.0f;
     style.WindowBorderSize = 0.0f;
+    style.ScrollbarSize = 3.0f;
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, COLORS::BACKGROUND);
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, COLORS::SECONDARY);
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabActive, COLORS::SECONDARY);
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabHovered, COLORS::SECONDARY);
 
     std::thread t([]() {
         GLOBALS::scanner.config.init();
