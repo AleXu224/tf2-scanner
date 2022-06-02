@@ -13,6 +13,7 @@ class Texture {
     unsigned char *data;
     bool loaded = false;
     bool rgba = false;
+    int channels = 0;
    public:
     static std::map<std::string, Texture> textures;
     GLuint id;

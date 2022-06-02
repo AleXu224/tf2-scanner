@@ -5,6 +5,8 @@
 
 using namespace ImGui;
 
+static std::mutex consoleMutex;
+
 void ConsoleWindow(bool &showConsole) {
     if (!showConsole) return;
     SetNextWindowSize(ImVec2(500, 500), ImGuiCond_FirstUseEver);
@@ -15,6 +17,7 @@ void ConsoleWindow(bool &showConsole) {
 }
 
 void Console::printOutput() {
+    consoleMutex.lock();
     for (auto &outputMessage : this->output) {
         if (outputMessage.type == TYPES::STRING) {
             if (outputMessage.severity == SEVERITY::ERR) {
@@ -35,27 +38,36 @@ void Console::printOutput() {
             itemList[outputMessage.index].ToConsole();
         }
     }
+    consoleMutex.unlock();
 }
 
 void Console::addOutput(std::string message, SEVERITY severity) {
     Output outputMessage(message, severity);
+    consoleMutex.lock();
     this->output.push_back(outputMessage);
+    consoleMutex.unlock();
 }
 
 void Console::addOutput(Player &player) {
     playerList.push_back(player);
     Output outputMessage(playerList.size() - 1, TYPES::PLAYER);
+    consoleMutex.lock();
     this->output.push_back(outputMessage);
+    consoleMutex.unlock();
 }
 
 void Console::addOutput(Inventory &inventory) {
     inventoryList.push_back(inventory);
     Output outputMessage(inventoryList.size() - 1, TYPES::INVENTORY);
+    consoleMutex.lock();
     this->output.push_back(outputMessage);
+    consoleMutex.unlock();
 }
 
 void Console::addOutput(Item &item) {
     itemList.push_back(item);
     Output outputMessage(itemList.size() - 1, TYPES::ITEM);
+    consoleMutex.lock();
     this->output.push_back(outputMessage);
+    consoleMutex.unlock();
 }

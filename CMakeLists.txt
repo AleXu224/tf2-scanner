@@ -72,7 +72,9 @@ add_executable(
         components/ApiKeyPrompt.hpp
         components/ApiKeyPrompt.cpp
         components/LoadingScreen.hpp
-        components/LoadingScreen.cpp)
+        components/LoadingScreen.cpp
+        components/Overlay.hpp
+        components/Overlay.cpp)
 
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS})

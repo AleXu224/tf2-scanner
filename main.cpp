@@ -4,6 +4,7 @@
 #include "components/SideBar.hpp"
 #include "components/StatsInfo.hpp"
 #include "components/TopBar.hpp"
+#include "components/Overlay.hpp"
 #include "cpr/cpr.h"
 #include "fonts/IconsMaterialDesign.h"
 #include "fonts/MaterialIcons.cpp"
@@ -95,6 +96,7 @@ int main(int, char**) {
         ConsoleWindow(show_console);
         StatsInfo(show_stats);
         LoadingScreen();
+        Overlay();
         ApiKeyPrompt();
         SideBar();
         TopBar();

@@ -5,6 +5,8 @@
 #include "stb_image_resize.h"
 #include "../globals.hpp"
 
+#define consoleLog GLOBALS::console.addOutput
+
 std::map<std::string, Texture> Texture::textures = {};
 
 Texture Texture::getFromUrl(const std::string &url, bool rgba) {
@@ -38,6 +40,7 @@ void Texture::loadTexture(const std::string url) {
 
     auto response = cpr::Get(cpr::Url{url});
     if (response.status_code != 200) {
+        consoleLog("Failed to load texture: " + url + " (" + std::to_string(response.status_code) + ")");
         return;
     }
 
@@ -55,6 +58,7 @@ void Texture::loadTexture(const std::string url) {
     texture.gotContent = true;
     texture.width = 64;
     texture.height = 64;
+    texture.channels = nrChannels;
     return;
 }
 
@@ -65,8 +69,11 @@ void Texture::loadTextureContent() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, rgba ? GL_RGBA : GL_RGB, width, height, 0, rgba ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+    int format;
+    if (channels == 1) format = GL_LUMINANCE;
+    else if (channels == 3) format = GL_RGB;
+    else if (channels == 4) format = GL_RGBA;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
     loaded = true;
     gotContent = false;

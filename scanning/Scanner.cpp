@@ -44,6 +44,50 @@ void Scanner::Scan() {
 
 
     std::vector<std::string> playersIds = getPlayerIds();
+    if (playersIds.empty()) {
+        consoleLog("No players found", SEVERITY::ERR);
+        isScanning = false;
+        return;
+    }
+
+    std::string &status = GLOBALS::scanner.scanStatus;
+
+    for (int i = 0; i < playersIds.size(); i += 100) {
+        std::vector<std::string> chunk(playersIds.begin() + i, playersIds.begin() + min(i + 100, playersIds.size()));
+        
+        status = "Getting summaries " + std::to_string(i / 100) + "/" + std::to_string(playersIds.size() / 100);
+
+        std::stringstream idsString;
+        for (auto &id : chunk) {
+            idsString << id << ",";
+        }
+
+        std::cout << idsString.str() << std::endl;
+
+        std::stringstream url;
+        url << "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=" << GLOBALS::scanner.config.apikey << "&format=json&steamids=" << idsString.str();
+
+        cpr::Response response = cpr::Get(cpr::Url{url.str()});
+        if (response.status_code != 200) {
+            consoleLog("Couldn't get summaries, code(" + std::to_string(response.status_code) + ")", SEVERITY::ERR);
+            isScanning = false;
+            return;
+        }
+
+        JsonPlayer::PlayerData playerData = nlohmann::json::parse(response.text);
+
+        for (int j = 0; j < playerData.response.players.size(); j++) {
+            status = "Scanning player " + std::to_string(i + j) + "/" + std::to_string(playersIds.size());
+            Player player(playerData.response.players[j]);
+            if (player.visibility != 3) {
+                consoleLog("Player " + player.steamid + " is not public, skipping", SEVERITY::INFO);
+                continue;
+            }
+            player.inventory.GetInventory();
+            playerPushList.push_back(player);
+        }
+    }
+
 
 
     isScanning = false;
@@ -111,9 +155,9 @@ std::vector<std::string> getPlayerIds() {
 
     }
 
-    for (auto &id : playersIds) {
-        consoleLog("Found player: " + id, SEVERITY::INFO);
-    }
+    // for (auto &id : playersIds) {
+    //     consoleLog("Found player: " + id, SEVERITY::INFO);
+    // }
 
     return playersIds;
 }

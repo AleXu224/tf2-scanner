@@ -247,7 +247,7 @@ void MainBody() {
 
     // Skip the users that are not visible below
     SetCursorPosY(GetCursorPosY() + (listSize - stop - 1) * childheight);
-    StatusProgress();
+    // StatusProgress();
     End();
 
     PopStyleColor(2);
