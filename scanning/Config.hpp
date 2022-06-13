@@ -44,6 +44,7 @@ class Config {
     float getKeyPrice();
 
     float getMinPriceInKeys();
+    float getMaxPriceInKeys();
 
    private:
     static void consoleLog(std::string message, SEVERITY severity = SEVERITY::INFO);

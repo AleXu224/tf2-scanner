@@ -88,33 +88,45 @@ void UserButtons(int &playerIndex) {
 void UserItem(int &playerIndex, int &itemIndex) {
     InvisibleButton("Item", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
-    const ImVec2 secondary_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 48};
     #define item players[playerIndex].inventory.items[itemIndex] 
-    ImColor secondaryColor = item.qualitySecondary == QUALITY::NONE ? QUALITY_COLORS.at(item.quality) : QUALITY_COLORS.at(item.qualitySecondary);
-    draw_list->AddRectFilled(GetItemRectMin(), secondary_pos_max, secondaryColor, 8.0f, ImDrawFlags_RoundCornersTop);
 
-    const ImVec2 main_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 16};
-    const ImVec2 main_pos_min = {GetItemRectMin().x, GetItemRectMin().y + 8};
-    draw_list->AddRectFilled(main_pos_min, main_pos_max, QUALITY_COLORS.at(item.quality), 8.0f, ImDrawFlags_RoundCornersTop);
+    if (item.qualitySecondary != QUALITY::NONE) {
+        const ImVec2 secondary_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 48};
+        ImColor secondaryColor = QUALITY_COLORS.at(item.qualitySecondary);
+        draw_list->AddRectFilled(GetItemRectMin(), secondary_pos_max, secondaryColor, 8.0f, ImDrawFlags_RoundCornersTop);
+    }
+
+    ImVec2 main_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 16};
+    ImVec2 main_pos_min = {GetItemRectMin().x, GetItemRectMin().y + (item.qualitySecondary == QUALITY::NONE ? 0 : 8)};
+    ImDrawFlags mainFlags = ImDrawFlags_RoundCornersTop;
+    if (item.currency == TF2CURRENCY::NONE) {
+        main_pos_max.y += 16;
+        mainFlags = 0;
+    }
+    draw_list->AddRectFilled(main_pos_min, main_pos_max, QUALITY_COLORS.at(item.quality), 8.0f, mainFlags);
     
     if (item.effectID != -1)
         draw_list->AddImage((void *)(intptr_t)Texture::getFromUrl(effectUrlPrefix + std::to_string(item.effectID) + effecturlSuffix, true).id, GetItemRectMin(), GetItemRectMax());
     draw_list->AddImage((void *)(intptr_t)Texture::getFromUrl(imageUrlPrefix + item.imageUrl, true).id, GetItemRectMin(), GetItemRectMax());
 
     PushFont(GLOBALS::FONTS[ROBOTO_10]);
-    const ImVec2 bottomPartPosition = {GetItemRectMin().x, GetItemRectMin().y + 48};
-    draw_list->AddRectFilled(bottomPartPosition, GetItemRectMax(), GetColorU32(COLORS::BACKGROUND), 8.0f, ImDrawFlags_RoundCornersBottom);
-    std::stringstream priceString;
 
-    int precision = 0;
-    if (remainder(item.price, 1) != 0) precision = 2;
-    priceString << std::fixed << std::setprecision(precision) << item.price << " " << TF2CURRENCY_STRINGS.at(item.currency);
+    if (item.currency != TF2CURRENCY::NONE) {
+        const ImVec2 bottomPartPosition = {GetItemRectMin().x, GetItemRectMin().y + 48};
+        ImColor bottomColor = item.currency == TF2CURRENCY::NONE ? QUALITY_COLORS.at(item.quality) : ImColor(COLORS::BACKGROUND);
+        draw_list->AddRectFilled(bottomPartPosition, GetItemRectMax(), bottomColor, 8.0f, ImDrawFlags_RoundCornersBottom);
+        std::stringstream priceString;
+        
+        int precision = 0;
+        if (remainder(item.price, 1) != 0) precision = 2;
+        priceString << std::fixed << std::setprecision(precision) << item.price << " " << TF2CURRENCY_STRINGS.at(item.currency);
 
-    ImVec2 priceSize = CalcTextSize(priceString.str().c_str(), nullptr, true);
-    ImVec2 pricePos = {
-        GetItemRectMin().x + 32 - priceSize.x / 2,
-        GetItemRectMin().y + 56 - priceSize.y / 2};
-    draw_list->AddText(pricePos, GetColorU32(COLORS::TEXT), priceString.str().c_str());
+        ImVec2 priceSize = CalcTextSize(priceString.str().c_str(), nullptr, true);
+        ImVec2 pricePos = {
+            GetItemRectMin().x + 32 - priceSize.x / 2,
+            GetItemRectMin().y + 56 - priceSize.y / 2};
+        draw_list->AddText(pricePos, GetColorU32(COLORS::TEXT), priceString.str().c_str());
+    }
     PopFont();
 
     if (IsItemHovered()) {

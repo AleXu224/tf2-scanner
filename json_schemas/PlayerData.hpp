@@ -74,7 +74,7 @@ namespace JsonPlayer
     {
         std::string steamid;
         int64_t communityvisibilitystate;
-        int64_t profilestate;
+        std::shared_ptr<int64_t> profilestate;
         std::string personaname;
         // std::shared_ptr<int64_t> commentpermission;
         std::string profileurl;
@@ -123,7 +123,7 @@ namespace nlohmann
     {
         x.steamid = j.at("steamid").get<std::string>();
         x.communityvisibilitystate = j.at("communityvisibilitystate").get<int64_t>();
-        x.profilestate = j.at("profilestate").get<int64_t>();
+        x.profilestate = JsonPlayer::get_optional<int64_t>(j, "profilestate");
         x.personaname = j.at("personaname").get<std::string>();
         // x.commentpermission = JsonPlayer::get_optional<int64_t>(j, "commentpermission");
         x.profileurl = j.at("profileurl").get<std::string>();

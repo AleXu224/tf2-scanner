@@ -293,3 +293,8 @@ float Config::getKeyPrice() {
 float Config::getMinPriceInKeys() {
     return max(minKeys, 0) + max(minRef / getKeyPrice(), 0);
 }
+
+float Config::getMaxPriceInKeys() {
+    if (maxKeys == -1 && maxRef == -1) return -1;
+    return max(maxKeys, 0) + max(maxRef / getKeyPrice(), 0);
+}

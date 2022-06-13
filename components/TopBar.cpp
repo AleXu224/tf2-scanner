@@ -71,12 +71,23 @@ void TopBar() {
 
     // Window
     Begin("Top Bar", nullptr, FLAGS);
-    if (TopBarButton("Scan")) {
-        std::thread scanThread([]() {
-            GLOBALS::scanner.Scan();
-        });
-        scanThread.detach();
+    if (!GLOBALS::scanner.isScanning) {
+        if (TopBarButton("Scan")) {
+            std::thread scanThread([]() {
+                GLOBALS::scanner.Scan();
+            });
+            scanThread.detach();
+        }
+    } else if (GLOBALS::scanner.isScanning && !GLOBALS::scanner.stopScanning) {
+        if (TopBarButton("Stop Scan")) {
+            GLOBALS::scanner.stopScanning = true;
+        }
+    } else if (GLOBALS::scanner.isScanning && GLOBALS::scanner.stopScanning) {
+       TopBarButton("Stoppping...");
     }
+
+
+
     SameLine(GetIO().DisplaySize.x - 16 * 2 - CalcTextSize("Settings").x);
     if (TopBarButton("Settings")) {
         GLOBALS::scanner.showDrawer = true;

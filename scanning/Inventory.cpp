@@ -20,11 +20,6 @@ void Inventory::GetInventory() {
 
     JsonInventory::Inventory inventoryData;
 
-    std::chrono::steady_clock::time_point startRequest;
-    std::chrono::steady_clock::time_point endRequest;
-    std::chrono::steady_clock::time_point startParse;
-    std::chrono::steady_clock::time_point endParse;
-
     int tries = 0;
     while (true && tries < 2) {
         auto now = std::chrono::steady_clock::now();
@@ -35,11 +30,7 @@ void Inventory::GetInventory() {
         }
         lastRequest = std::chrono::steady_clock::now();
 
-        startRequest = std::chrono::high_resolution_clock::now();
-
         auto inventoryResponse = cpr::Get(cpr::Url{url}, cpr::Timeout{15000});
-
-        endRequest = std::chrono::high_resolution_clock::now();
 
         if (inventoryResponse.status_code != 200) {
             if (inventoryResponse.status_code == 429) {
@@ -65,13 +56,10 @@ void Inventory::GetInventory() {
             consoleLog("Failed to fetch inventory after 2 tries, aborting", SEVERITY::ERR);
         }
 
-        auto startParse = std::chrono::high_resolution_clock::now();
         inventoryData = nlohmann::json::parse(inventoryResponse.text);
-        auto endParse = std::chrono::high_resolution_clock::now();
         break;
     }
 
-    auto startItems = std::chrono::high_resolution_clock::now();
     if (inventoryData.total_inventory_count == 0 || inventoryData.assets == nullptr || inventoryData.descriptions == nullptr) {
         consoleLog("No items found", SEVERITY::INFO);
         return;
@@ -97,9 +85,10 @@ void Inventory::GetInventory() {
                 }
 
                 Item item(desc);
-                if (item.currency == TF2CURRENCY::NONE) break;
-                if (item.getKeyPrice() < GLOBALS::scanner.config.getMinPriceInKeys()) break;
-                if (item.tradable && !item.fail) items.push_back(item);
+                if (item.currency != TF2CURRENCY::NONE && item.getKeyPrice() < GLOBALS::scanner.config.getMinPriceInKeys()) break;
+                if (!GLOBALS::scanner.config.noValue && item.currency == TF2CURRENCY::NONE) break;
+                if (!GLOBALS::scanner.config.untradable && !item.tradable) break;
+                if (!item.fail) items.push_back(item);
                 break;
             }
         }
@@ -108,15 +97,6 @@ void Inventory::GetInventory() {
     std::sort(items.begin(), items.end(), [](Item &a, Item &b) {
         return a.getKeyPrice() > b.getKeyPrice();
     });
-
-    auto endItems = std::chrono::high_resolution_clock::now();
-
-    auto durationRequest = std::chrono::duration_cast<std::chrono::milliseconds>(endRequest - startRequest);
-    auto durationParse = std::chrono::duration_cast<std::chrono::milliseconds>(endParse - startParse);
-    auto durationItems = std::chrono::duration_cast<std::chrono::milliseconds>(endItems - startItems);
-    // consoleLog("Time taken to fetch inventory: " + std::to_string(durationRequest.count()) + "ms", SEVERITY::INFO);
-    // consoleLog("Time taken to parse json: " + std::to_string(durationParse.count()) + "ms", SEVERITY::INFO);
-    // consoleLog("Time taken to parse items: " + std::to_string(durationItems.count()) + "ms", SEVERITY::INFO);
 
     success = true;
 }
@@ -138,4 +118,11 @@ void Inventory::ToConsole() {
         }
         TreePop();
     }
+}
+
+float Inventory::getCurrencyInInventory() {
+    float currency = keysCount;
+    currency += (scrapCount / 9.0f) / GLOBALS::scanner.config.getKeyPrice();
+
+    return currency;
 }

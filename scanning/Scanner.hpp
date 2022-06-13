@@ -25,6 +25,7 @@ class Scanner {
     bool isScanning = false;
     bool showApiKeyPrompt = false;
     bool showLoadingScreen = false;
+    bool stopScanning = false;
     ScanType scanType = ScanType::Steamids;
     std::string scanStatus;
     void Scan();

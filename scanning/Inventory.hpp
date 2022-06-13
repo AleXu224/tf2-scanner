@@ -19,6 +19,8 @@ class Inventory {
 
     void GetInventory();
 
+    float getCurrencyInInventory();
+
     void ToConsole();
 };
 

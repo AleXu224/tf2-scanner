@@ -206,8 +206,14 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         return;
     }
 
+    if (name.find("Unusual ") != std::string::npos && effectID != -1) {
+        name.replace(name.find("Unusual"), 7, effectName);
+    }
+
     // skins don't have prices so don't need to waste resources on that
     if (quality == QUALITY::DECORATED || qualitySecondary == QUALITY::DECORATED) return;
+
+    if (!tradable) return;
 
     std::string priceName;
     if (recipeDefindex != -1) {

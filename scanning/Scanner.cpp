@@ -53,6 +53,7 @@ void Scanner::Scan() {
     std::string &status = GLOBALS::scanner.scanStatus;
 
     for (int i = 0; i < playersIds.size(); i += 100) {
+        if (stopScanning) break;
         std::vector<std::string> chunk(playersIds.begin() + i, playersIds.begin() + min(i + 100, playersIds.size()));
         
         status = "Getting summaries " + std::to_string(i / 100) + "/" + std::to_string(playersIds.size() / 100);
@@ -61,8 +62,6 @@ void Scanner::Scan() {
         for (auto &id : chunk) {
             idsString << id << ",";
         }
-
-        std::cout << idsString.str() << std::endl;
 
         std::stringstream url;
         url << "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=" << GLOBALS::scanner.config.apikey << "&format=json&steamids=" << idsString.str();
@@ -77,6 +76,7 @@ void Scanner::Scan() {
         JsonPlayer::PlayerData playerData = nlohmann::json::parse(response.text);
 
         for (int j = 0; j < playerData.response.players.size(); j++) {
+            if (stopScanning) break;
             status = "Scanning player " + std::to_string(i + j) + "/" + std::to_string(playersIds.size());
             Player player(playerData.response.players[j]);
             if (player.visibility != 3) {
@@ -84,6 +84,14 @@ void Scanner::Scan() {
                 continue;
             }
             player.inventory.GetInventory();
+            if (player.inventory.items.empty()) continue;
+
+            #define maxPrice GLOBALS::scanner.config.getMaxPriceInKeys()
+            if (maxPrice != -1 && player.inventory.getCurrencyInInventory() < maxPrice) continue;
+
+
+
+
             playerPushList.push_back(player);
         }
     }
@@ -91,6 +99,7 @@ void Scanner::Scan() {
 
 
     isScanning = false;
+    stopScanning = false;
 }
 
 std::string id3ToId64(std::string id3) {
