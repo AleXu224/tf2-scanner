@@ -196,7 +196,9 @@ void UserChild(int windowID, int &playerIndex) {
     SetCursorPos({GetWindowSize().x - 14 - 16 - 32, GetCursorPosY() + 16});
 
     PushFont(GLOBALS::FONTS[ICONS]);
-    TextButton(ICON_MD_CLOSE);
+    if (TextButton(ICON_MD_CLOSE)) {
+        GLOBALS::scanner.playerPopList.push_back(playerIndex);
+    }
     PopFont();
 
     // bottom elements
@@ -247,6 +249,7 @@ void MainBody() {
 
     // Pushes the user queue into the player vector before doing anything
     // turns out vector.push_back is not thread safe (:
+    GLOBALS::scanner.popPlayers();
     GLOBALS::scanner.pushPlayers();
 
     const int listSize = players.size();

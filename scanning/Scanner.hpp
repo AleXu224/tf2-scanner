@@ -20,6 +20,7 @@ class Scanner {
     Config config;
     std::vector<Player> playerList;
     std::list<Player> playerPushList;
+    std::list<int> playerPopList;
     std::string scanInput;
     bool showDrawer = true;
     bool isScanning = false;
@@ -30,6 +31,7 @@ class Scanner {
     std::string scanStatus;
     void Scan();
     void pushPlayers();
+    void popPlayers();
     
 };
 

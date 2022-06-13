@@ -13,35 +13,12 @@
 std::vector<std::string> getPlayerIds();
 
 void Scanner::Scan() {
-    // consoleLog("Scanning for players...");
     if (isScanning) return;
     if (scanInput.empty()) {
         showDrawer = true;
         return;
     }
     isScanning = true;
-
-    // std::vector<std::string> playerids = {"76561198077264681", "76561198082497772", "76561198143252042", "76561199113821000", "76561198164651434", "76561198095022965", "76561198974533953", "76561198372127799", "76561198068064085"};
-
-    // for (auto &id : playerids) {
-    //     // placeholder scan
-    //     JsonPlayer::PlayerData playerData;
-    //     std::stringstream ss;
-    //     ss << "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=" << GLOBALS::scanner.config.apikey << "&format=json&steamids=" << id;
-    //     cpr::Response response = cpr::Get(cpr::Url{ss.str()});
-    //     if (response.status_code != 200) {
-    //         consoleLog("Couldn't get summaries, code(" + std::to_string(response.status_code) + ")", SEVERITY::ERR);
-    //         isScanning = false;
-    //         return;
-    //     }
-
-    //     playerData = nlohmann::json::parse(response.text);
-
-    //     Player player(playerData.response.players[0]);
-    //     player.inventory.GetInventory();
-    //     playerPushList.push_back(player);
-    // }
-
 
     std::vector<std::string> playersIds = getPlayerIds();
     if (playersIds.empty()) {
@@ -88,9 +65,6 @@ void Scanner::Scan() {
 
             #define maxPrice GLOBALS::scanner.config.getMaxPriceInKeys()
             if (maxPrice != -1 && player.inventory.getCurrencyInInventory() < maxPrice) continue;
-
-
-
 
             playerPushList.push_back(player);
         }
@@ -181,4 +155,18 @@ void Scanner::pushPlayers() {
     }
 
     playerPushList.clear();
+}
+
+void Scanner::popPlayers() {
+    if (playerList.empty()) return;
+
+    // std::sort(playerPopList.begin(), playerPopList.end(), [](int &a , int &b) {
+    //     return a < b;
+    // });
+
+    for (auto &id : playerPopList) {
+        playerList.erase(playerList.begin() + id);
+    }
+
+    playerPopList.clear();
 }
