@@ -184,7 +184,7 @@ void ScanTypeButton(ScanType buttonType, const float &buttonWidth, const float &
     ImColor buttonColor = scanType == buttonType ? ImColor(COLORS::SECONDARY) : ImColor(COLORS::PRIMARY_LIGHT);
     ImDrawCornerFlags corners = ImDrawCornerFlags_None;
     if (buttonType == ScanType::Steamids) corners = ImDrawCornerFlags_Left;
-    if (buttonType == ScanType::Friends) corners = ImDrawCornerFlags_Right;
+    if (buttonType == ScanType::Group) corners = ImDrawCornerFlags_Right;
     draw_list->AddRectFilled(GetItemRectMin(), GetItemRectMax(), buttonColor, 4.0f, corners);
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
     auto textSize = CalcTextSize(ScanType_Strings.at(buttonType).c_str(), nullptr, true);
@@ -202,7 +202,7 @@ void ScanTypeSelection() {
     const int padding = 16;
     const int height = 32;
     const int width = GetWindowSize().x - padding * 2;
-    const int buttonCount = 3;
+    const int buttonCount = 2;
     const float buttonWidth = width / buttonCount;
 
     ImDrawList *draw_list = GetWindowDrawList();
@@ -215,9 +215,6 @@ void ScanTypeSelection() {
 
     SameLine();
     ScanTypeButton(ScanType::Group, buttonWidth, height);
-
-    SameLine();
-    ScanTypeButton(ScanType::Friends, buttonWidth, height);
 }
 
 bool Tab(std::string tabName, bool tabActive) {
@@ -344,11 +341,16 @@ void SideBarMenu() {
 
         MainInput();
         if (CustomTextButton("Start Scan")) {
-            GLOBALS::scanner.showDrawer = false;
-            std::thread t([]() {
-                GLOBALS::scanner.Scan();
-            });
-            t.detach();
+            if (!GLOBALS::scanner.isScanning) {
+                GLOBALS::scanner.showDrawer = false;
+                std::thread t([]() {
+                    GLOBALS::scanner.Scan();
+                });
+                t.detach();
+            }
+        }
+        if (CustomTextButton("Clear Input")) {
+            GLOBALS::scanner.scanInput.clear();
         }
 
         CustomFloatInput("Max Refined", GLOBALS::scanner.config.maxRef);

@@ -19,6 +19,10 @@ class Player {
 
     Player(JsonPlayer::Player &player);
 
+    void getLevel();
+    void getHistories();
+    void getHours();
+
     void ToConsole();
 };
 

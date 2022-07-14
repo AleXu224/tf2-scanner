@@ -17,6 +17,8 @@
 #include "GLFW/glfw3.h"
 #include "utilities/Texture.hpp"
 
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+
 int main(int, char**) {
     if (!glfwInit())
         return 1;
