@@ -74,6 +74,10 @@ void Scanner::Scan() {
                     consoleLog("Player " + player.steamid + " has too many histories, skipping", SEVERITY::INFO);
                     return player;
                 }
+                if (GLOBALS::scanner.config.maxHours != -1 && (player.hours > GLOBALS::scanner.config.maxHours || player.hours == -1)) {
+                    consoleLog("Player " + player.steamid + " has too many hours, skipping", SEVERITY::INFO);
+                    return player;
+                }
                 GLOBALS::scanner.playerPushList.push_back(player);
                 return player;
             });
