@@ -75,6 +75,7 @@ void Scanner::Scan() {
                     return player;
                 }
                 GLOBALS::scanner.playerPushList.push_back(player);
+                return player;
             });
             miscThread.detach();
         }

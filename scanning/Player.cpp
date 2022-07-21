@@ -15,14 +15,6 @@ Player::Player(JsonPlayer::Player &player) : inventory(player.steamid) {
     visibility = player.communityvisibilitystate;
 }
 
-// Empty player for debugging purposes
-Player::Player(std::string steamid) : inventory(steamid) {
-    this->steamid = steamid;
-    name == "TestPlayer";
-    avatarUrl == "TestUrl";
-    visibility = 3;
-}
-
 void Player::getHours() {
     std::stringstream ss;
     ss << "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=";
