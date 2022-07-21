@@ -1,25 +1,19 @@
-# tf2-scanner
-An easy to use TF2 backpack/item scanner.
-Supports server statuses and steam ids and comes with a variety of filters to help with your trading.
+# TF2 Scanner
+## [Download here](https://github.com/AleXu224/tf2-scanner/releases/latest)
 
-![](https://i.imgur.com/CFfDTgI.png)
+An easy to use TF2 inventory scanner.
+Supports steamids, server statuses and even group links with a variety of filters to help with your trading.
 
-If you find any bugs or have a request please let me know by making an issue in the [Issues](https://github.com/AleXu224/TF2-Backpack-Scanner/issues) tab
+![](resources/bpscanner.png)
 
-# Usage:
-- Download the latest version of the program from the [releases](https://github.com/AleXu224/tf2-scanner/releases) tab
-- Extract the archive anywhere in your pc
-- Open **bpscanner.exe**
-- Set the Steam api key from the panel that appears
-- Get scanning
+# Usage
+- Download the latest version of the program from [here](https://github.com/AleXu224/tf2-scanner/releases/latest)
+- Extract the prgram anywhere in your pc
+- Open the program and input your [api key](https://steamcommunity.com/dev/apikey) on prompt
+- Press the "Settings" button to change the scan settings and input your steamids/server status/group link and start scanning
 
-# Frequently asked questions
+## Why does the scanner need my api key?
+The scanner requires your api key in order to get player summaries (basic player info like name, avatar, visibility, etc.), player levels and the item schema (information about items that the program requires to properly identify them).
 
-### The program asks for an api key and I don't know where to get it from
-You can get your api key from this [page](https://steamcommunity.com/dev/apikey)
-
-### The program shows and error at the start regarding VCRUNTIME140_1.dll
-You need to download the [C++ Runtime](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
-
-### Where can I report bugs or request a feature
-You can report bugs and request features in the [issues](https://github.com/AleXu224/tf2-scanner/issues) tab or by [adding me on Steam](http://steamcommunity.com/id/Squizell/)
+## Contact
+If you encounter a bug or wanna request a feature you can contact me on [Steam](http://steamcommunity.com/id/Squizell/) or Discord at Squizel#7200
