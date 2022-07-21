@@ -27,7 +27,7 @@ int main(int, char**) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "wew", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "TF2 Scanner", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
