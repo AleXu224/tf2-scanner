@@ -9,7 +9,6 @@ void LoadingScreen() {
     if (!GLOBALS::scanner.showLoadingScreen) return;
 
     ImGuiIO& io = GetIO();
-    ImDrawList* drawList = GetWindowDrawList();
 
     const float pwidth = 360.0f;
     const float pheight = 51.0f;
