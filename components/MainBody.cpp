@@ -180,6 +180,31 @@ void UserTags(int &playerIndex) {
     std::stringstream keysInInv;
     keysInInv << players[playerIndex].inventory.keysCount << " Keys";
     UserTag(keysInInv.str());
+
+    if (players[playerIndex].histories != -1) {
+        SameLine();
+        SetCursorPosX(GetCursorPosX() + 8);
+        std::stringstream histories;
+        histories << players[playerIndex].histories << " Refreshes";
+        UserTag(histories.str());
+    }
+
+    if (players[playerIndex].hours != -1) {
+        SameLine();
+        SetCursorPosX(GetCursorPosX() + 8);
+        std::stringstream hoursPlayed;
+        hoursPlayed << players[playerIndex].hours << " Hours";
+        UserTag(hoursPlayed.str());
+    }
+
+    if (players[playerIndex].level != -1) {
+        SameLine();
+        SetCursorPosX(GetCursorPosX() + 8);
+        std::stringstream level;
+        level << "Level " << players[playerIndex].level;
+        UserTag(level.str());
+    }
+
 }
 
 void UserChild(int windowID, int &playerIndex) {

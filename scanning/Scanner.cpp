@@ -66,7 +66,17 @@ void Scanner::Scan() {
             #define maxPrice GLOBALS::scanner.config.getMaxPriceInKeys()
             if (maxPrice != -1 && player.inventory.getCurrencyInInventory() < maxPrice) continue;
 
-            playerPushList.push_back(player);
+            std::thread miscThread([player]() mutable -> Player {
+                player.getHours();
+                player.getLevel();
+                player.getHistories();
+                if (GLOBALS::scanner.config.maxHistory != -1 && (player.histories > GLOBALS::scanner.config.maxHistory || player.histories == -1)) {
+                    consoleLog("Player " + player.steamid + " has too many histories, skipping", SEVERITY::INFO);
+                    return player;
+                }
+                GLOBALS::scanner.playerPushList.push_back(player);
+            });
+            miscThread.detach();
         }
     }
 

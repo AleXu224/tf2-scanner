@@ -57,6 +57,8 @@ add_executable(
         json_schemas/Prices.hpp 
         json_schemas/Skins.hpp 
         json_schemas/Effects.hpp 
+        json_schemas/UserGames.hpp
+        json_schemas/UserLevel.hpp
         scanning/Player.hpp 
         scanning/Player.cpp 
         scanning/Inventory.hpp 

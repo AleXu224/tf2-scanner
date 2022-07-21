@@ -377,6 +377,13 @@ void SideBarMenu() {
             });
             t.detach();
         }
+        if (CustomTextButton("Open Config Folder")) {
+            std::string localAppData = std::getenv("LOCALAPPDATA");
+            std::string path = localAppData + "\\BPScanner\\";
+            std::string cmd = "explorer " + path;
+            // system(cmd.c_str());
+            ShellExecute(NULL, NULL, path.c_str(), NULL, NULL, SW_SHOW);
+        }
     }
 
     EndChild();

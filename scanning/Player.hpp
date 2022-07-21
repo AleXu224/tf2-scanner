@@ -12,12 +12,13 @@ class Player {
     std::string name;
     std::string avatarUrl;
     int visibility;
-    int level{};
-    int histories{};
-    int hours{};
+    int level = -1;
+    int histories = -1;
+    int hours = -1;
     Inventory inventory;
 
     Player(JsonPlayer::Player &player);
+    Player(std::string steamid);
 
     void getLevel();
     void getHistories();

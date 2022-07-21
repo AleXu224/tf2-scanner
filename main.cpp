@@ -70,6 +70,7 @@ int main(int, char**) {
     std::thread t([]() {
         GLOBALS::scanner.config.init();
     });
+    t.detach();
 
     bool show_stats = false;
     bool show_demo_window = false;
