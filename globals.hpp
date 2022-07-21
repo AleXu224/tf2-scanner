@@ -7,6 +7,8 @@
 #include "string"
 #include "vector"
 
+#define SCANNER_VERSION "2.0.0"
+
 #define FLAGS 8455
 // ImGuiWindowFlags window_flags = 0;
 // window_flags |= ImGuiWindowFlags_NoTitleBar;

@@ -27,6 +27,9 @@ class Scanner {
     bool showApiKeyPrompt = false;
     bool showLoadingScreen = false;
     bool stopScanning = false;
+    bool updateAvailable = false;
+    std::string updateVersion = "";
+    std::string updateLink = "";
     ScanType scanType = ScanType::Steamids;
     std::string scanStatus;
     void Scan();

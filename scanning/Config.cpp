@@ -4,6 +4,7 @@
 #include "nlohmann/json.hpp"
 #include "utility"
 #include "vector"
+#include "../json_schemas/GithubVersion.hpp"
 
 void Config::consoleLog(std::string message, SEVERITY severity) {
     GLOBALS::console.addOutput(std::move(message), severity);
@@ -280,6 +281,34 @@ std::vector<int> Config::parseVersion(std::string version) {
     versionNumbers[2] = std::stoi(versionMatch[0]);
 
     return versionNumbers;
+}
+
+void Config::checkForUpdates() {
+    auto currentVersion = parseVersion(SCANNER_VERSION);
+
+    auto updateResponse = cpr::Get(cpr::Url{"https://api.github.com/repos/AleXu224/tf2-scanner/releases/latest"});
+
+    if (updateResponse.status_code != 200) {
+        consoleLog("Failed to check for updates", SEVERITY::WARNING);
+        return;
+    }
+
+    JsonGithubVersion::GithubVersion githubVersion = nlohmann::json::parse(updateResponse.text);
+    auto githubVersionNumbers = parseVersion(githubVersion.tag_name);
+
+    for (int i = 0; i < 3; i++) {
+        if (githubVersionNumbers[i] > currentVersion[i]) {
+            consoleLog("New version available: " + githubVersion.tag_name, SEVERITY::INFO);
+            GLOBALS::scanner.updateAvailable = true;
+            GLOBALS::scanner.updateVersion = githubVersion.tag_name;
+            GLOBALS::scanner.updateLink = githubVersion.html_url;
+            return;
+        }
+        if (githubVersionNumbers[i] < currentVersion[i]) {
+            consoleLog("You are currently running a version that is ahead of master", SEVERITY::WARNING);
+            return;
+        }
+    }
 }
 
 float Config::getKeyPrice() {

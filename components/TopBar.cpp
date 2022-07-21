@@ -86,7 +86,15 @@ void TopBar() {
        TopBarButton("Stoppping...");
     }
 
-
+    if (GLOBALS::scanner.updateAvailable) {
+        std::stringstream ss;
+        ss << "Update available: " << GLOBALS::scanner.updateVersion;
+        SameLine();
+        SetCursorPosX(GetCursorPosX() + 8);
+        if (TopBarButton(ss.str())) {
+            ShellExecute(NULL, "open", GLOBALS::scanner.updateLink.c_str(), NULL, NULL, SW_SHOW);
+        }
+    }
 
     SameLine(GetIO().DisplaySize.x - 16 * 2 - CalcTextSize("Settings").x);
     if (TopBarButton("Settings")) {

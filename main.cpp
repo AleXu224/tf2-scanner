@@ -69,6 +69,7 @@ int main(int, char**) {
 
     std::thread t([]() {
         GLOBALS::scanner.config.init();
+        GLOBALS::scanner.config.checkForUpdates();
     });
     t.detach();
 

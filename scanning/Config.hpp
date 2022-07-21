@@ -41,6 +41,8 @@ class Config {
 
     static std::vector<int> parseVersion(std::string version);
 
+    void checkForUpdates();
+
     float getKeyPrice();
 
     float getMinPriceInKeys();

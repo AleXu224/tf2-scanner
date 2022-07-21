@@ -59,6 +59,7 @@ add_executable(
         json_schemas/Effects.hpp 
         json_schemas/UserGames.hpp
         json_schemas/UserLevel.hpp
+        json_schemas/GithubVersion.hpp
         scanning/Player.hpp 
         scanning/Player.cpp 
         scanning/Inventory.hpp 
