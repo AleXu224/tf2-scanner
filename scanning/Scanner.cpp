@@ -64,7 +64,7 @@ void Scanner::Scan() {
             if (player.inventory.items.empty()) continue;
 
             #define maxPrice GLOBALS::scanner.config.getMaxPriceInKeys()
-            if (maxPrice != -1 && player.inventory.getCurrencyInInventory() < maxPrice) continue;
+            if (maxPrice != -1 && player.inventory.getCurrencyInInventory() > maxPrice) continue;
 
             std::thread miscThread([player]() mutable -> Player {
                 player.getHours();
