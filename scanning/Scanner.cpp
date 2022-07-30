@@ -18,6 +18,7 @@ void Scanner::Scan() {
         showDrawer = true;
         return;
     }
+    GLOBALS::scanner.config.save();
     isScanning = true;
 
     std::vector<std::string> playersIds = getPlayerIds();
