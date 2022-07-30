@@ -130,7 +130,14 @@ void UserItem(int &playerIndex, int &itemIndex) {
     PopFont();
 
     if (IsItemHovered()) {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
+        ImGui::PushStyleColor(ImGuiCol_PopupBg, COLORS::PRIMARY_LIGHT);
+        ImGui::PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
         ImGui::SetTooltip("%s", item.name.c_str());
+        ImGui::PopStyleColor(2);
+        ImGui::PopStyleVar(3);
     }
 }
 
