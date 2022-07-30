@@ -85,9 +85,14 @@ void Inventory::GetInventory() {
                 }
 
                 Item item(desc);
-                if (strlen(GLOBALS::scanner.config.nameFilter) > 0) {
-                    if (item.name.find(GLOBALS::scanner.config.nameFilter) == std::string::npos) {
-                        continue;
+                auto &nameFilter = GLOBALS::scanner.config.nameFilter;
+                if (strlen(nameFilter) > 0) {
+                    if (strlen(nameFilter) >= 2 && nameFilter[0] == '/' && nameFilter[strlen(nameFilter) - 1] == '/') {
+                        std::string filter = std::string(nameFilter).substr(1, strlen(nameFilter) - 2);
+                        std::regex filterRegex(filter);
+                        if (!std::regex_search(item.name, filterRegex)) break;
+                    } else if (item.name.find(nameFilter) == std::string::npos) {
+                        break;
                     }
                 }
                 if (item.currency != TF2CURRENCY::NONE && item.getKeyPrice() < GLOBALS::scanner.config.getMinPriceInKeys()) break;
