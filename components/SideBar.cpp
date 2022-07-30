@@ -111,7 +111,7 @@ void CustomIntInput(std::string input_name, int &input_value, std::string toolTi
     PopFont();
 }
 
-void CustomTextInput(std::string input_name, char* input_value, int maxSize, std::string toolTip = "") {
+void CustomTextInput(std::string input_name, char* input_value, int maxSize, std::string toolTip) {
     static std::map<std::string, bool> input_map;
     PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
