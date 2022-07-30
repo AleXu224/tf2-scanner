@@ -7,7 +7,7 @@
 #include "string"
 #include "vector"
 
-#define SCANNER_VERSION "2.1.0"
+#define SCANNER_VERSION "2.1.1"
 
 #define FLAGS 8455
 // ImGuiWindowFlags window_flags = 0;
