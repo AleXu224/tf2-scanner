@@ -4,7 +4,7 @@
 #include "string"
 
 void SideBar();
-void CustomTextInput(std::string input_name, char* input_value);
+void CustomTextInput(std::string input_name, char* input_value, int maxSize, std::string toolTip = "");
 bool CustomTextButton(const std::string& value);
 
 #endif  // RAYLIBTESTING_SIDEBAR_HPP

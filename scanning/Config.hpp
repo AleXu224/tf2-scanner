@@ -14,6 +14,7 @@
 
 class Config {
    public:
+    char nameFilter[64] = "";
     float maxRef = -1;
     float maxKeys = -1;
     float minRef = -1;
