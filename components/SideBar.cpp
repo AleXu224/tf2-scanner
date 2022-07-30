@@ -370,7 +370,7 @@ void SideBarMenu() {
         if (CustomTextButton("Clear Input")) {
             GLOBALS::scanner.scanInput.clear();
         }
-        CustomTextInput("Name filter", GLOBALS::scanner.config.nameFilter, 64, "Name filter for items (case sensitive)");
+        CustomTextInput("Name filter", GLOBALS::scanner.config.nameFilter, 64, "Name filter for items (case sensitive). Surround with / for regex.");
         if (strlen(GLOBALS::scanner.config.nameFilter) > 0) {
             if (CustomTextButton("Clear Name Filter")) {
                 GLOBALS::scanner.config.nameFilter[0] = '\0';
