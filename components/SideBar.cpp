@@ -9,6 +9,21 @@
 
 using namespace ImGui;
 
+void CustomHelpMarker(std::string text) {
+    SameLine();
+    TextDisabled("(?)");
+    if (IsItemHovered()) {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
+        ImGui::PushStyleColor(ImGuiCol_PopupBg, COLORS::PRIMARY_LIGHT);
+        ImGui::PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
+        ImGui::SetTooltip("%s", text.c_str());
+        ImGui::PopStyleColor(2);
+        ImGui::PopStyleVar(3);
+    }
+}
+
 bool CustomTextButton(const std::string &value) {
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
     // Invisible button and size calculation
@@ -55,13 +70,14 @@ bool CustomTextButton(const std::string &value) {
     return returnValue;
 }
 
-void CustomIntInput(std::string input_name, int &input_value) {
+void CustomIntInput(std::string input_name, int &input_value, std::string toolTip = "") {
     static std::map<std::string, bool> input_map;
     PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
     Text("%s", input_name.c_str());
+    if (!toolTip.empty()) CustomHelpMarker(toolTip);
     PopStyleColor();
     PopFont();
 
@@ -135,13 +151,14 @@ void CustomTextInput(std::string input_name, char* input_value) {
     PopFont();
 }
 
-void CustomFloatInput(std::string input_name, float &input_value) {
+void CustomFloatInput(std::string input_name, float &input_value, std::string toolTip = "") {
     static std::map<std::string, bool> input_map;
     PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
     Text("%s", input_name.c_str());
+    if (!toolTip.empty()) CustomHelpMarker(toolTip);
     PopStyleColor();
     PopFont();
 
@@ -353,12 +370,12 @@ void SideBarMenu() {
             GLOBALS::scanner.scanInput.clear();
         }
 
-        CustomFloatInput("Max Refined", GLOBALS::scanner.config.maxRef);
-        CustomFloatInput("Max Keys", GLOBALS::scanner.config.maxKeys);
-        CustomFloatInput("Min Refined", GLOBALS::scanner.config.minRef);
-        CustomFloatInput("Min Keys", GLOBALS::scanner.config.minKeys);
-        CustomIntInput("Max Hours", GLOBALS::scanner.config.maxHours);
-        CustomIntInput("Max history", GLOBALS::scanner.config.maxHistory);
+        CustomFloatInput("Max Refined", GLOBALS::scanner.config.maxRef, "Max amount of pure currency allowed in the user's inventory (this includes keys)");
+        CustomFloatInput("Max Keys", GLOBALS::scanner.config.maxKeys, "Max amount of pure currency allowed in the user's inventory (this includes refined)");
+        CustomFloatInput("Min Refined", GLOBALS::scanner.config.minRef, "Minimum item price allowed for an item to be displayed");
+        CustomFloatInput("Min Keys", GLOBALS::scanner.config.minKeys, "Minimum item price allowed for an item to be displayed");
+        CustomIntInput("Max Hours", GLOBALS::scanner.config.maxHours, "Maximum number of hours a user can have before being skipped");
+        CustomIntInput("Max history", GLOBALS::scanner.config.maxHistory, "Maximum number of refreshes a user can have on backpack.tf before being skipped");
 
         SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
         CustomCheckbox("Untradable", GLOBALS::scanner.config.untradable);
