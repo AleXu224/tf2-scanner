@@ -384,6 +384,14 @@ void SideBarMenu() {
             // system(cmd.c_str());
             ShellExecute(NULL, NULL, path.c_str(), NULL, NULL, SW_SHOW);
         }
+        if (CustomTextButton("Force Update")) {
+            GLOBALS::scanner.showDrawer = false;
+            GLOBALS::scanner.config.lastUpdate = 0;
+            std::thread t([]() {
+                GLOBALS::scanner.config.fetchRequirements();
+            });
+            t.detach();
+        }
     }
 
     EndChild();
