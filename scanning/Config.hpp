@@ -28,6 +28,8 @@ class Config {
 
     char apikey[32] = "";
 
+    int lastUpdate = 0;
+
     std::vector<JsonSchema::Item> itemSchema = {};
     JsonPrices::Pricelist itemPrices;
     JsonSkins::Skins skinsData;

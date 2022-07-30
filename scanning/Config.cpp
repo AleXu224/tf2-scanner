@@ -5,6 +5,7 @@
 #include "utility"
 #include "vector"
 #include "../json_schemas/GithubVersion.hpp"
+#include "chrono"
 
 void Config::consoleLog(std::string message, SEVERITY severity) {
     GLOBALS::console.addOutput(std::move(message), severity);
@@ -28,10 +29,17 @@ void Config::fetchRequirements() {
         std::filesystem::create_directory(storagePath);
     }
 
+    // Last update check
+    using namespace std::chrono;
+    int currentTime = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    const int updateInterval = 60 * 60 * 24 * 7; // 1 week
+    bool shouldUpdate = (currentTime - lastUpdate) > updateInterval;
+    if (shouldUpdate) consoleLog("Last update was more than a week ago, updating...");
+
     // Item schema
     std::ifstream schemaFile;
     schemaFile.open(storagePath + "schema.json");
-    if (schemaFile.is_open()) {
+    if (schemaFile.is_open() && !shouldUpdate) {
         consoleLog("Schema file found, loading...");
         std::stringstream buffer;
         buffer << schemaFile.rdbuf();
@@ -74,7 +82,7 @@ void Config::fetchRequirements() {
     // Item prices
     std::ifstream pricesFile;
     pricesFile.open(storagePath + "prices.json");
-    if (pricesFile.is_open()) {
+    if (pricesFile.is_open() && !shouldUpdate) {
         consoleLog("Prices file found, loading...");
         std::stringstream buffer;
         buffer << pricesFile.rdbuf();
@@ -107,7 +115,7 @@ void Config::fetchRequirements() {
     // Skins
     std::ifstream skinsFile;
     skinsFile.open(storagePath + "skins.json");
-    if (skinsFile.is_open()) {
+    if (skinsFile.is_open() && !shouldUpdate) {
         consoleLog("Skins file found, loading...");
         std::stringstream buffer;
         buffer << skinsFile.rdbuf();
@@ -140,7 +148,7 @@ void Config::fetchRequirements() {
     // item effects
     std::ifstream effectsFile;
     effectsFile.open(storagePath + "effects.json");
-    if (effectsFile.is_open()) {
+    if (effectsFile.is_open() && !shouldUpdate) {
         consoleLog("Effects file found, loading...");
         std::stringstream buffer;
         buffer << effectsFile.rdbuf();
@@ -171,6 +179,8 @@ void Config::fetchRequirements() {
     }
 
     consoleLog("Loading complete");
+    lastUpdate = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    save();
     GLOBALS::scanner.showLoadingScreen = false;
 }
 
@@ -205,6 +215,8 @@ void Config::init() {
         untradable = config["untradable"].get<bool>();
         noValue = config["noValue"].get<bool>();
         skins = config["skins"].get<bool>();
+        // Null check so that users coming from an older version don't crash
+        if (!config["lastUpdate"].is_null()) lastUpdate = config["lastUpdate"].get<int>();
         strcpy(apikey, config["apikey"].get<std::string>().c_str());
     } else {
         consoleLog("Config file does not exist, creating...", SEVERITY::INFO);
@@ -220,6 +232,7 @@ void Config::init() {
         config["noValue"] = noValue;
         config["skins"] = skins;
         config["apikey"] = apikey;
+        config["lastUpdate"] = lastUpdate;
 
         std::ofstream configFileOut;
         configFileOut.open(storagePath + "config.json");
@@ -259,6 +272,7 @@ void Config::save() {
     config["noValue"] = noValue;
     config["skins"] = skins;
     config["apikey"] = apikey;
+    config["lastUpdate"] = lastUpdate;
 
     std::ofstream configFileOut;
     configFileOut.open(storagePath + "config.json");
