@@ -26,7 +26,7 @@ void ApiKeyPrompt() {
     SetCursorPos({io.DisplaySize.x / 2 - fwidth / 2, io.DisplaySize.y / 2 - fheight / 2});
     BeginChild("ApiKeyPrompt", {fwidth, fheight});
 
-    CustomTextInput("API Key", GLOBALS::scanner.config.apikey);
+    CustomTextInput("API Key", GLOBALS::scanner.config.apikey, 32);
     if (CustomTextButton("Save")) {
         auto &apiKey = GLOBALS::scanner.config.apikey;
         if (strlen(apiKey) == 32) {

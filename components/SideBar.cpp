@@ -111,13 +111,14 @@ void CustomIntInput(std::string input_name, int &input_value, std::string toolTi
     PopFont();
 }
 
-void CustomTextInput(std::string input_name, char* input_value) {
+void CustomTextInput(std::string input_name, char* input_value, int maxSize, std::string toolTip = "") {
     static std::map<std::string, bool> input_map;
     PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
     Text("%s", input_name.c_str());
+    if (!toolTip.empty()) CustomHelpMarker(toolTip);
     PopStyleColor();
     PopFont();
 
@@ -137,7 +138,7 @@ void CustomTextInput(std::string input_name, char* input_value) {
         PushStyleColor(ImGuiCol_Border, COLORS::PRIMARY_LIGHT);
 
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
-    InputText("", GLOBALS::scanner.config.apikey, 33);
+    InputText("", input_value, maxSize + 1);
     PopID();
 
     // It's gonna be one frame late but it's the best solution I could find
@@ -369,6 +370,12 @@ void SideBarMenu() {
         if (CustomTextButton("Clear Input")) {
             GLOBALS::scanner.scanInput.clear();
         }
+        CustomTextInput("Name filter", GLOBALS::scanner.config.nameFilter, 64, "Name filter for items (case sensitive)");
+        if (strlen(GLOBALS::scanner.config.nameFilter) > 0) {
+            if (CustomTextButton("Clear Name Filter")) {
+                GLOBALS::scanner.config.nameFilter[0] = '\0';
+            }
+        }
 
         CustomFloatInput("Max Refined", GLOBALS::scanner.config.maxRef, "Max amount of pure currency allowed in the user's inventory (this includes keys)");
         CustomFloatInput("Max Keys", GLOBALS::scanner.config.maxKeys, "Max amount of pure currency allowed in the user's inventory (this includes refined)");
@@ -386,7 +393,7 @@ void SideBarMenu() {
 
         SetCursorPosY(GetCursorPosY() + 16);
     } else if (selectedTab == 1) {
-        CustomTextInput("API Key", GLOBALS::scanner.config.apikey);
+        CustomTextInput("API Key", GLOBALS::scanner.config.apikey, 32);
         if (CustomTextButton("Save")) {
             GLOBALS::scanner.showDrawer = false;
             std::thread t([]() {

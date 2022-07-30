@@ -85,6 +85,11 @@ void Inventory::GetInventory() {
                 }
 
                 Item item(desc);
+                if (strlen(GLOBALS::scanner.config.nameFilter) > 0) {
+                    if (item.name.find(GLOBALS::scanner.config.nameFilter) == std::string::npos) {
+                        continue;
+                    }
+                }
                 if (item.currency != TF2CURRENCY::NONE && item.getKeyPrice() < GLOBALS::scanner.config.getMinPriceInKeys()) break;
                 if (!GLOBALS::scanner.config.noValue && item.currency == TF2CURRENCY::NONE) break;
                 if (!GLOBALS::scanner.config.untradable && !item.tradable) break;
