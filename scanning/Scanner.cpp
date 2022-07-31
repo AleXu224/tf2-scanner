@@ -119,14 +119,21 @@ std::vector<std::string> getPlayerIds() {
         }
     } else if (scanType == ScanType::Group) {
         int totalPages = 1;
-        int currentPage = 1;
+        int currentPage = GLOBALS::scanner.config.groupSkipPages + 1;
         std::string &scanStatus = GLOBALS::scanner.scanStatus;
         scanStatus = "Getting group members...";
-        while (currentPage <= totalPages) {
+        do {
+            if (GLOBALS::scanner.stopScanning) break;
+            consoleLog("Getting group members page " + std::to_string(currentPage) + "/" + std::to_string(totalPages), SEVERITY::INFO);
             std::stringstream groupLink;
             groupLink << input << "/memberslistxml/?p=" << currentPage;
 
             cpr::Response response = cpr::Get(cpr::Url{groupLink.str()});
+
+            if (response.status_code == 429) {
+                consoleLog("Too many requests, stopping", SEVERITY::ERR);
+                consoleLog("Group members page only allows 30 requests before banning you for ~15-30 minutes", SEVERITY::ERR);
+            }
 
             if (response.status_code != 200) {
                 consoleLog("Couldn't get group members, code(" + std::to_string(response.status_code) + ")", SEVERITY::ERR);
@@ -136,7 +143,7 @@ std::vector<std::string> getPlayerIds() {
             std::string responseText = response.text;
             std::string totalPagesString = responseText.substr(responseText.find("totalPages") + 11, responseText.find("totalPages") + 15);
             totalPages = std::stoi(totalPagesString);
-            totalPages = min(totalPages, 5);
+            totalPages = min(totalPages, GLOBALS::scanner.config.groupSkipPages + GLOBALS::scanner.config.groupScanPages);
             if (totalPages == 0) {
                 consoleLog("Group has no members", SEVERITY::ERR);
                 return playersIds;
@@ -150,8 +157,7 @@ std::vector<std::string> getPlayerIds() {
             }
             scanStatus = "Getting group members... (" + std::to_string(currentPage * 1000) + "/" + std::to_string(totalPages * 1000) + ")";
             ++currentPage;
-        }
-
+        } while (currentPage <= totalPages);
     }
 
     // for (auto &id : playersIds) {
