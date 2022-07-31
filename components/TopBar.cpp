@@ -83,7 +83,7 @@ void TopBar() {
             GLOBALS::scanner.stopScanning = true;
         }
     } else if (GLOBALS::scanner.isScanning && GLOBALS::scanner.stopScanning) {
-       TopBarButton("Stoppping...");
+       TopBarButton("Stopping...");
     }
 
     if (GLOBALS::scanner.updateAvailable) {
