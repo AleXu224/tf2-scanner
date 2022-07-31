@@ -31,6 +31,9 @@ class Config {
 
     int lastUpdate = 0;
 
+    int groupSkipPages = 0;
+    int groupScanPages = 5;
+
     std::vector<JsonSchema::Item> itemSchema = {};
     JsonPrices::Pricelist itemPrices;
     JsonSkins::Skins skinsData;

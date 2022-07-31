@@ -217,6 +217,8 @@ void Config::init() {
         skins = config["skins"].get<bool>();
         // Null check so that users coming from an older version don't crash
         if (!config["lastUpdate"].is_null()) lastUpdate = config["lastUpdate"].get<int>();
+        if (!config["groupSkipPages"].is_null()) groupSkipPages = config["groupSkipPages"].get<int>();
+        if (!config["groupScanPages"].is_null()) groupScanPages = config["groupScanPages"].get<int>();
         strcpy(apikey, config["apikey"].get<std::string>().c_str());
     } else {
         consoleLog("Config file does not exist, creating...", SEVERITY::INFO);
@@ -233,6 +235,8 @@ void Config::init() {
         config["skins"] = skins;
         config["apikey"] = apikey;
         config["lastUpdate"] = lastUpdate;
+        config["groupSkipPages"] = groupSkipPages;
+        config["groupScanPages"] = groupScanPages;
 
         std::ofstream configFileOut;
         configFileOut.open(storagePath + "config.json");
@@ -273,6 +277,8 @@ void Config::save() {
     config["skins"] = skins;
     config["apikey"] = apikey;
     config["lastUpdate"] = lastUpdate;
+    config["groupSkipPages"] = groupSkipPages;
+    config["groupScanPages"] = groupScanPages;
 
     std::ofstream configFileOut;
     configFileOut.open(storagePath + "config.json");

@@ -358,6 +358,11 @@ void SideBarMenu() {
         ScanTypeSelection();
 
         MainInput();
+        if (GLOBALS::scanner.scanType == ScanType::Group) {
+            CustomIntInput("Skip pages", GLOBALS::scanner.config.groupSkipPages, "The number of thousands of players the scanner will skip in the group, 1 page = 1000 players");
+            CustomIntInput("Scan pages", GLOBALS::scanner.config.groupScanPages, "The number of thousands of players the scanner will scan in the group.\nLimited to 30 since after that you get a timeout from steam");
+            if (GLOBALS::scanner.config.groupScanPages > 30) GLOBALS::scanner.config.groupScanPages = 30;
+        }
         if (CustomTextButton("Start Scan")) {
             if (!GLOBALS::scanner.isScanning) {
                 GLOBALS::scanner.showDrawer = false;
