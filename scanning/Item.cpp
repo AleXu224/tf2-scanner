@@ -147,12 +147,12 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         for (auto &description : *itemData.descriptions) {
             if (quality == QUALITY::UNUSUAL && description.value.find("★ Unusual Effect: ") != std::string::npos) {
                 effectName = description.value.substr(description.value.find("Unusual Effect: ") + 16);
-                effectID = GLOBALS::scanner.config.itemEffects.at(effectName);
-                if (effectID == -1) {
+                if (GLOBALS::scanner.config.itemEffects.find(effectName) == GLOBALS::scanner.config.itemEffects.end()) {
                     consoleLog("Couldn't find effect: " + effectName, SEVERITY::ERR);
                     fail = true;
                     return;
                 }
+                effectID = GLOBALS::scanner.config.itemEffects.at(effectName);
                 break;
             } else if (description.value.find("Usable in Crafting") != std::string::npos) {
                 craftable = false;
