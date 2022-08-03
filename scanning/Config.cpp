@@ -212,7 +212,9 @@ void Config::fetchRequirements() {
     }
 
     consoleLog("Loading complete");
-    lastUpdate = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    if (shouldUpdate) {
+        lastUpdate = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    }
     save();
     GLOBALS::scanner.showLoadingScreen = false;
 }
