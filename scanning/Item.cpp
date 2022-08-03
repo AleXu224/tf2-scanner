@@ -206,12 +206,25 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         return;
     }
 
+
+    if ((skinID != -1 || name.find("Killstreak ") != std::string::npos) && tradable) {
+        for (auto &marketPrice : GLOBALS::scanner.config.marketPrices) {
+            if (marketPrice.name == name) {
+                price = static_cast<float>(marketPrice.sell_price) / 100; // Convert from cents to dollars
+                currency = TF2CURRENCY::USD;
+                if (name.find("Unusual ") != std::string::npos && effectID != -1) {
+                    name.replace(name.find("Unusual"), 7, effectName);
+                }
+                return;
+            }
+        }
+        consoleLog("Couldn't find price for: " + name, SEVERITY::WARNING);
+        return;
+    }
+
     if (name.find("Unusual ") != std::string::npos && effectID != -1) {
         name.replace(name.find("Unusual"), 7, effectName);
     }
-
-    // skins don't have prices so don't need to waste resources on that
-    if (quality == QUALITY::DECORATED || qualitySecondary == QUALITY::DECORATED) return;
 
     if (!tradable) return;
 
@@ -322,6 +335,10 @@ float Item::getKeyPrice() {
         return price;
     else if (currency == TF2CURRENCY::METAL)
         return price / keyPrice;
-    else
+    else if (currency == TF2CURRENCY::HATS)
         return (4.0f / 3.0f) / keyPrice;
+    else if (currency == TF2CURRENCY::USD)
+        return price / 2.2f; // placeholder key price, should work well enough
+    else
+        return 0.0f; // literally can't happen but the compiler won't stop bugging me about it
 }
