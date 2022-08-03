@@ -6,6 +6,7 @@
 #include "../json_schemas/Prices.hpp"
 #include "../json_schemas/Schema.hpp"
 #include "../json_schemas/Skins.hpp"
+#include "../json_schemas/MarketPrices.hpp"
 #include "cpr/cpr.h"
 #include "filesystem"
 #include "iostream"
@@ -38,6 +39,7 @@ class Config {
     JsonPrices::Pricelist itemPrices;
     JsonSkins::Skins skinsData;
     JsonEffects::Effects itemEffects;
+    std::vector<MarketPricesJson::MarketPrice> marketPrices;
 
     void fetchRequirements();
 

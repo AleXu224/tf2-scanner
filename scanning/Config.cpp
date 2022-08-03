@@ -178,6 +178,39 @@ void Config::fetchRequirements() {
         consoleLog("Effects file saved");
     }
 
+    // market prices
+    std::ifstream marketFile;
+    marketFile.open(storagePath + "market.json");
+    if (marketFile.is_open() && !shouldUpdate) {
+        consoleLog("Market file found, loading...");
+        std::stringstream buffer;
+        buffer << marketFile.rdbuf();
+        marketFile.close();
+
+        marketPrices = nlohmann::json::parse(buffer.str());
+    } else {
+        consoleLog("Market file does not exist, fetching...", SEVERITY::INFO);
+        std::string url = "https://raw.githubusercontent.com/AleXu224/bptf_pricelist/master/marketPrices.json";
+        auto marketResponse = cpr::Get(cpr::Url{url});
+
+        consoleLog("Market response code: " + std::to_string(marketResponse.status_code));
+        if (marketResponse.status_code != 200) {
+            consoleLog("Failed to fetch market, aborting", SEVERITY::ERR);
+            return;
+        }
+        std::vector<MarketPricesJson::MarketPrice> market = nlohmann::json::parse(marketResponse.text);
+
+        marketPrices = market;
+
+        std::ofstream marketFileOut;
+        marketFileOut.open(storagePath + "market.json");
+        nlohmann::json marketJson = marketPrices;
+        marketFileOut << marketJson.dump();
+        marketFileOut.close();
+
+        consoleLog("Market file saved");
+    }
+
     consoleLog("Loading complete");
     lastUpdate = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
     save();

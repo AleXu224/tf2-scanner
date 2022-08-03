@@ -60,6 +60,7 @@ add_executable(
         json_schemas/UserGames.hpp
         json_schemas/UserLevel.hpp
         json_schemas/GithubVersion.hpp
+        json_schemas/MarketPrices.hpp
         scanning/Player.hpp 
         scanning/Player.cpp 
         scanning/Inventory.hpp 
