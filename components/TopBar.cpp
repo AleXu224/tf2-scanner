@@ -96,9 +96,18 @@ void TopBar() {
         }
     }
 
-    SameLine(GetIO().DisplaySize.x - 16 * 2 - CalcTextSize("Settings").x);
+    auto settingsOffset = 16 * 2 + CalcTextSize("Settings").x;
+    SameLine(GetIO().DisplaySize.x - settingsOffset);
     if (TopBarButton("Settings")) {
         GLOBALS::scanner.showDrawer = true;
+    }
+
+    if (GLOBALS::scanner.playerList.size() > 0) {
+        auto clearAllOffset = 16 * 2 + CalcTextSize("Clear All").x + 8;
+        SameLine(GetIO().DisplaySize.x - clearAllOffset - settingsOffset);
+        if (TopBarButton("Clear All")) {
+            GLOBALS::scanner.playerList.clear();
+        }
     }
     End();
 
