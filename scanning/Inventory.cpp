@@ -98,6 +98,7 @@ void Inventory::GetInventory() {
                 if (item.currency != TF2CURRENCY::NONE && item.getKeyPrice() < GLOBALS::scanner.config.getMinPriceInKeys()) break;
                 if (!GLOBALS::scanner.config.noValue && item.currency == TF2CURRENCY::NONE) break;
                 if (!GLOBALS::scanner.config.untradable && !item.tradable) break;
+                if (!GLOBALS::scanner.config.skins && item.skinID != -1) break;
                 if (!item.fail) items.push_back(item);
                 break;
             }
