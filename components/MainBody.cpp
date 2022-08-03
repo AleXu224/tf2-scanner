@@ -196,6 +196,14 @@ void UserTags(int &playerIndex) {
         UserTag(histories.str());
     }
 
+    if (players[playerIndex].badges != -1) {
+        SameLine();
+        SetCursorPosX(GetCursorPosX() + 8);
+        std::stringstream badges;
+        badges << players[playerIndex].badges << " BPTF Badges";
+        UserTag(badges.str());
+    }
+
     if (players[playerIndex].hours != -1) {
         SameLine();
         SetCursorPosX(GetCursorPosX() + 8);

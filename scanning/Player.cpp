@@ -80,7 +80,15 @@ void Player::getHistories() {
     std::string quantityString = quantityMatch[0];
 
     std::string::difference_type quantityCount = std::count(quantityString.begin(), quantityString.end(), ',');
-    
+
+    badges = 0;
+    std::string::size_type pos = 0;
+    std::string target = "\"user-badge";
+    while ((pos = pageHtml.find(target, pos)) != std::string::npos) {
+        ++badges;
+        pos += target.length();
+    }
+
     histories = (quantityCount - 1) / 2;
 }
 

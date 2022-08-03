@@ -15,6 +15,7 @@ class Player {
     int level = -1;
     int histories = -1;
     int hours = -1;
+    int badges = -1;
     Inventory inventory;
 
     Player(JsonPlayer::Player &player);
