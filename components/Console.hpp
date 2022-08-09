@@ -6,6 +6,7 @@
 #include <../scanning/Inventory.hpp>
 #include <../scanning/Item.hpp>
 #include <../scanning/Player.hpp>
+#include <../components/Overlay.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -59,6 +60,12 @@ class Console {
     void printOutput();
 };
 
-void ConsoleWindow(bool &showConsole);
+class ConsoleWindow : public OverlayBase {
+   public:
+    ConsoleWindow() {
+        canClose = true;
+    }
+    void draw();
+};
 
 #endif  // BPSCANNER_CONSOLE_HPP

@@ -5,6 +5,9 @@
 #include "utility"
 #include "vector"
 #include "../json_schemas/GithubVersion.hpp"
+#include "../components/LoadingScreen.hpp"
+#include "../components/Overlay.hpp"
+#include "../components/ApiKeyPrompt.hpp"
 #include "chrono"
 
 void Config::consoleLog(std::string message, SEVERITY severity) {
@@ -13,7 +16,8 @@ void Config::consoleLog(std::string message, SEVERITY severity) {
 
 void Config::fetchRequirements() {
     consoleLog("Fetching requirements...");
-    GLOBALS::scanner.showLoadingScreen = true;
+    auto *loadingScreen = new LoadingScreen();
+    Overlay::addOverlay(loadingScreen);
 
     if (strlen(apikey) < 32) {
         consoleLog("API key is empty, can't fetch requirements", SEVERITY::ERR);
@@ -216,7 +220,7 @@ void Config::fetchRequirements() {
         lastUpdate = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
     }
     save();
-    GLOBALS::scanner.showLoadingScreen = false;
+    loadingScreen->shouldClose = true;
 }
 
 void Config::init() {
@@ -281,7 +285,7 @@ void Config::init() {
 
     if (strlen(apikey) < 32) {
         consoleLog("API key is invalid, opening prompt..", SEVERITY::WARNING);
-        GLOBALS::scanner.showApiKeyPrompt = true;
+        Overlay::addOverlay(new ApiKeyPrompt());
     } else {
         fetchRequirements();
     }

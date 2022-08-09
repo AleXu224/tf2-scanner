@@ -73,6 +73,8 @@ add_executable(
         utilities/Texture.hpp
         utilities/Texture.cpp
         utilities/stb_image_resize.h
+        utilities/Animation.hpp
+        utilities/Animation.cpp
         components/ApiKeyPrompt.hpp
         components/ApiKeyPrompt.cpp
         components/LoadingScreen.hpp

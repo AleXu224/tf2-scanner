@@ -9,13 +9,14 @@
 
 #define SCANNER_VERSION "2.2.0"
 
-#define FLAGS 8455
+#define FLAGS 12551
 // ImGuiWindowFlags window_flags = 0;
 // window_flags |= ImGuiWindowFlags_NoTitleBar;
 // window_flags |= ImGuiWindowFlags_NoResize;
 // window_flags |= ImGuiWindowFlags_NoMove;
 // window_flags |= ImGuiWindowFlags_NoSavedSettings;
 // window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+// window_flags |= ImGuiWindowFlags_NoFocusOnAppearing;
 
 class COLORS {
    public:
@@ -37,8 +38,6 @@ class GLOBALS {
 #define CURRENCY_RECLAIMED "Reclaimed Metal"
 #define CURRENCY_REFINED "Refined Metal"
 #define CURRENCY_KEY "Mann Co. Supply Crate Key"
-
-float BezierBlend(float t);
 
 #define ROBOTO_12 0
 #define ROBOTO_10 1
