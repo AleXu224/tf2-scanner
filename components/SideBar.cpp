@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "misc/cpp/imgui_stdlib.h"
+#include "../utilities/Animation.hpp"
 #include "string"
 #include "thread"
 
@@ -345,12 +346,26 @@ void MainInput() {
     PopFont();
 }
 
-void SideBarMenu() {
+void SideBar::draw() {
+    if (GLOBALS::scanner.showDrawer) {
+        transition.forward();
+    } else {
+        transition.backward();
+    }
+
+    if (transition.getProgress() == 0.0f) return;
+    if (OverlayBackground(transition)) GLOBALS::scanner.showDrawer = false;
+
     const int SidebarWidth = 360;
     ImGuiIO &io = ImGui::GetIO();
-    PushStyleColor(ImGuiCol_ChildBg, COLORS::PRIMARY);
+    PushStyleColor(ImGuiCol_WindowBg, COLORS::PRIMARY);
+    PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+    PushStyleVar(ImGuiStyleVar_ItemSpacing, {0.0f, 0.0f});
 
-    BeginChild("SideBar", ImVec2(SidebarWidth, GetWindowSize().y), false, FLAGS);
+    SetNextWindowPos({io.DisplaySize.x - SidebarWidth * transition.getProgress(), 0});
+    SetNextWindowSize({SidebarWidth, io.DisplaySize.y});
+
+    Begin("SideBar", nullptr, FLAGS);
     static int selectedTab = 0;
     TabsMenu(selectedTab);
 
@@ -423,46 +438,8 @@ void SideBarMenu() {
         }
     }
 
-    EndChild();
-
-    PopStyleColor();
-}
-
-void SideBar() {
-    static float progress = 0.0f;
-    ImGuiIO &io = ImGui::GetIO();
-    if (GLOBALS::scanner.showDrawer) {
-        progress += io.DeltaTime * (1.0f / 0.2f);
-        if (progress > 1.0f) {
-            progress = 1.0f;
-        }
-    } else {
-        progress -= io.DeltaTime * (1.0f / 0.2f);
-        if (progress < 0.0f) {
-            progress = 0.0f;
-        }
-    }
-    if (progress == 0.0f) return;
-    const int SidebarWidth = 360;
-    PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.5f * progress));
-    PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-    PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
-    SetNextWindowSize(ImVec2(io.DisplaySize.x, io.DisplaySize.y));
-    SetNextWindowPos(ImVec2(0, 0));
-
-    Begin("SideBar", nullptr, (FLAGS | ImGuiWindowFlags_NoScrollWithMouse) - ImGuiWindowFlags_NoFocusOnAppearing);
-    ImVec2 buttonSize = ImVec2(io.DisplaySize.x - SidebarWidth * BezierBlend(progress), io.DisplaySize.y);
-    // This is so the program doesn't crash when the window is minimized
-    if (buttonSize.x <= 0) buttonSize.x = 1;
-    if (buttonSize.y <= 0) buttonSize.y = 1;
-    if (InvisibleButton("SideBarBg", buttonSize)) {
-        GLOBALS::scanner.showDrawer = false;
-    }
-    SameLine();
-    SideBarMenu();
     End();
 
-    PopStyleColor(1);
+    PopStyleColor();
     PopStyleVar(2);
 }

@@ -11,6 +11,7 @@
 #include "fonts/Roboto.cpp"
 #include "globals.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_opengl3_loader.h"
@@ -73,38 +74,43 @@ int main(int, char**) {
     });
     t.detach();
 
-    bool show_stats = false;
     bool show_demo_window = false;
-    bool show_console = false;
     bool drawerOpened = false;
 
+    // Overlays added at the bottom so they will always be under the other overlays
+    // These will also not be removed when the overlay is closed
+    Overlay::addOverlay(new StatusIndicator());
+    Overlay::addOverlay(new StatsInfo());
+    Overlay::addOverlay(new ConsoleWindow());
+    Overlay::addOverlay(new SideBar());
+    
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         if (ImGui::IsKeyPressed(GLFW_KEY_F12) && !io.WantCaptureKeyboard) {
-            show_stats = !show_stats;
+            GLOBALS::scanner.showStats = !GLOBALS::scanner.showStats;
         }
         if (ImGui::IsKeyPressed(GLFW_KEY_GRAVE_ACCENT) && !io.WantCaptureKeyboard) {
             show_demo_window = !show_demo_window;
         }
         if (ImGui::IsKeyPressed(GLFW_KEY_F1) && !io.WantCaptureKeyboard) {
-            show_console = !show_console;
+            GLOBALS::scanner.showConsole = !GLOBALS::scanner.showConsole;
         }
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-
+        
+        MainBody();
+        TopBar();
+        Overlay::draw();
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
-        ConsoleWindow(show_console);
-        StatsInfo(show_stats);
-        LoadingScreen();
-        Overlay();
-        ApiKeyPrompt();
-        SideBar();
-        TopBar();
-        MainBody();
+        // sort imgui windows by submission order
+        // this allows us to actually have a z-order
+        ImGuiContext* ctx = ImGui::GetCurrentContext();
+        std::stable_sort(ctx->Windows.begin(), ctx->Windows.end(), [](const ImGuiWindow* lhs, const ImGuiWindow* rhs) {
+            return lhs->BeginOrderWithinContext < rhs->BeginOrderWithinContext;
+        });
 
         // Rendering
         ImGui::Render();

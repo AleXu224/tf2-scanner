@@ -7,8 +7,8 @@
 
 using namespace ImGui;
 
-void StatsInfo(const bool &showWindow) {
-    if (!showWindow) return;
+void StatsInfo::draw() {
+    if (!GLOBALS::scanner.showStats) return;
     ImGuiIO &io = ImGui::GetIO();
     PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.5f));
     const ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -24,7 +24,7 @@ void StatsInfo(const bool &showWindow) {
     Text("%s", frame_time.c_str());
     const std::string is_scanning = "Is scanning: " + std::to_string(GLOBALS::scanner.isScanning);
     Text("%s", is_scanning.c_str());
-    const std::string show_window = "Show Window: " + std::to_string(showWindow);
+    const std::string show_window = "Show Window: " + std::to_string(GLOBALS::scanner.showStats);
     Text("%s", show_window.c_str());
     const std::string show_drawer = "Show Drawer: " + std::to_string(GLOBALS::scanner.showDrawer);
     Text("%s", show_drawer.c_str());

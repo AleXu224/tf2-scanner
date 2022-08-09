@@ -24,8 +24,8 @@ class Scanner {
     std::string scanInput;
     bool showDrawer = true;
     bool isScanning = false;
-    bool showApiKeyPrompt = false;
-    bool showLoadingScreen = false;
+    bool showStats = false;
+    bool showConsole = false;
     bool stopScanning = false;
     bool updateAvailable = false;
     std::string updateVersion = "";

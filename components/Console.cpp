@@ -7,11 +7,11 @@ using namespace ImGui;
 
 static std::mutex consoleMutex;
 
-void ConsoleWindow(bool &showConsole) {
-    if (!showConsole) return;
+void ConsoleWindow::draw() {
+    if (!GLOBALS::scanner.showConsole) return;
     SetNextWindowSize(ImVec2(500, 500), ImGuiCond_FirstUseEver);
     SetNextWindowPos(ImVec2(25, 25), ImGuiCond_FirstUseEver);
-    Begin("Console", &showConsole);
+    Begin("Console", &GLOBALS::scanner.showConsole);
     GLOBALS::console.printOutput();
     End();
 }
