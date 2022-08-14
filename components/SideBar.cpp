@@ -71,123 +71,43 @@ bool CustomTextButton(const std::string &value) {
     return returnValue;
 }
 
-void CustomIntInput(std::string input_name, int &input_value, std::string toolTip = "") {
-    static std::map<std::string, bool> input_map;
+void CustomInput::draw() {
     PushFont(GLOBALS::FONTS[ROBOTO_14]);
     SetCursorPosX(GetCursorPosX() + 16);
     SetCursorPosY(GetCursorPosY() + 16);
     PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
-    Text("%s", input_name.c_str());
-    if (!toolTip.empty()) CustomHelpMarker(toolTip);
+    Text("%s", this->inputName.c_str());
+    if (!this->toolTip.empty()) CustomHelpMarker(this->toolTip);
     PopStyleColor();
     PopFont();
 
     PushStyleVar(ImGuiStyleVar_FramePadding, {4, 9});
     PushStyleVar(ImGuiStyleVar_FrameRounding, 4);
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2);
 
     PushStyleColor(ImGuiCol_FrameBg, COLORS::PRIMARY_LIGHT);
 
     SetCursorPosX(GetCursorPosX() + 16);
     SetNextItemWidth(GetWindowWidth() - 16 * 2);
-    PushID(input_name.c_str());
+    PushID(this->inputName.c_str());
 
-    if (input_map[input_name])
-        PushStyleColor(ImGuiCol_Border, COLORS::SECONDARY);
-    else
-        PushStyleColor(ImGuiCol_Border, COLORS::PRIMARY_LIGHT);
+    if (this->isActive) transition.forward();
+    else transition.backward();
+
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f * transition.getProgress());
+    PushStyleColor(ImGuiCol_Border, ImLerp(COLORS::PRIMARY_LIGHT, COLORS::SECONDARY, transition.getProgress()));
 
     PushFont(GLOBALS::FONTS[ROBOTO_12]);
-    InputInt("", &input_value, 0, 0);
+    if (inputType == InputType::INT) InputInt("", this->inputValueInt.value(), 0, 0);
+    if (inputType == InputType::FLOAT) InputFloat("", this->inputValueFloat.value(), 0, 0, "%.2f");
+    if (inputType == InputType::TEXT) InputText("", this->inputValueText.value(), maxSize + 1);
+    if (inputType == InputType::TEXTMULTILINE) InputTextMultiline("", this->inputValueTextMultiline.value(), {width, height});
     PopID();
 
     // It's gonna be one frame late but it's the best solution I could find
     if (IsItemActive())
-        input_map[input_name] = true;
+        this->isActive = true;
     else
-        input_map[input_name] = false;
-
-    PopStyleVar(3);
-    PopStyleColor(2);
-    PopFont();
-}
-
-void CustomTextInput(std::string input_name, char* input_value, int maxSize, std::string toolTip) {
-    static std::map<std::string, bool> input_map;
-    PushFont(GLOBALS::FONTS[ROBOTO_14]);
-    SetCursorPosX(GetCursorPosX() + 16);
-    SetCursorPosY(GetCursorPosY() + 16);
-    PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
-    Text("%s", input_name.c_str());
-    if (!toolTip.empty()) CustomHelpMarker(toolTip);
-    PopStyleColor();
-    PopFont();
-
-    PushStyleVar(ImGuiStyleVar_FramePadding, {4, 9});
-    PushStyleVar(ImGuiStyleVar_FrameRounding, 4);
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2);
-
-    PushStyleColor(ImGuiCol_FrameBg, COLORS::PRIMARY_LIGHT);
-
-    SetCursorPosX(GetCursorPosX() + 16);
-    SetNextItemWidth(GetWindowWidth() - 16 * 2);
-    PushID(input_name.c_str());
-
-    if (input_map[input_name])
-        PushStyleColor(ImGuiCol_Border, COLORS::SECONDARY);
-    else
-        PushStyleColor(ImGuiCol_Border, COLORS::PRIMARY_LIGHT);
-
-    PushFont(GLOBALS::FONTS[ROBOTO_12]);
-    InputText("", input_value, maxSize + 1);
-    PopID();
-
-    // It's gonna be one frame late but it's the best solution I could find
-    if (IsItemActive())
-        input_map[input_name] = true;
-    else
-        input_map[input_name] = false;
-
-    PopStyleVar(3);
-    PopStyleColor(2);
-    PopFont();
-}
-
-void CustomFloatInput(std::string input_name, float &input_value, std::string toolTip = "") {
-    static std::map<std::string, bool> input_map;
-    PushFont(GLOBALS::FONTS[ROBOTO_14]);
-    SetCursorPosX(GetCursorPosX() + 16);
-    SetCursorPosY(GetCursorPosY() + 16);
-    PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
-    Text("%s", input_name.c_str());
-    if (!toolTip.empty()) CustomHelpMarker(toolTip);
-    PopStyleColor();
-    PopFont();
-
-    PushStyleVar(ImGuiStyleVar_FramePadding, {4, 9});
-    PushStyleVar(ImGuiStyleVar_FrameRounding, 4);
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2);
-
-    PushStyleColor(ImGuiCol_FrameBg, COLORS::PRIMARY_LIGHT);
-
-    SetCursorPosX(GetCursorPosX() + 16);
-    SetNextItemWidth(GetWindowWidth() - 16 * 2);
-    PushID(input_name.c_str());
-
-    if (input_map[input_name])
-        PushStyleColor(ImGuiCol_Border, COLORS::SECONDARY);
-    else
-        PushStyleColor(ImGuiCol_Border, COLORS::PRIMARY_LIGHT);
-
-    PushFont(GLOBALS::FONTS[ROBOTO_12]);
-    InputFloat("", &input_value, 0, 0, "%.2f");
-    PopID();
-
-    // It's gonna be one frame late but it's the best solution I could find
-    if (IsItemActive())
-        input_map[input_name] = true;
-    else
-        input_map[input_name] = false;
+        this->isActive = false;
 
     PopStyleVar(3);
     PopStyleColor(2);
@@ -297,55 +217,6 @@ void CustomCheckbox(std::string name, bool &value) {
     PopFont();
 }
 
-void MainInput() {
-    const float inputWidth = GetWindowSize().x - 16 * 2;
-    float inputHeight = 200;
-    if (GLOBALS::scanner.scanType != ScanType::Steamids) inputHeight = 32;
-
-    ImGuiIO &io = ImGui::GetIO();
-
-    static std::map<std::string, bool> input_map;
-    SetCursorPosX(GetCursorPosX() + 16);
-    SetCursorPosY(GetCursorPosY() + 16);
-    PushFont(GLOBALS::FONTS[ROBOTO_14]);
-    PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
-    if (GLOBALS::scanner.scanType == ScanType::Steamids) Text("Scan input");
-    else if (GLOBALS::scanner.scanType == ScanType::Group) Text("Group link");
-    else if (GLOBALS::scanner.scanType == ScanType::Friends) Text("Profile link");
-    PopStyleColor();
-    PopFont();
-
-    PushStyleVar(ImGuiStyleVar_FramePadding, {4, 9});
-    PushStyleVar(ImGuiStyleVar_FrameRounding, 4);
-    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2);
-
-    PushStyleColor(ImGuiCol_FrameBg, COLORS::PRIMARY_LIGHT);
-
-    SetCursorPosX(16);
-    PushID("Main Input");
-
-    static bool isActive = false;
-
-    if (isActive)
-        PushStyleColor(ImGuiCol_Border, COLORS::SECONDARY);
-    else
-        PushStyleColor(ImGuiCol_Border, COLORS::PRIMARY_LIGHT);
-
-    PushFont(GLOBALS::FONTS[ROBOTO_12]);
-    ImGui::InputTextMultiline("", &GLOBALS::scanner.scanInput, {inputWidth, inputHeight});
-    PopID();
-
-    // It's gonna be one frame late but it's the best solution I could find
-    if (IsItemActive())
-        isActive = true;
-    else
-        isActive = false;
-
-    PopStyleVar(3);
-    PopStyleColor(2);
-    PopFont();
-}
-
 void SideBar::draw() {
     if (GLOBALS::scanner.showDrawer) {
         transition.forward();
@@ -372,10 +243,16 @@ void SideBar::draw() {
     if (selectedTab == 0) {
         ScanTypeSelection();
 
-        MainInput();
+        static auto mainInput = CustomInput("Scan Input", GLOBALS::scanner.scanInput, GetWindowSize().x - 16 * 2, 200);
+        static auto mainInputGroup = CustomInput("Group Link", GLOBALS::scanner.scanInput, GetWindowSize().x - 16 * 2, 32);
+        if (GLOBALS::scanner.scanType == ScanType::Steamids) mainInput.draw();
+        else if (GLOBALS::scanner.scanType == ScanType::Group) mainInputGroup.draw();
+
         if (GLOBALS::scanner.scanType == ScanType::Group) {
-            CustomIntInput("Skip pages", GLOBALS::scanner.config.groupSkipPages, "The number of thousands of players the scanner will skip in the group, 1 page = 1000 players");
-            CustomIntInput("Scan pages", GLOBALS::scanner.config.groupScanPages, "The number of thousands of players the scanner will scan in the group.\nLimited to 30 since after that you get a timeout from steam");
+            static auto skipPagesInput = CustomInput("Skip pages", GLOBALS::scanner.config.groupSkipPages, "The number of thousands of players the scanner will skip in the group, 1 page = 1000 players");
+            static auto scanPagesInput = CustomInput("Scan pages", GLOBALS::scanner.config.groupScanPages, "The number of thousands of players the scanner will scan in the group.\nLimited to 30 since after that you get a timeout from steam");
+            skipPagesInput.draw();
+            scanPagesInput.draw();
             if (GLOBALS::scanner.config.groupScanPages > 30) GLOBALS::scanner.config.groupScanPages = 30;
         }
         if (CustomTextButton("Start Scan")) {
@@ -390,19 +267,28 @@ void SideBar::draw() {
         if (CustomTextButton("Clear Input")) {
             GLOBALS::scanner.scanInput.clear();
         }
-        CustomTextInput("Name filter", GLOBALS::scanner.config.nameFilter, 64, "Name filter for items (case sensitive). Surround with / for regex.");
+
+        static auto nameFilterInput = CustomInput("Name filter", GLOBALS::scanner.config.nameFilter, 64, "Name filter for items (case sensitive). Surround with / for regex.");
+        nameFilterInput.draw();
+
         if (strlen(GLOBALS::scanner.config.nameFilter) > 0) {
             if (CustomTextButton("Clear Name Filter")) {
                 GLOBALS::scanner.config.nameFilter[0] = '\0';
             }
         }
 
-        CustomFloatInput("Max Refined", GLOBALS::scanner.config.maxRef, "Max amount of pure currency allowed in the user's inventory (this includes keys)");
-        CustomFloatInput("Max Keys", GLOBALS::scanner.config.maxKeys, "Max amount of pure currency allowed in the user's inventory (this includes refined)");
-        CustomFloatInput("Min Refined", GLOBALS::scanner.config.minRef, "Minimum item price allowed for an item to be displayed");
-        CustomFloatInput("Min Keys", GLOBALS::scanner.config.minKeys, "Minimum item price allowed for an item to be displayed");
-        CustomIntInput("Max Hours", GLOBALS::scanner.config.maxHours, "Maximum number of hours a user can have before being skipped");
-        CustomIntInput("Max history", GLOBALS::scanner.config.maxHistory, "Maximum number of refreshes a user can have on backpack.tf before being skipped");
+        static auto maxRefInput = CustomInput("Max Refined", GLOBALS::scanner.config.maxRef, "Max amount of pure currency allowed in the user's inventory (this includes keys)");
+        static auto maxKeysInput = CustomInput("Max Keys", GLOBALS::scanner.config.maxKeys, "Max amount of pure currency allowed in the user's inventory (this includes refined)");
+        static auto minRefInput = CustomInput("Min Refined", GLOBALS::scanner.config.minRef, "Minimum item price allowed for an item to be displayed");
+        static auto minKeysInput = CustomInput("Min Keys", GLOBALS::scanner.config.minKeys, "Minimum item price allowed for an item to be displayed");
+        static auto maxHoursInput = CustomInput("Max Hours", GLOBALS::scanner.config.maxHours, "Maximum number of hours a user can have before being skipped");
+        static auto maxHistoryInput = CustomInput("Max history", GLOBALS::scanner.config.maxHistory, "Maximum number of refreshes a user can have on backpack.tf before being skipped");
+        maxRefInput.draw();
+        maxKeysInput.draw();
+        minRefInput.draw();
+        minKeysInput.draw();
+        maxHoursInput.draw();
+        maxHistoryInput.draw();
 
         SetCursorPos(ImVec2(GetCursorPosX() + 16, GetCursorPosY() + 16));
         CustomCheckbox("Untradable", GLOBALS::scanner.config.untradable);
@@ -413,7 +299,9 @@ void SideBar::draw() {
 
         SetCursorPosY(GetCursorPosY() + 16);
     } else if (selectedTab == 1) {
-        CustomTextInput("API Key", GLOBALS::scanner.config.apikey, 32);
+        static auto apiKeyInput = CustomInput("API Key", GLOBALS::scanner.config.apikey, 32);
+        apiKeyInput.draw();
+
         if (CustomTextButton("Save")) {
             GLOBALS::scanner.showDrawer = false;
             std::thread t([]() {
