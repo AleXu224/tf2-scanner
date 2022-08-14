@@ -2,6 +2,8 @@
 
 #include "../globals.hpp"
 #include "../json_schemas/PlayerData.hpp"
+#include "../components/Overlay.hpp"
+#include "../components/InfoCard.hpp"
 #include "Player.hpp"
 #include "cpr/cpr.h"
 #include "sstream"
@@ -24,6 +26,7 @@ void Scanner::Scan() {
     std::vector<std::string> playersIds = getPlayerIds();
     if (playersIds.empty()) {
         consoleLog("No players found", SEVERITY::ERR);
+        Overlay::addOverlay(new InfoCard("Scan input is empty"));
         isScanning = false;
         return;
     }
@@ -47,6 +50,7 @@ void Scanner::Scan() {
         cpr::Response response = cpr::Get(cpr::Url{url.str()});
         if (response.status_code != 200) {
             consoleLog("Couldn't get summaries, code(" + std::to_string(response.status_code) + ")", SEVERITY::ERR);
+            Overlay::addOverlay(new InfoCard("Couldn't get summaries, Steam is probably down"));
             isScanning = false;
             return;
         }

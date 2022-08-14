@@ -8,6 +8,7 @@
 #include "../components/LoadingScreen.hpp"
 #include "../components/Overlay.hpp"
 #include "../components/ApiKeyPrompt.hpp"
+#include "../components/InfoCard.hpp"
 #include "chrono"
 
 void Config::consoleLog(std::string message, SEVERITY severity) {
@@ -63,6 +64,7 @@ void Config::fetchRequirements() {
             consoleLog("Schema response code: " + std::to_string(schemaResponse.status_code));
             if (schemaResponse.status_code != 200) {
                 consoleLog("Failed to fetch schema, aborting", SEVERITY::ERR);
+                Overlay::addOverlay(new InfoCard("Failed to fetch schema, aborting"));
                 return;
             }
             JsonSchema::Schema schema = nlohmann::json::parse(schemaResponse.text);
@@ -75,7 +77,7 @@ void Config::fetchRequirements() {
         }
 
         std::ofstream schemaFileOut;
-        schemaFileOut.open(storagePath + "schema.json");
+        schemaFileOut.open(storagePath + "schema.json", std::ofstream::out | std::ofstream::trunc);
         nlohmann::json itemSchemaJson = itemSchema;
         schemaFileOut << itemSchemaJson.dump();
         schemaFileOut.close();
@@ -101,6 +103,7 @@ void Config::fetchRequirements() {
         consoleLog("Prices response code: " + std::to_string(pricesResponse.status_code));
         if (pricesResponse.status_code != 200) {
             consoleLog("Failed to fetch prices, aborting", SEVERITY::ERR);
+            Overlay::addOverlay(new InfoCard("Failed to fetch prices, aborting"));
             return;
         }
         JsonPrices::Pricelist prices = nlohmann::json::parse(pricesResponse.text);
@@ -108,7 +111,7 @@ void Config::fetchRequirements() {
         itemPrices = prices;
 
         std::ofstream pricesFileOut;
-        pricesFileOut.open(storagePath + "prices.json");
+        pricesFileOut.open(storagePath + "prices.json", std::ofstream::out | std::ofstream::trunc);
         nlohmann::json itemPricesJson = itemPrices;
         pricesFileOut << itemPricesJson.dump();
         pricesFileOut.close();
@@ -134,6 +137,7 @@ void Config::fetchRequirements() {
         consoleLog("Skins response code: " + std::to_string(skinsResponse.status_code));
         if (skinsResponse.status_code != 200) {
             consoleLog("Failed to fetch skins, aborting", SEVERITY::ERR);
+            Overlay::addOverlay(new InfoCard("Failed to fetch skins, aborting"));
             return;
         }
         JsonSkins::Skins skins = nlohmann::json::parse(skinsResponse.text);
@@ -141,7 +145,7 @@ void Config::fetchRequirements() {
         skinsData = skins;
 
         std::ofstream skinsFileOut;
-        skinsFileOut.open(storagePath + "skins.json");
+        skinsFileOut.open(storagePath + "skins.json", std::ofstream::out | std::ofstream::trunc);
         nlohmann::json skinsJson = skinsData;
         skinsFileOut << skinsJson.dump();
         skinsFileOut.close();
@@ -167,6 +171,7 @@ void Config::fetchRequirements() {
         consoleLog("Effects response code: " + std::to_string(effectsResponse.status_code));
         if (effectsResponse.status_code != 200) {
             consoleLog("Failed to fetch effects, aborting", SEVERITY::ERR);
+            Overlay::addOverlay(new InfoCard("Failed to fetch effects, aborting"));
             return;
         }
         JsonEffects::Effects effects = nlohmann::json::parse(effectsResponse.text);
@@ -174,7 +179,7 @@ void Config::fetchRequirements() {
         itemEffects = effects;
 
         std::ofstream effectsFileOut;
-        effectsFileOut.open(storagePath + "effects.json");
+        effectsFileOut.open(storagePath + "effects.json", std::ofstream::out | std::ofstream::trunc);
         nlohmann::json effectsJson = itemEffects;
         effectsFileOut << effectsJson.dump();
         effectsFileOut.close();
@@ -207,7 +212,7 @@ void Config::fetchRequirements() {
         marketPrices = market;
 
         std::ofstream marketFileOut;
-        marketFileOut.open(storagePath + "market.json");
+        marketFileOut.open(storagePath + "market.json", std::ofstream::out | std::ofstream::trunc);
         nlohmann::json marketJson = marketPrices;
         marketFileOut << marketJson.dump();
         marketFileOut.close();
@@ -349,6 +354,7 @@ void Config::checkForUpdates() {
 
     if (updateResponse.status_code != 200) {
         consoleLog("Failed to check for updates", SEVERITY::WARNING);
+        Overlay::addOverlay(new InfoCard("Failed checking for updates"));
         return;
     }
 

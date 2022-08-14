@@ -80,7 +80,9 @@ add_executable(
         components/LoadingScreen.hpp
         components/LoadingScreen.cpp
         components/Overlay.hpp
-        components/Overlay.cpp)
+        components/Overlay.cpp
+        components/InfoCard.hpp
+        components/InfoCard.cpp)
 
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS})
