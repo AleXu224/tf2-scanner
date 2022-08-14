@@ -85,6 +85,17 @@ void UserButtons(int &playerIndex) {
     PopFont();
 }
 
+void CustomTooltip(std::string text) {
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, COLORS::PRIMARY_LIGHT);
+    ImGui::PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
+    ImGui::SetTooltip("%s", text.c_str());
+    ImGui::PopStyleColor(2);
+    ImGui::PopStyleVar(3);
+}
+
 void UserItem(int &playerIndex, int &itemIndex) {
     InvisibleButton("Item", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
@@ -130,14 +141,7 @@ void UserItem(int &playerIndex, int &itemIndex) {
     PopFont();
 
     if (IsItemHovered()) {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
-        ImGui::PushStyleColor(ImGuiCol_PopupBg, COLORS::PRIMARY_LIGHT);
-        ImGui::PushStyleColor(ImGuiCol_Text, COLORS::TEXT);
-        ImGui::SetTooltip("%s", item.name.c_str());
-        ImGui::PopStyleColor(2);
-        ImGui::PopStyleVar(3);
+        CustomTooltip(item.name);
     }
 }
 
@@ -229,6 +233,9 @@ void UserChild(int windowID, int &playerIndex) {
     BeginChild(windowID + 1, ImVec2(GetWindowSize().x, 136), false, FLAGS);
     if (UserAvatar(playerIndex)) {
         ShellExecute(0, 0, (std::string("http://steamcommunity.com/profiles/") + players[playerIndex].steamid).c_str(), 0, 0, SW_SHOW);
+    }
+    if (IsItemHovered()) {
+        CustomTooltip(players[playerIndex].name);
     }
     UserButtons(playerIndex);
     UserItems(playerIndex);
