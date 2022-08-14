@@ -1,5 +1,7 @@
 #pragma once
 
+#include "chrono"
+
 enum class TransitionType {
     linear,
     bezier,
@@ -20,4 +22,15 @@ class Transition {
     void forward();
     void backward();
     float getProgress();
+};
+
+class Timer {
+    private:
+    std::chrono::high_resolution_clock::time_point startTime;
+    float duration;
+
+    public:
+    Timer(float duration);
+    void start();
+    bool isDone();
 };

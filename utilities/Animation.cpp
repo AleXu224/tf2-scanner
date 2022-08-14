@@ -1,6 +1,7 @@
 #include "Animation.hpp"
 #include "imgui.h"
 #include "math.h"
+#include "chrono"
 
 Transition::Transition(float from, float to, float duration, TransitionType type) {
     this->from = from;
@@ -37,4 +38,18 @@ float Transition::getProgress() {
     if (type == TransitionType::easeInOutCubic) return easeInOutCubic(this->progress);
     if (type == TransitionType::easeInOutQuint) return easeInOutQuint(this->progress);
     return this->progress;
+}
+
+Timer::Timer(float duration) {
+    this->duration = duration;
+}
+
+void Timer::start() {
+    this->startTime = std::chrono::high_resolution_clock::now();
+}
+
+bool Timer::isDone() {
+    auto now = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->startTime).count();
+    return elapsed > this->duration * 1000.0f;
 }
