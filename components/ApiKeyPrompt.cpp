@@ -29,7 +29,8 @@ void ApiKeyPrompt::draw() {
     
     Begin("ApiKeyPrompt", nullptr, FLAGS);
 
-    CustomTextInput("API Key", GLOBALS::scanner.config.apikey, 32);
+    static auto apiKeyInput = CustomInput("API Key", GLOBALS::scanner.config.apikey, 32);
+    apiKeyInput.draw();
     if (CustomTextButton("Save")) {
         auto &apiKey = GLOBALS::scanner.config.apikey;
         if (strlen(apiKey) == 32) {
