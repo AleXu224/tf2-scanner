@@ -5,6 +5,7 @@
 #include "cpr/cpr.h"
 #include "../json_schemas/UserGames.hpp"
 #include "../json_schemas/UserLevel.hpp"
+#include "boost/regex.hpp"
 
 #define consoleLog GLOBALS::console.addOutput
 
@@ -74,10 +75,10 @@ void Player::getHistories() {
     // TODO: find postion of "quantitySeries" and the first line break that follow instead of this
     // should hopefully be much faster
     std::string pageHtml = r.text;
-    std::regex quantityRegex("quantitySeries:.*\\]\n");
-    std::smatch quantityMatch;
-    std::regex_search(pageHtml, quantityMatch, quantityRegex);
-    std::string quantityString = quantityMatch[0];
+    boost::regex quantityRegex("quantitySeries:.*\\]\n");
+    boost::smatch quantityMatch;
+    boost::regex_search(pageHtml, quantityMatch, quantityRegex);
+    std::string quantityString = quantityMatch.str();
 
     std::string::difference_type quantityCount = std::count(quantityString.begin(), quantityString.end(), ',');
 

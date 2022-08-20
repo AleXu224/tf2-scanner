@@ -3,10 +3,10 @@
 
 #include <imgui.h>
 
-#include <../scanning/Inventory.hpp>
-#include <../scanning/Item.hpp>
-#include <../scanning/Player.hpp>
-#include <../components/Overlay.hpp>
+#include "../scanning/Inventory.hpp"
+#include "../scanning/Item.hpp"
+#include "../scanning/Player.hpp"
+#include "../components/Overlay.hpp"
 #include <iostream>
 #include <string>
 #include <vector>

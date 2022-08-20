@@ -1,5 +1,6 @@
 #include "Scanner.hpp"
 
+#include "boost/regex.hpp"
 #include "../globals.hpp"
 #include "../json_schemas/PlayerData.hpp"
 #include "../components/Overlay.hpp"
@@ -109,16 +110,16 @@ std::vector<std::string> getPlayerIds() {
     std::vector<std::string> playersIds;
 
     if (scanType == ScanType::Steamids) {
-        std::regex id64("7656119[0-9]{10}");
-        std::regex id3("\\[U:1:[0-9]*\\]");
+        boost::regex id64("7656119[0-9]{10}");
+        boost::regex id3("\\[U:1:[0-9]*\\]");
 
-        std::regex_iterator<std::string::iterator> r64(input.begin(), input.end(), id64);
-        std::regex_iterator<std::string::iterator> r3(input.begin(), input.end(), id3);
-        std::regex_iterator<std::string::iterator> rend;
-        for (std::regex_iterator<std::string::iterator> i = r64; i != rend; ++i) {
+        boost::regex_iterator<std::string::iterator> r64(input.begin(), input.end(), id64);
+        boost::regex_iterator<std::string::iterator> r3(input.begin(), input.end(), id3);
+        boost::regex_iterator<std::string::iterator> rend;
+        for (boost::regex_iterator<std::string::iterator> i = r64; i != rend; ++i) {
             playersIds.push_back(i->str());
         }
-        for (std::regex_iterator<std::string::iterator> i = r3; i != rend; ++i) {
+        for (boost::regex_iterator<std::string::iterator> i = r3; i != rend; ++i) {
             playersIds.push_back(id3ToId64(i->str()));
         }
     } else if (scanType == ScanType::Group) {
@@ -153,10 +154,10 @@ std::vector<std::string> getPlayerIds() {
                 return playersIds;
             }
 
-            std::regex id64("7656119[0-9]{10}");
-            std::regex_iterator<std::string::iterator> r64(responseText.begin(), responseText.end(), id64);
-            std::regex_iterator<std::string::iterator> rend;
-            for (std::regex_iterator<std::string::iterator> i = r64; i != rend; ++i) {
+            boost::regex id64("7656119[0-9]{10}");
+            boost::regex_iterator<std::string::iterator> r64(responseText.begin(), responseText.end(), id64);
+            boost::regex_iterator<std::string::iterator> rend;
+            for (boost::regex_iterator<std::string::iterator> i = r64; i != rend; ++i) {
                 playersIds.push_back(i->str());
             }
             scanStatus = "Getting group members... (" + std::to_string(currentPage * 1000) + "/" + std::to_string(totalPages * 1000) + ")";

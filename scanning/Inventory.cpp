@@ -1,3 +1,4 @@
+#include "boost/regex.hpp"
 #include "Inventory.hpp"
 #include "../globals.hpp"
 #include "../json_schemas/InventoryData.hpp"
@@ -89,8 +90,8 @@ void Inventory::GetInventory() {
                 if (strlen(nameFilter) > 0) {
                     if (strlen(nameFilter) >= 2 && nameFilter[0] == '/' && nameFilter[strlen(nameFilter) - 1] == '/') {
                         std::string filter = std::string(nameFilter).substr(1, strlen(nameFilter) - 2);
-                        std::regex filterRegex(filter);
-                        if (!std::regex_search(item.name, filterRegex)) break;
+                        boost::regex filterRegex(filter);
+                        if (!boost::regex_search(item.name, filterRegex)) break;
                     } else if (item.name.find(nameFilter) == std::string::npos) {
                         break;
                     }

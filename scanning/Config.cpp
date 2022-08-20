@@ -1,6 +1,7 @@
 #include "Config.hpp"
 
 #include "../globals.hpp"
+#include "boost/regex.hpp"
 #include "nlohmann/json.hpp"
 #include "utility"
 #include "vector"
@@ -331,17 +332,17 @@ void Config::save() {
 }
 
 std::vector<int> Config::parseVersion(std::string version) {
-    std::regex versionRegex("[0-9]+");
+    boost::regex versionRegex("[0-9]+");
     std::vector<int> versionNumbers(3);
 
-    std::smatch versionMatch;
-    std::regex_search(version, versionMatch, versionRegex);
+    boost::smatch versionMatch;
+    boost::regex_search(version, versionMatch, versionRegex);
     versionNumbers[0] = std::stoi(versionMatch[0]);
     version = versionMatch.suffix();
-    std::regex_search(version, versionMatch, versionRegex);
+    boost::regex_search(version, versionMatch, versionRegex);
     versionNumbers[1] = std::stoi(versionMatch[0]);
     version = versionMatch.suffix();
-    std::regex_search(version, versionMatch, versionRegex);
+    boost::regex_search(version, versionMatch, versionRegex);
     versionNumbers[2] = std::stoi(versionMatch[0]);
 
     return versionNumbers;

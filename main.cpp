@@ -1,12 +1,8 @@
-#include "components/ApiKeyPrompt.hpp"
-#include "components/LoadingScreen.hpp"
 #include "components/MainBody.hpp"
 #include "components/SideBar.hpp"
 #include "components/StatsInfo.hpp"
 #include "components/TopBar.hpp"
 #include "components/Overlay.hpp"
-#include "cpr/cpr.h"
-#include "fonts/IconsMaterialDesign.h"
 #include "fonts/MaterialIcons.cpp"
 #include "fonts/Roboto.cpp"
 #include "globals.hpp"
@@ -16,7 +12,6 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_opengl3_loader.h"
 #include "GLFW/glfw3.h"
-#include "utilities/Texture.hpp"
 
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 

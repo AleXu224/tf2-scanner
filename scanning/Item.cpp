@@ -2,7 +2,7 @@
 
 #include "../globals.hpp"
 #include "map"
-#include "regex"
+#include "boost/regex.hpp"
 
 #define consoleLog GLOBALS::console.addOutput
 
@@ -176,15 +176,19 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
     // Get crate id if item is a crate
     // For some reason C++ regex doesn't support lookbehind
     // But it does support lookaheads, so we can just reverse the name
-    std::regex crateRegex("[0-9]+(?=# )");
+    // std::regex crateRegex("[0-9]+(?=# )");
 
-    std::string reversedString = workingName;
-    std::reverse(reversedString.begin(), reversedString.end());
-    std::smatch match;
+    // std::string reversedString = workingName;
+    // std::reverse(reversedString.begin(), reversedString.end());
+    // std::smatch match;
 
-    if (std::regex_search(reversedString, match, crateRegex)) {
-        std::string crateIDstr = match.str();
-        std::reverse(crateIDstr.begin(), crateIDstr.end());
+    boost::regex crateRegex("(?<=#)[0-9]+");
+    boost::smatch crateMatch;
+
+    // if (std::regex_search(reversedString, match, crateRegex)) {
+    if (boost::regex_search(workingName, crateMatch, crateRegex)) {
+        std::string crateIDstr = crateMatch.str();
+        // std::reverse(crateIDstr.begin(), crateIDstr.end());
         crateID = std::stoi(crateIDstr);
         workingName.replace(workingName.find(" Series #" + crateIDstr), crateIDstr.length() + 9, "");
     }

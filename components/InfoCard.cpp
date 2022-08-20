@@ -1,6 +1,7 @@
 #include "InfoCard.hpp"
 #include "imgui.h"
 #include "../globals.hpp"
+#include "string"
 
 using namespace ImGui;
 

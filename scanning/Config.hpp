@@ -10,7 +10,6 @@
 #include "cpr/cpr.h"
 #include "filesystem"
 #include "iostream"
-#include "regex"
 #include "sstream"
 
 class Config {
