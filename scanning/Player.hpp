@@ -1,7 +1,7 @@
 #ifndef BPSCANNER_PLAYER_HPP
 #define BPSCANNER_PLAYER_HPP
 
-#include "../json_schemas/PlayerData.hpp"
+#include "../json_schemas/SteamPlayer.hpp"
 #include "Inventory.hpp"
 #include "imgui.h"
 #include "string"
@@ -18,7 +18,7 @@ class Player {
     int badges = -1;
     Inventory inventory;
 
-    Player(JsonPlayer::Player &player);
+    Player(JSON::SteamPlayer::Player &player);
     Player(std::string steamid);
 
     void getLevel();

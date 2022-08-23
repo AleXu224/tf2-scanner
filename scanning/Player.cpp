@@ -3,13 +3,13 @@
 #include "string"
 #include "../globals.hpp"
 #include "cpr/cpr.h"
-#include "../json_schemas/UserGames.hpp"
-#include "../json_schemas/UserLevel.hpp"
+#include "../json_schemas/SteamGames.hpp"
+#include "../json_schemas/SteamLevel.hpp"
 #include "boost/regex.hpp"
 
 #define consoleLog GLOBALS::console.addOutput
 
-Player::Player(JsonPlayer::Player &player) : inventory(player.steamid) {
+Player::Player(JSON::SteamPlayer::Player &player) : inventory(player.steamid) {
     steamid = player.steamid;
     name = player.personaname;
     avatarUrl = player.avatarmedium;
@@ -31,10 +31,10 @@ void Player::getHours() {
         return;
     }
 
-    JsonUserGames::UserGamesList userGames = nlohmann::json::parse(r.text);
-    if (!userGames.response.games) return;
+    JSON::SteamGames::SteamGames userGames = JSON::SteamGames::fromJson(r.text);
+    if (!userGames.response.games.has_value()) return;
 
-    for (auto &game : *userGames.response.games) {
+    for (auto &game : userGames.response.games.value()) {
         if (game.appid == 440) {
             hours = game.playtime_forever / 60;
             return;
@@ -55,10 +55,10 @@ void Player::getLevel() {
         return;
     }
     
-    JsonUserLevel::UserLevel userLevel = nlohmann::json::parse(r.text);
+    JSON::SteamLevel::SteamLevel userLevel = JSON::SteamLevel::fromJson(r.text);
 
-    if (!userLevel.response.player_level) return;
-    level = *userLevel.response.player_level;
+    if (!userLevel.response.player_level.has_value()) return;
+    level = userLevel.response.player_level.value();
 }
 
 void Player::getHistories() {

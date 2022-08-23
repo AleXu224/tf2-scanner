@@ -1,7 +1,7 @@
+#include "components/TopBar.hpp"
 #include "components/MainBody.hpp"
 #include "components/SideBar.hpp"
 #include "components/StatsInfo.hpp"
-#include "components/TopBar.hpp"
 #include "components/Overlay.hpp"
 #include "fonts/MaterialIcons.cpp"
 #include "fonts/Roboto.cpp"
@@ -70,7 +70,6 @@ int main(int, char**) {
     t.detach();
 
     bool show_demo_window = false;
-    bool drawerOpened = false;
 
     // Overlays added at the bottom so they will always be under the other overlays
     // These will also not be removed when the overlay is closed
@@ -111,13 +110,6 @@ int main(int, char**) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
-
-        // This makes absolutely no sense but for some reason
-        // opening the drawer for 1 frame fixes a memory leak
-        if (!drawerOpened) {
-            GLOBALS::scanner.showDrawer = false;
-            drawerOpened = true;
-        }
     }
 
     // Cleanup

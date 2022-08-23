@@ -22,7 +22,7 @@ class Scanner {
     std::list<Player> playerPushList;
     std::list<int> playerPopList;
     std::string scanInput;
-    bool showDrawer = true;
+    bool showDrawer = false;
     bool isScanning = false;
     bool showStats = false;
     bool showConsole = false;
@@ -36,6 +36,7 @@ class Scanner {
     void pushPlayers();
     void popPlayers();
     
+    Scanner() : config(){}
 };
 
 #endif  // BPSCANNER_SCANNER_HPP

@@ -2,7 +2,7 @@
 
 #include "boost/regex.hpp"
 #include "../globals.hpp"
-#include "../json_schemas/PlayerData.hpp"
+#include "../json_schemas/SteamPlayer.hpp"
 #include "../components/Overlay.hpp"
 #include "../components/InfoCard.hpp"
 #include "Player.hpp"
@@ -56,7 +56,7 @@ void Scanner::Scan() {
             return;
         }
 
-        JsonPlayer::PlayerData playerData = nlohmann::json::parse(response.text);
+        JSON::SteamPlayer::SteamPlayer playerData = JSON::SteamPlayer::fromJson(response.text);
 
         for (int j = 0; j < playerData.response.players.size(); j++) {
             if (stopScanning) break;

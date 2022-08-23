@@ -1,11 +1,11 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Config.hpp"
-
 #include "../globals.hpp"
 #include "boost/regex.hpp"
-#include "nlohmann/json.hpp"
+#include "yyjson.h"
 #include "utility"
 #include "vector"
-#include "../json_schemas/GithubVersion.hpp"
+#include "../json_schemas/GithubReleases.hpp"
 #include "../components/LoadingScreen.hpp"
 #include "../components/Overlay.hpp"
 #include "../components/ApiKeyPrompt.hpp"
@@ -50,12 +50,14 @@ void Config::fetchRequirements() {
         std::stringstream buffer;
         buffer << schemaFile.rdbuf();
         schemaFile.close();
+        std::string schemaJson = buffer.str();
 
-        itemSchema = nlohmann::json::parse(buffer.str());
+        itemSchema = JSON::Schema::fromJson(schemaJson);
     } else {
         consoleLog("Schema file does not exist, fetching...", SEVERITY::INFO);
         std::stringstream url;
         int start = 0;
+        bool schemaCreated = false;
         while (true) {
             url.str(std::string());
             url << "https://api.steampowered.com/IEconItems_440/GetSchemaItems/v0001/?key=" << apikey
@@ -68,19 +70,24 @@ void Config::fetchRequirements() {
                 Overlay::addOverlay(new InfoCard("Failed to fetch schema, aborting"));
                 return;
             }
-            JsonSchema::Schema schema = nlohmann::json::parse(schemaResponse.text);
+            // JsonSchema::Schema schema = nlohmann::json::parse(schemaResponse.text);
+            JSON::Schema::Response schema = JSON::Schema::fromJson(schemaResponse.text);
+            if (!schemaCreated) {
+                itemSchema = schema;
+                schemaCreated = true;
+            } else {
+                itemSchema->result.items.insert(itemSchema->result.items.end(), schema.result.items.begin(),
+                                                schema.result.items.end());
+            }
 
-            itemSchema.insert(itemSchema.end(), schema.result.items.begin(), schema.result.items.end());
-
-            if (schema.result.next == nullptr) break;
+            if (!schema.result.next.has_value()) break;
             start = *schema.result.next;
             consoleLog("Next: " + std::to_string(start));
         }
 
         std::ofstream schemaFileOut;
         schemaFileOut.open(storagePath + "schema.json", std::ofstream::out | std::ofstream::trunc);
-        nlohmann::json itemSchemaJson = itemSchema;
-        schemaFileOut << itemSchemaJson.dump();
+        schemaFileOut << JSON::Schema::toJson(itemSchema.value());
         schemaFileOut.close();
 
         consoleLog("Schema file saved");
@@ -94,8 +101,8 @@ void Config::fetchRequirements() {
         std::stringstream buffer;
         buffer << pricesFile.rdbuf();
         pricesFile.close();
-
-        itemPrices = nlohmann::json::parse(buffer.str());
+        std::string pricesJson = buffer.str();
+        itemPrices = JSON::BptfPrices::fromJson(pricesJson);
     } else {
         consoleLog("Prices file does not exist, fetching...", SEVERITY::INFO);
         std::string url = "https://raw.githubusercontent.com/AleXu224/bptf_pricelist/master/schema_bptf.json";
@@ -107,14 +114,11 @@ void Config::fetchRequirements() {
             Overlay::addOverlay(new InfoCard("Failed to fetch prices, aborting"));
             return;
         }
-        JsonPrices::Pricelist prices = nlohmann::json::parse(pricesResponse.text);
-
-        itemPrices = prices;
+        itemPrices = JSON::BptfPrices::fromJson(pricesResponse.text);
 
         std::ofstream pricesFileOut;
         pricesFileOut.open(storagePath + "prices.json", std::ofstream::out | std::ofstream::trunc);
-        nlohmann::json itemPricesJson = itemPrices;
-        pricesFileOut << itemPricesJson.dump();
+        pricesFileOut << JSON::BptfPrices::toJson(itemPrices.value());
         pricesFileOut.close();
 
         consoleLog("Prices file saved");
@@ -128,8 +132,8 @@ void Config::fetchRequirements() {
         std::stringstream buffer;
         buffer << skinsFile.rdbuf();
         skinsFile.close();
-
-        skinsData = nlohmann::json::parse(buffer.str());
+        std::string skinsJson = buffer.str();
+        skinsData = JSON::TfSkins::fromJson(skinsJson);
     } else {
         consoleLog("Skins file does not exist, fetching...", SEVERITY::INFO);
         std::string url = "https://raw.githubusercontent.com/AleXu224/bptf_pricelist/master/skins.json";
@@ -141,14 +145,12 @@ void Config::fetchRequirements() {
             Overlay::addOverlay(new InfoCard("Failed to fetch skins, aborting"));
             return;
         }
-        JsonSkins::Skins skins = nlohmann::json::parse(skinsResponse.text);
 
-        skinsData = skins;
+        skinsData = JSON::TfSkins::fromJson(skinsResponse.text);
 
         std::ofstream skinsFileOut;
         skinsFileOut.open(storagePath + "skins.json", std::ofstream::out | std::ofstream::trunc);
-        nlohmann::json skinsJson = skinsData;
-        skinsFileOut << skinsJson.dump();
+        skinsFileOut << JSON::TfSkins::toJson(skinsData.value());
         skinsFileOut.close();
 
         consoleLog("Skins file saved");
@@ -162,8 +164,8 @@ void Config::fetchRequirements() {
         std::stringstream buffer;
         buffer << effectsFile.rdbuf();
         effectsFile.close();
-
-        itemEffects = nlohmann::json::parse(buffer.str());
+        std::string effectsJson = buffer.str();
+        itemEffects = JSON::TFEffects::fromJson(effectsJson);
     } else {
         consoleLog("Effects file does not exist, fetching...", SEVERITY::INFO);
         std::string url = "https://raw.githubusercontent.com/mninc/tf2-effects/master/effects.json";
@@ -175,14 +177,12 @@ void Config::fetchRequirements() {
             Overlay::addOverlay(new InfoCard("Failed to fetch effects, aborting"));
             return;
         }
-        JsonEffects::Effects effects = nlohmann::json::parse(effectsResponse.text);
 
-        itemEffects = effects;
+        itemEffects = JSON::TFEffects::fromJson(effectsResponse.text);
 
         std::ofstream effectsFileOut;
         effectsFileOut.open(storagePath + "effects.json", std::ofstream::out | std::ofstream::trunc);
-        nlohmann::json effectsJson = itemEffects;
-        effectsFileOut << effectsJson.dump();
+        effectsFileOut << JSON::TFEffects::toJson(itemEffects.value());
         effectsFileOut.close();
 
         consoleLog("Effects file saved");
@@ -196,8 +196,8 @@ void Config::fetchRequirements() {
         std::stringstream buffer;
         buffer << marketFile.rdbuf();
         marketFile.close();
-
-        marketPrices = nlohmann::json::parse(buffer.str());
+        std::string marketJson = buffer.str();
+        marketPrices = JSON::TFMarket::fromJson(marketJson);
     } else {
         consoleLog("Market file does not exist, fetching...", SEVERITY::INFO);
         std::string url = "https://raw.githubusercontent.com/AleXu224/bptf_pricelist/master/marketPrices.json";
@@ -208,14 +208,12 @@ void Config::fetchRequirements() {
             consoleLog("Failed to fetch market, aborting", SEVERITY::ERR);
             return;
         }
-        std::vector<MarketPricesJson::MarketPrice> market = nlohmann::json::parse(marketResponse.text);
 
-        marketPrices = market;
+        marketPrices = JSON::TFMarket::fromJson(marketResponse.text);
 
         std::ofstream marketFileOut;
         marketFileOut.open(storagePath + "market.json", std::ofstream::out | std::ofstream::trunc);
-        nlohmann::json marketJson = marketPrices;
-        marketFileOut << marketJson.dump();
+        marketFileOut << JSON::TFMarket::toJson(marketPrices.value());
         marketFileOut.close();
 
         consoleLog("Market file saved");
@@ -249,43 +247,67 @@ void Config::init() {
         std::stringstream buffer;
         buffer << configFile.rdbuf();
         configFile.close();
+        std::string configJson = buffer.str();
 
-        auto config = nlohmann::json::parse(buffer.str());
-        maxRef = config["maxRef"].get<float>();
-        maxKeys = config["maxKeys"].get<float>();
-        minRef = config["minRef"].get<float>();
-        minKeys = config["minKeys"].get<float>();
-        maxHistory = config["maxHistory"].get<int>();
-        maxHours = config["maxHours"].get<int>();
-        untradable = config["untradable"].get<bool>();
-        noValue = config["noValue"].get<bool>();
-        skins = config["skins"].get<bool>();
+        auto *doc = yyjson_read(configJson.data(), configJson.size(), 0);
+        auto *root = yyjson_doc_get_root(doc);
+
+        maxRef = yyjson_get_real(yyjson_obj_get(root, "maxRef"));
+        maxKeys = yyjson_get_real(yyjson_obj_get(root, "maxKeys"));
+        minRef = yyjson_get_real(yyjson_obj_get(root, "minRef"));
+        minKeys = yyjson_get_real(yyjson_obj_get(root, "minKeys"));
+        maxHistory = yyjson_get_int(yyjson_obj_get(root, "maxHistory"));
+        maxHours = yyjson_get_int(yyjson_obj_get(root, "maxHours"));
+        untradable = yyjson_get_bool(yyjson_obj_get(root, "untradable"));
+        noValue = yyjson_get_bool(yyjson_obj_get(root, "noValue"));
+        skins = yyjson_get_bool(yyjson_obj_get(root, "skins"));
+
         // Null check so that users coming from an older version don't crash
-        if (!config["lastUpdate"].is_null()) lastUpdate = config["lastUpdate"].get<int>();
-        if (!config["groupSkipPages"].is_null()) groupSkipPages = config["groupSkipPages"].get<int>();
-        if (!config["groupScanPages"].is_null()) groupScanPages = config["groupScanPages"].get<int>();
-        strcpy(apikey, config["apikey"].get<std::string>().c_str());
+        auto lastUpdateObj = yyjson_obj_get(root, "lastUpdate");
+        if (lastUpdateObj && !yyjson_is_null(lastUpdateObj)) lastUpdate = yyjson_get_int(lastUpdateObj);
+
+        auto groupSkipPagesObj = yyjson_obj_get(root, "groupSkipPages");
+        if (groupSkipPagesObj && !yyjson_is_null(groupSkipPagesObj)) groupSkipPages = yyjson_get_int(groupSkipPagesObj);
+
+        auto groupScanPagesObj = yyjson_obj_get(root, "groupScanPages");
+        if (groupScanPagesObj && !yyjson_is_null(groupScanPagesObj)) groupScanPages = yyjson_get_int(groupScanPagesObj);
+
+        auto apikeyObj = yyjson_obj_get(root, "apikey");
+        if (apikeyObj && !yyjson_is_null(apikeyObj)) strcpy(apikey, yyjson_get_str(apikeyObj));
+
+        auto configVersionObj = yyjson_obj_get(root, "configVersion");
+        if (configVersionObj && !yyjson_is_null(configVersionObj)) {
+            configVersion = yyjson_get_int(configVersionObj);
+        } else {
+            lastUpdate = 0; // In version 2 the item schema format was updated so a force update is needed
+        }
     } else {
         consoleLog("Config file does not exist, creating...", SEVERITY::INFO);
-        nlohmann::json config;
-        config["maxRef"] = maxRef;
-        config["maxKeys"] = maxKeys;
-        config["minRef"] = minRef;
-        config["minKeys"] = minKeys;
-        config["minKeys"] = minKeys;
-        config["maxHistory"] = maxHistory;
-        config["maxHours"] = maxHours;
-        config["untradable"] = untradable;
-        config["noValue"] = noValue;
-        config["skins"] = skins;
-        config["apikey"] = apikey;
-        config["lastUpdate"] = lastUpdate;
-        config["groupSkipPages"] = groupSkipPages;
-        config["groupScanPages"] = groupScanPages;
+        auto *doc = yyjson_mut_doc_new(nullptr);
+        auto *root = yyjson_mut_obj(doc);
+        yyjson_mut_doc_set_root(doc, root);
+        yyjson_mut_obj_add_real(doc, root, "maxRef", maxRef);
+        yyjson_mut_obj_add_real(doc, root, "maxKeys", maxKeys);
+        yyjson_mut_obj_add_real(doc, root, "minRef", minRef);
+        yyjson_mut_obj_add_real(doc, root, "minKeys", minKeys);
+        yyjson_mut_obj_add_int(doc, root, "maxHistory", maxHistory);
+        yyjson_mut_obj_add_int(doc, root, "maxHours", maxHours);
+        yyjson_mut_obj_add_bool(doc, root, "untradable", untradable);
+        yyjson_mut_obj_add_bool(doc, root, "noValue", noValue);
+        yyjson_mut_obj_add_bool(doc, root, "skins", skins);
+        yyjson_mut_obj_add_str(doc, root, "apikey", apikey);
+        yyjson_mut_obj_add_int(doc, root, "lastUpdate", lastUpdate);
+        yyjson_mut_obj_add_int(doc, root, "groupSkipPages", groupSkipPages);
+        yyjson_mut_obj_add_int(doc, root, "groupScanPages", groupScanPages);
+        yyjson_mut_obj_add_int(doc, root, "configVersion", configVersion);
+
+        std::string configJson = yyjson_mut_write(doc, 0, nullptr);
+        yyjson_mut_doc_free(doc);
+
 
         std::ofstream configFileOut;
         configFileOut.open(storagePath + "config.json");
-        configFileOut << config.dump();
+        configFileOut << configJson;
         configFileOut.close();
     }
 
@@ -309,25 +331,30 @@ void Config::save() {
         std::filesystem::create_directory(storagePath);
     }
 
-    nlohmann::json config;
-    config["maxRef"] = maxRef;
-    config["maxKeys"] = maxKeys;
-    config["minRef"] = minRef;
-    config["minKeys"] = minKeys;
-    config["minKeys"] = minKeys;
-    config["maxHistory"] = maxHistory;
-    config["maxHours"] = maxHours;
-    config["untradable"] = untradable;
-    config["noValue"] = noValue;
-    config["skins"] = skins;
-    config["apikey"] = apikey;
-    config["lastUpdate"] = lastUpdate;
-    config["groupSkipPages"] = groupSkipPages;
-    config["groupScanPages"] = groupScanPages;
+    auto *doc = yyjson_mut_doc_new(nullptr);
+    auto *root = yyjson_mut_obj(doc);
+    yyjson_mut_doc_set_root(doc, root);
+    yyjson_mut_obj_add_real(doc, root, "maxRef", maxRef);
+    yyjson_mut_obj_add_real(doc, root, "maxKeys", maxKeys);
+    yyjson_mut_obj_add_real(doc, root, "minRef", minRef);
+    yyjson_mut_obj_add_real(doc, root, "minKeys", minKeys);
+    yyjson_mut_obj_add_int(doc, root, "maxHistory", maxHistory);
+    yyjson_mut_obj_add_int(doc, root, "maxHours", maxHours);
+    yyjson_mut_obj_add_bool(doc, root, "untradable", untradable);
+    yyjson_mut_obj_add_bool(doc, root, "noValue", noValue);
+    yyjson_mut_obj_add_bool(doc, root, "skins", skins);
+    yyjson_mut_obj_add_str(doc, root, "apikey", apikey);
+    yyjson_mut_obj_add_int(doc, root, "lastUpdate", lastUpdate);
+    yyjson_mut_obj_add_int(doc, root, "groupSkipPages", groupSkipPages);
+    yyjson_mut_obj_add_int(doc, root, "groupScanPages", groupScanPages);
+    yyjson_mut_obj_add_int(doc, root, "configVersion", configVersion);
+
+    std::string configJson = yyjson_mut_write(doc, 0, nullptr);
+    yyjson_mut_doc_free(doc);
 
     std::ofstream configFileOut;
     configFileOut.open(storagePath + "config.json");
-    configFileOut << config.dump();
+    configFileOut << configJson;
     configFileOut.close();
 }
 
@@ -359,7 +386,7 @@ void Config::checkForUpdates() {
         return;
     }
 
-    JsonGithubVersion::GithubVersion githubVersion = nlohmann::json::parse(updateResponse.text);
+    JSON::GithubReleases::GithubReleases githubVersion = JSON::GithubReleases::fromJson(updateResponse.text);
     auto githubVersionNumbers = parseVersion(githubVersion.tag_name);
 
     for (int i = 0; i < 3; i++) {
@@ -378,11 +405,12 @@ void Config::checkForUpdates() {
 }
 
 float Config::getKeyPrice() {
-#define PRICES GLOBALS::scanner.config.itemPrices.response.items
-    auto keyPriceCraftable = PRICES.at(CURRENCY_KEY).prices.at("6").tradable.craftable;
-    auto keyPriceVector = std::get<std::vector<JsonPrices::CraftableElement>>(*keyPriceCraftable);
-    auto keyPrice = *keyPriceVector.at(0).value;
+#define PRICES GLOBALS::scanner.config.itemPrices->response.items
+    auto keyPriceCraftable = PRICES.at(CURRENCY_KEY).prices.at("6").tradable.craftable.value();
+    auto &keyPriceVector = std::get<std::vector<JSON::BptfPrices::Element>>(keyPriceCraftable);
+    auto keyPrice = keyPriceVector.at(0).value.value();
     return keyPrice;
+    
 }
 
 float Config::getMinPriceInKeys() {

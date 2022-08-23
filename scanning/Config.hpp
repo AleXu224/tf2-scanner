@@ -2,11 +2,11 @@
 #define BPSCANNER_CONFIG_HPP
 
 #include "../components/Console.hpp"
-#include "../json_schemas/Effects.hpp"
-#include "../json_schemas/Prices.hpp"
-#include "../json_schemas/Schema.hpp"
-#include "../json_schemas/Skins.hpp"
-#include "../json_schemas/MarketPrices.hpp"
+#include "../json_schemas/TFEffects.hpp"
+#include "../json_schemas/BptfPrices.hpp"
+#include "../json_schemas/ItemSchema.hpp"
+#include "../json_schemas/TfSkins.hpp"
+#include "../json_schemas/TFMarket.hpp"
 #include "cpr/cpr.h"
 #include "filesystem"
 #include "iostream"
@@ -34,11 +34,13 @@ class Config {
     int groupSkipPages = 0;
     int groupScanPages = 5;
 
-    std::vector<JsonSchema::Item> itemSchema = {};
-    JsonPrices::Pricelist itemPrices;
-    JsonSkins::Skins skinsData;
-    JsonEffects::Effects itemEffects;
-    std::vector<MarketPricesJson::MarketPrice> marketPrices;
+    int configVersion = 2;
+
+    std::optional<JSON::Schema::Response> itemSchema;
+    std::optional<JSON::BptfPrices::BptfPrices> itemPrices;
+    std::optional<JSON::TfSkins::TfSkins> skinsData;
+    std::optional<JSON::TFEffects::TFEffects> itemEffects;
+    std::optional<JSON::TFMarket::TFMarket> marketPrices;
 
     void fetchRequirements();
 
@@ -54,6 +56,8 @@ class Config {
 
     float getMinPriceInKeys();
     float getMaxPriceInKeys();
+
+    Config() {}
 
    private:
     static void consoleLog(std::string message, SEVERITY severity = SEVERITY::INFO);

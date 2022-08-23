@@ -1,12 +1,12 @@
 #include "boost/regex.hpp"
 #include "Inventory.hpp"
 #include "../globals.hpp"
-#include "../json_schemas/InventoryData.hpp"
+#include "../json_schemas/SteamInventory.hpp"
 #include "Player.hpp"
 #include "chrono"
 #include "cpr/cpr.h"
 #include "string"
-#include "vector"   
+#include "vector"
 
 #define consoleLog GLOBALS::console.addOutput
 
@@ -19,7 +19,7 @@ void Inventory::GetInventory() {
 
     std::string url = "https://steamcommunity.com/inventory/" + steamid + "/440/2?l=english&count=4000";
 
-    JsonInventory::Inventory inventoryData;
+    std::unique_ptr<JSON::SteamInventory::SteamInventory> inventoryData;
 
     int tries = 0;
     while (true && tries < 2) {
@@ -57,16 +57,16 @@ void Inventory::GetInventory() {
             consoleLog("Failed to fetch inventory after 2 tries, aborting", SEVERITY::ERR);
         }
 
-        inventoryData = nlohmann::json::parse(inventoryResponse.text);
+        inventoryData = std::make_unique<JSON::SteamInventory::SteamInventory>(JSON::SteamInventory::fromJson(inventoryResponse.text));
         break;
     }
 
-    if (inventoryData.total_inventory_count == 0 || inventoryData.assets == nullptr || inventoryData.descriptions == nullptr) {
+    if (!inventoryData || inventoryData->total_inventory_count == 0 || !inventoryData->assets.has_value() || !inventoryData->descriptions.has_value()) {
         consoleLog("No items found", SEVERITY::INFO);
         return;
     }
-    for (auto &asset : *inventoryData.assets) {
-        for (auto &desc : *inventoryData.descriptions) {
+    for (auto &asset : inventoryData->assets.value()) {
+        for (auto &desc : inventoryData->descriptions.value()) {
             if (desc.classid == asset.classid) {
                 if (desc.market_name == CURRENCY_SCRAP) {
                     scrapCount++;

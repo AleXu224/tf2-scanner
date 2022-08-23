@@ -1,7 +1,5 @@
-#ifndef BPSCANNER_ITEM_HPP
-#define BPSCANNER_ITEM_HPP
-
-#include "../json_schemas/InventoryData.hpp"
+#pragma once
+#include "../json_schemas/SteamInventory.hpp"
 #include "imgui.h"
 #include "map"
 #include "string"
@@ -136,11 +134,9 @@ class Item {
 
     bool fail = false;
 
-    explicit Item(JsonInventory::InventoryDescription &itemData);
+    explicit Item(JSON::SteamInventory::Description &itemData);
 
     float getKeyPrice();
 
     void ToConsole() const;
 };
-
-#endif  // BPSCANNER_ITEM_HPP
