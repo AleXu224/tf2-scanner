@@ -275,6 +275,12 @@ void Config::init() {
         auto apikeyObj = yyjson_obj_get(root, "apikey");
         if (apikeyObj && !yyjson_is_null(apikeyObj)) strcpy(apikey, yyjson_get_str(apikeyObj));
 
+        auto timeBetweenRequestsObj = yyjson_obj_get(root, "timeBetweenRequests");
+        if (timeBetweenRequestsObj && !yyjson_is_null(timeBetweenRequestsObj)) timeBetweenRequests = yyjson_get_real(timeBetweenRequestsObj);
+
+        auto requestTimeoutObj = yyjson_obj_get(root, "requestTimeout");
+        if (requestTimeoutObj && !yyjson_is_null(requestTimeoutObj)) requestTimeout = yyjson_get_real(requestTimeoutObj);
+
         auto configVersionObj = yyjson_obj_get(root, "configVersion");
         if (configVersionObj && !yyjson_is_null(configVersionObj)) {
             configVersion = yyjson_get_int(configVersionObj);
@@ -300,6 +306,8 @@ void Config::init() {
         yyjson_mut_obj_add_int(doc, root, "groupSkipPages", groupSkipPages);
         yyjson_mut_obj_add_int(doc, root, "groupScanPages", groupScanPages);
         yyjson_mut_obj_add_int(doc, root, "configVersion", configVersion);
+        yyjson_mut_obj_add_real(doc, root, "timeBetweenRequests", timeBetweenRequests);
+        yyjson_mut_obj_add_real(doc, root, "requestTimeout", requestTimeout);
 
         std::string configJson = yyjson_mut_write(doc, 0, nullptr);
         yyjson_mut_doc_free(doc);
@@ -348,6 +356,8 @@ void Config::save() {
     yyjson_mut_obj_add_int(doc, root, "groupSkipPages", groupSkipPages);
     yyjson_mut_obj_add_int(doc, root, "groupScanPages", groupScanPages);
     yyjson_mut_obj_add_int(doc, root, "configVersion", configVersion);
+    yyjson_mut_obj_add_real(doc, root, "timeBetweenRequests", timeBetweenRequests);
+    yyjson_mut_obj_add_real(doc, root, "requestTimeout", requestTimeout);
 
     std::string configJson = yyjson_mut_write(doc, 0, nullptr);
     yyjson_mut_doc_free(doc);

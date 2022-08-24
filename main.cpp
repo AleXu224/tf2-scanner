@@ -1,17 +1,18 @@
-#include "components/TopBar.hpp"
 #include "components/MainBody.hpp"
+#include "components/Overlay.hpp"
 #include "components/SideBar.hpp"
 #include "components/StatsInfo.hpp"
-#include "components/Overlay.hpp"
+#include "components/TopBar.hpp"
 #include "fonts/MaterialIcons.cpp"
 #include "fonts/Roboto.cpp"
 #include "globals.hpp"
 #include "imgui.h"
-#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_opengl3_loader.h"
+#include "resources/bpscannerIcon.hpp"
 #include "GLFW/glfw3.h"
+#include "imgui_internal.h"
 
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
@@ -28,6 +29,12 @@ int main(int, char**) {
         return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+
+    GLFWimage icon;
+    icon.pixels = (unsigned char*)ProgramIcon_data;
+    icon.height = 256;
+    icon.width = 256;
+    glfwSetWindowIcon(window, 1, &icon);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -77,7 +84,7 @@ int main(int, char**) {
     Overlay::addOverlay(new StatsInfo());
     Overlay::addOverlay(new ConsoleWindow());
     Overlay::addOverlay(new SideBar());
-    
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         if (ImGui::IsKeyPressed(GLFW_KEY_F12) && !io.WantCaptureKeyboard) {
@@ -93,7 +100,7 @@ int main(int, char**) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        
+
         MainBody();
         TopBar();
         Overlay::draw();

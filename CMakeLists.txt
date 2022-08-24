@@ -57,6 +57,8 @@ add_executable(
         components/Overlay.cpp
         components/InfoCard.hpp
         components/InfoCard.cpp
+        resources/bpscanner.rc
+        resources/bpscannerIcon.hpp
 )
         
 find_package(OpenGL REQUIRED)

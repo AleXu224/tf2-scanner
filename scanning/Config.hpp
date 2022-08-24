@@ -36,6 +36,9 @@ class Config {
 
     int configVersion = 2;
 
+    float timeBetweenRequests = 3;
+    float requestTimeout = 6;
+
     std::optional<JSON::Schema::Response> itemSchema;
     std::optional<JSON::BptfPrices::BptfPrices> itemPrices;
     std::optional<JSON::TfSkins::TfSkins> skinsData;

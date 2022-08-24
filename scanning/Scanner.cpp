@@ -10,6 +10,7 @@
 #include "sstream"
 #include "string"
 #include "vector"
+#include "algorithm"
 
 #define consoleLog GLOBALS::console.addOutput
 
@@ -57,17 +58,27 @@ void Scanner::Scan() {
         }
 
         JSON::SteamPlayer::SteamPlayer playerData = JSON::SteamPlayer::fromJson(response.text);
-
+        int scanned = 0;
         for (int j = 0; j < playerData.response.players.size(); j++) {
             if (stopScanning) break;
-            status = "Scanning player " + std::to_string(i + j) + "/" + std::to_string(playersIds.size());
+            status = "Scanning player " + std::to_string(i + scanned) + "/" + std::to_string(playersIds.size());
             Player player(playerData.response.players[j]);
             if (player.visibility != 3) {
                 consoleLog("Player " + player.steamid + " is not public, skipping", SEVERITY::INFO);
                 continue;
             }
             player.inventory.GetInventory();
-            if (player.inventory.items.empty()) continue;
+            if (player.inventory.steamErr) {
+                // Move this player to the end of the vector to try it again later
+                // there should be no worry of accessing the same player again
+                playerData.response.players.push_back(std::move(playerData.response.players[j]));
+                continue;
+            }
+
+            if (player.inventory.items.empty()) {
+                ++scanned;
+                continue;
+            }
 
             #define maxPrice GLOBALS::scanner.config.getMaxPriceInKeys()
             if (maxPrice != -1 && player.inventory.getCurrencyInInventory() > maxPrice) continue;
@@ -88,6 +99,7 @@ void Scanner::Scan() {
                 return player;
             });
             miscThread.detach();
+            ++scanned;
         }
     }
 

@@ -324,6 +324,10 @@ void SideBar::draw() {
             });
             t.detach();
         }
+        static auto timeBetweenRequestsInput = CustomInput("Time between requests", GLOBALS::scanner.config.timeBetweenRequests, "Time between requests in seconds");
+        static auto requestTimeoutInput = CustomInput("Request timeout", GLOBALS::scanner.config.requestTimeout, "Request timeout in seconds");
+        timeBetweenRequestsInput.draw();
+        requestTimeoutInput.draw();
     }
 
     End();

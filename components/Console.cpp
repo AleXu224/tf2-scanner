@@ -26,7 +26,7 @@ void Console::printOutput() {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(235.0f / 255, 214.0f / 255, 116.0f / 255, 1.0f));
             }
 
-            ImGui::Text(outputMessage.message.c_str());
+            ImGui::Text("%s", outputMessage.message.c_str());
 
             if (outputMessage.severity != SEVERITY::INFO)
                 ImGui::PopStyleColor();

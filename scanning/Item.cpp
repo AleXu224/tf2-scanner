@@ -1,8 +1,8 @@
 #include "Item.hpp"
 
 #include "../globals.hpp"
-#include "map"
 #include "boost/regex.hpp"
+#include "map"
 
 #define consoleLog GLOBALS::console.addOutput
 
@@ -17,7 +17,7 @@ const std::map<std::string, QUALITY> QUALITY_JSON = {
     {"Self-Made", QUALITY::SELF_MADE},
     {"Strange", QUALITY::STRANGE},
     {"Haunted", QUALITY::HAUNTED},
-    {"Colletor's", QUALITY::COLLECTORS},
+    {"Collector's", QUALITY::COLLECTORS},
     {"Decorated Weapon", QUALITY::DECORATED}};
 
 const std::map<std::string, WEAR> WEAR_JSON = {
@@ -173,22 +173,11 @@ Item::Item(JSON::SteamInventory::Description &itemData) {
         qualitySecondary = QUALITY::STRANGE;
     }
 
-    // Get crate id if item is a crate
-    // For some reason C++ regex doesn't support lookbehind
-    // But it does support lookaheads, so we can just reverse the name
-    // std::regex crateRegex("[0-9]+(?=# )");
-
-    // std::string reversedString = workingName;
-    // std::reverse(reversedString.begin(), reversedString.end());
-    // std::smatch match;
-
     boost::regex crateRegex("(?<=#)[0-9]+");
     boost::smatch crateMatch;
 
-    // if (std::regex_search(reversedString, match, crateRegex)) {
     if (boost::regex_search(workingName, crateMatch, crateRegex)) {
         std::string crateIDstr = crateMatch.str();
-        // std::reverse(crateIDstr.begin(), crateIDstr.end());
         crateID = std::stoi(crateIDstr);
         workingName.replace(workingName.find(" Series #" + crateIDstr), crateIDstr.length() + 9, "");
     }
@@ -210,11 +199,10 @@ Item::Item(JSON::SteamInventory::Description &itemData) {
         return;
     }
 
-
     if ((skinID != -1 || name.find("Killstreak ") != std::string::npos) && tradable) {
         for (auto &marketPrice : GLOBALS::scanner.config.marketPrices->prices) {
             if (marketPrice.name == name) {
-                price = static_cast<float>(marketPrice.sell_price) / 100; // Convert from cents to dollars
+                price = static_cast<float>(marketPrice.sell_price) / 100;  // Convert from cents to dollars
                 currency = TF2CURRENCY::USD;
                 if (name.find("Unusual ") != std::string::npos && effectID != -1) {
                     name.replace(name.find("Unusual"), 7, effectName);
@@ -342,7 +330,7 @@ float Item::getKeyPrice() {
     else if (currency == TF2CURRENCY::HATS)
         return (4.0f / 3.0f) / keyPrice;
     else if (currency == TF2CURRENCY::USD)
-        return price / 2.2f; // placeholder key price, should work well enough
+        return price / 2.2f;  // placeholder key price, should work well enough
     else
-        return 0.0f; // literally can't happen but the compiler won't stop bugging me about it
+        return 0.0f;  // literally can't happen but the compiler won't stop bugging me about it
 }

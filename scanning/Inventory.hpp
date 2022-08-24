@@ -15,6 +15,8 @@ class Inventory {
     bool success = false;
     std::string steamid;
 
+    bool steamErr = false;
+
     Inventory(std::string steamid);
 
     void GetInventory();

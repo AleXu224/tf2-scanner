@@ -15,51 +15,44 @@ Inventory::Inventory(std::string steamid) : steamid(steamid) {}
 static std::chrono::time_point lastRequest = std::chrono::steady_clock::now() - std::chrono::seconds(2);
 
 void Inventory::GetInventory() {
+    steamErr = false;
     consoleLog("Getting inventory for " + steamid, SEVERITY::INFO);
 
     std::string url = "https://steamcommunity.com/inventory/" + steamid + "/440/2?l=english&count=4000";
 
     std::unique_ptr<JSON::SteamInventory::SteamInventory> inventoryData;
 
-    int tries = 0;
-    while (true && tries < 2) {
-        auto now = std::chrono::steady_clock::now();
-        // wait until 2 seconds have passed since the last request
-        if (now - lastRequest < std::chrono::seconds(2)) {
-            auto wait = std::chrono::seconds(2) - (now - lastRequest);
-            std::this_thread::sleep_for(wait);
-        }
-        lastRequest = std::chrono::steady_clock::now();
-
-        auto inventoryResponse = cpr::Get(cpr::Url{url}, cpr::Timeout{15000});
-
-        if (inventoryResponse.status_code != 200) {
-            if (inventoryResponse.status_code == 429) {
-                consoleLog("Too many requests, waiting...", SEVERITY::WARNING);
-                continue;
-            }
-            if (inventoryResponse.status_code == 403) {
-                consoleLog("Inventory is private, aborting", SEVERITY::INFO);
-                return;
-            }
-            consoleLog("Failed to fetch inventory (" + std::to_string(inventoryResponse.status_code) + "), aborting", SEVERITY::ERR);
-            ++tries;
-            continue;
-        }
-
-        if (inventoryResponse.error.code != cpr::ErrorCode::OK) {
-            consoleLog("Failed to fetch inventory (" + inventoryResponse.error.message + "), aborting", SEVERITY::ERR);
-            ++tries;
-            continue;
-        }
-
-        if (tries >= 2) {
-            consoleLog("Failed to fetch inventory after 2 tries, aborting", SEVERITY::ERR);
-        }
-
-        inventoryData = std::make_unique<JSON::SteamInventory::SteamInventory>(JSON::SteamInventory::fromJson(inventoryResponse.text));
-        break;
+    auto now = std::chrono::steady_clock::now();
+    if (now - lastRequest < std::chrono::milliseconds((int)(GLOBALS::scanner.config.timeBetweenRequests * 1000))) {
+        auto wait = std::chrono::milliseconds((int)(GLOBALS::scanner.config.timeBetweenRequests * 1000)) - (now - lastRequest);
+        std::this_thread::sleep_for(wait);
     }
+    lastRequest = std::chrono::steady_clock::now();
+
+    auto inventoryResponse = cpr::Get(cpr::Url{url}, cpr::Timeout{(int)(GLOBALS::scanner.config.requestTimeout * 1000)});
+
+    if (inventoryResponse.status_code != 200) {
+        if (inventoryResponse.status_code == 429) {
+            consoleLog("Too many requests, waiting...", SEVERITY::WARNING);
+            steamErr = true;
+            return;
+        }
+        if (inventoryResponse.status_code == 403) {
+            consoleLog("Inventory is private, aborting", SEVERITY::INFO);
+            return;
+        }
+        consoleLog("Failed to fetch inventory (" + std::to_string(inventoryResponse.status_code) + "), aborting", SEVERITY::ERR);
+        steamErr = true;
+        return;
+    }
+
+    if (inventoryResponse.error.code != cpr::ErrorCode::OK) {
+        consoleLog("Failed to fetch inventory (" + inventoryResponse.error.message + "), aborting", SEVERITY::ERR);
+        steamErr = true;
+        return;
+    }
+
+    inventoryData = std::make_unique<JSON::SteamInventory::SteamInventory>(JSON::SteamInventory::fromJson(inventoryResponse.text));
 
     if (!inventoryData || inventoryData->total_inventory_count == 0 || !inventoryData->assets.has_value() || !inventoryData->descriptions.has_value()) {
         consoleLog("No items found", SEVERITY::INFO);
