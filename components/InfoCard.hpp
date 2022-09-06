@@ -2,6 +2,7 @@
 
 #include "./Overlay.hpp"
 #include "../utilities/Animation.hpp"
+#include "string"
 
 class InfoCard : public OverlayBase {
     private:

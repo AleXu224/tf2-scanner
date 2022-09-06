@@ -1,62 +1,76 @@
 #include "Item.hpp"
 
 #include "../globals.hpp"
+#include "boost/regex.hpp"
 #include "map"
-#include "regex"
 
 #define consoleLog GLOBALS::console.addOutput
 
-const std::map<JsonInventory::LocalizedTagName, QUALITY> QUALITY_JSON = {
-    {JsonInventory::LocalizedTagName::NORMAL, QUALITY::NORMAL},
-    {JsonInventory::LocalizedTagName::GENUINE, QUALITY::GENIUNE},
-    {JsonInventory::LocalizedTagName::VINTAGE, QUALITY::VINTAGE},
-    {JsonInventory::LocalizedTagName::UNUSUAL, QUALITY::UNUSUAL},
-    {JsonInventory::LocalizedTagName::UNIQUE, QUALITY::UNIQUE},
-    {JsonInventory::LocalizedTagName::COMMUNITY, QUALITY::COMMUNITY},
-    // No data for valve items sadly
-    {JsonInventory::LocalizedTagName::SELF_MADE, QUALITY::SELF_MADE},
-    {JsonInventory::LocalizedTagName::STRANGE, QUALITY::STRANGE},
-    {JsonInventory::LocalizedTagName::HAUNTED, QUALITY::HAUNTED},
-    {JsonInventory::LocalizedTagName::COLLECTOR_S, QUALITY::COLLECTORS},
-    {JsonInventory::LocalizedTagName::DECORATED_WEAPON, QUALITY::DECORATED}};
+const std::map<std::string, QUALITY> QUALITY_JSON = {
+    {"Normal", QUALITY::NORMAL},
+    {"Genuine", QUALITY::GENIUNE},
+    {"Vintage", QUALITY::VINTAGE},
+    {"Unusual", QUALITY::UNUSUAL},
+    {"Unique", QUALITY::UNIQUE},
+    {"Community", QUALITY::COMMUNITY},
+    {"Valve", QUALITY::VALVE},
+    {"Self-Made", QUALITY::SELF_MADE},
+    {"Strange", QUALITY::STRANGE},
+    {"Haunted", QUALITY::HAUNTED},
+    {"Collector's", QUALITY::COLLECTORS},
+    {"Decorated Weapon", QUALITY::DECORATED}};
 
-const std::map<JsonInventory::LocalizedTagName, WEAR> WEAR_JSON = {
-    {JsonInventory::LocalizedTagName::BATTLE_SCARRED, WEAR::BATTLE_SCARRED},
-    {JsonInventory::LocalizedTagName::WELL_WORN, WEAR::WELL_WORN},
-    {JsonInventory::LocalizedTagName::FIELD_TESTED, WEAR::FIELD_TESTED},
-    {JsonInventory::LocalizedTagName::MINIMAL_WEAR, WEAR::MINIMAL_WEAR},
-    {JsonInventory::LocalizedTagName::FACTORY_NEW, WEAR::FACTORY_NEW},
+const std::map<std::string, WEAR> WEAR_JSON = {
+    {"Battle Scarred", WEAR::BATTLE_SCARRED},
+    {"Well-Worn", WEAR::WELL_WORN},
+    {"Field-Tested", WEAR::FIELD_TESTED},
+    {"Minimal Wear", WEAR::MINIMAL_WEAR},
+    {"Factory New", WEAR::FACTORY_NEW},
 };
 
-const std::map<JsonPrices::Currency, TF2CURRENCY> CURRENCY_JSON = {
-    {JsonPrices::Currency::HAT, TF2CURRENCY::HATS},
-    {JsonPrices::Currency::KEYS, TF2CURRENCY::KEYS},
-    {JsonPrices::Currency::METAL, TF2CURRENCY::METAL},
-    {JsonPrices::Currency::USD, TF2CURRENCY::USD}};
+const std::map<std::string, TF2CURRENCY> CURRENCY_JSON = {
+    {"hat", TF2CURRENCY::HATS},
+    {"keys", TF2CURRENCY::KEYS},
+    {"metal", TF2CURRENCY::METAL},
+    {"usd", TF2CURRENCY::USD}};
 
-Item::Item(JsonInventory::InventoryDescription &itemData) {
+Item::Item(JSON::SteamInventory::Description &itemData) {
+    int defindex = -1;
+    std::string nameSimple;  // name without prefixes or suffixes
+    bool craftable = true;
+    bool australium = false;
+    bool properName = false;  // wether the name has "The" in it or not
+    bool isCrate = false;
+    int crateID = -1;
+    std::string effectName;
+    WEAR skinWear = WEAR::NONE;
+    int toolDefindex = -1;
+    std::string toolName;
+    int recipeDefindex = -1;
+    std::string recipeName;
+
     if (itemData.tradable == 0) tradable = false;
 
     name = workingName = itemData.market_name;
 
     // Quality, crate and tool, wear check
     for (auto &tag : itemData.tags) {
-        if (tag.category == JsonInventory::Category::QUALITY) {
+        if (tag.category == "Quality") {
             quality = QUALITY_JSON.at(tag.localized_tag_name);
             // Remove quality from name
             if (workingName.find(QUALITY_STRINGS.at(quality)) != std::string::npos) {
                 workingName.replace(workingName.find(QUALITY_STRINGS.at(quality) + " "),
                                     QUALITY_STRINGS.at(quality).length() + 1, "");
             }
-        } else if (tag.category == JsonInventory::Category::TYPE) {
-            if (tag.localized_tag_name == JsonInventory::LocalizedTagName::CRATE)
+        } else if (tag.category == "Type") {
+            if (tag.localized_tag_name == "Crate")
                 isCrate = true;
 
-        } else if (tag.category == JsonInventory::Category::EXTERIOR) {
+        } else if (tag.category == "Exterior") {
             skinWear = WEAR_JSON.at(tag.localized_tag_name);
             workingName.replace(workingName.find(" (" + WEAR_STRINGS.at(skinWear) + ")"),
                                 WEAR_STRINGS.at(skinWear).length() + 3, "");
-            for (auto &skinData : GLOBALS::scanner.config.skinsData) {
+            for (auto &skinData : GLOBALS::scanner.config.skinsData->skins) {
                 if (workingName.find(skinData.second) != std::string::npos) {
                     skinID = std::stoi(skinData.first);
                     workingName.replace(workingName.find(skinData.second + " "), skinData.second.length() + 1, "");
@@ -75,9 +89,9 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         int longestName = 0;
         int earliestPosition = workingName.size();
 
-        JsonSchema::Item foundItem;
+        std::unique_ptr<JSON::Schema::Item> foundItem;
 
-        for (auto &schemaItem : GLOBALS::scanner.config.itemSchema) {
+        for (auto &schemaItem : GLOBALS::scanner.config.itemSchema->result.items) {
             if (schemaItem.item_name.empty())
                 continue;
             auto find1 = workingName.find(schemaItem.item_name);
@@ -89,32 +103,32 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
 
                 earliestPosition = find1;
                 longestName = schemaItem.item_name.size();
-                foundItem = schemaItem;
+                foundItem = std::make_unique<JSON::Schema::Item>(schemaItem);
             }
         }
 
         if (longestName == 0)
             break;
         if (defindex == -1) {
-            defindex = foundItem.defindex;
-            nameSimple = foundItem.item_name;
+            defindex = foundItem->defindex;
+            nameSimple = foundItem->item_name;
             workingName.erase(earliestPosition, longestName);
-            if (foundItem.proper_name) {
+            if (foundItem->proper_name) {
                 auto findThe = workingName.find("The ");
                 if (findThe != std::string::npos) {
                     workingName.erase(findThe, 4);
                 }
             }
         } else if (toolDefindex == -1) {
-            toolDefindex = foundItem.defindex;
-            toolName = foundItem.item_name;
+            toolDefindex = foundItem->defindex;
+            toolName = foundItem->item_name;
             workingName.erase(earliestPosition - 1, longestName + 1);
         } else if (recipeDefindex == -1) {
-            recipeDefindex = foundItem.defindex;
-            recipeName = foundItem.item_name;
+            recipeDefindex = foundItem->defindex;
+            recipeName = foundItem->item_name;
             workingName.erase(earliestPosition - 1, longestName + 1);
         } else {
-            consoleLog("Too many arguments found: (" + workingName + ") (" + foundItem.item_name + ")", SEVERITY::ERR);
+            consoleLog("Too many arguments found: (" + workingName + ") (" + foundItem->item_name + ")", SEVERITY::ERR);
             break;
         }
     }
@@ -124,14 +138,11 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
 
     // Killstreak
     if (workingName.find("Killstreak ") != std::string::npos) {
-        killstreak = KILLSTREAK::BASIC;
         workingName.replace(workingName.find("Killstreak "), 11, "");
 
         if (workingName.find("Specialized ") != std::string::npos) {
-            killstreak = KILLSTREAK::SPECIALIZED;
             workingName.replace(workingName.find("Specialized "), 12, "");
         } else if (workingName.find("Professional ") != std::string::npos) {
-            killstreak = KILLSTREAK::PROFFESIONAL;
             workingName.replace(workingName.find("Professional "), 13, "");
         }
     }
@@ -147,12 +158,12 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         for (auto &description : *itemData.descriptions) {
             if (quality == QUALITY::UNUSUAL && description.value.find("★ Unusual Effect: ") != std::string::npos) {
                 effectName = description.value.substr(description.value.find("Unusual Effect: ") + 16);
-                if (GLOBALS::scanner.config.itemEffects.find(effectName) == GLOBALS::scanner.config.itemEffects.end()) {
+                if (GLOBALS::scanner.config.itemEffects->effects.find(effectName) == GLOBALS::scanner.config.itemEffects->effects.end()) {
                     consoleLog("Couldn't find effect: " + effectName, SEVERITY::ERR);
                     fail = true;
                     return;
                 }
-                effectID = GLOBALS::scanner.config.itemEffects.at(effectName);
+                effectID = GLOBALS::scanner.config.itemEffects->effects.at(effectName);
                 break;
             } else if (description.value.find("Usable in Crafting") != std::string::npos) {
                 craftable = false;
@@ -173,18 +184,11 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         qualitySecondary = QUALITY::STRANGE;
     }
 
-    // Get crate id if item is a crate
-    // For some reason C++ regex doesn't support lookbehind
-    // But it does support lookaheads, so we can just reverse the name
-    std::regex crateRegex("[0-9]+(?=# )");
+    boost::regex crateRegex("(?<=#)[0-9]+");
+    boost::smatch crateMatch;
 
-    std::string reversedString = workingName;
-    std::reverse(reversedString.begin(), reversedString.end());
-    std::smatch match;
-
-    if (std::regex_search(reversedString, match, crateRegex)) {
-        std::string crateIDstr = match.str();
-        std::reverse(crateIDstr.begin(), crateIDstr.end());
+    if (boost::regex_search(workingName, crateMatch, crateRegex)) {
+        std::string crateIDstr = crateMatch.str();
         crateID = std::stoi(crateIDstr);
         workingName.replace(workingName.find(" Series #" + crateIDstr), crateIDstr.length() + 9, "");
     }
@@ -196,7 +200,6 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
     }
 
     if (workingName.find("Festivized ") != std::string::npos) {
-        isFestivized = true;
         workingName.erase(workingName.find("Festivized "), 11);
     }
 
@@ -206,11 +209,10 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
         return;
     }
 
-
     if ((skinID != -1 || name.find("Killstreak ") != std::string::npos) && tradable) {
-        for (auto &marketPrice : GLOBALS::scanner.config.marketPrices) {
+        for (auto &marketPrice : GLOBALS::scanner.config.marketPrices->prices) {
             if (marketPrice.name == name) {
-                price = static_cast<float>(marketPrice.sell_price) / 100; // Convert from cents to dollars
+                price = static_cast<float>(marketPrice.sell_price) / 100;  // Convert from cents to dollars
                 currency = TF2CURRENCY::USD;
                 if (name.find("Unusual ") != std::string::npos && effectID != -1) {
                     name.replace(name.find("Unusual"), 7, effectName);
@@ -240,10 +242,10 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
     if (australium)
         priceName = "Australium " + priceName;
 
-    auto &prices = GLOBALS::scanner.config.itemPrices.response.items;
+    auto &prices = GLOBALS::scanner.config.itemPrices->response.items;
     if (prices.find(priceName) != prices.end()) {
         auto postName = prices.at(priceName).prices;
-        JsonPrices::Tradable postQuality;
+        std::optional<JSON::BptfPrices::Tradable> postQuality;
 
         if (postName.find(std::to_string((int)qualitySecondary)) != postName.end()) {
             postQuality = postName.at(std::to_string((int)qualitySecondary)).tradable;
@@ -253,21 +255,21 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
             return;
         }
 
-        std::shared_ptr<JsonPrices::CraftableUnion> postCraftable;
+        std::optional<std::variant<std::map<std::string, JSON::BptfPrices::Element>, std::vector<JSON::BptfPrices::Element>>> postCraftable;
         if (craftable)
-            postCraftable = postQuality.craftable;
+            postCraftable = postQuality->craftable;
         else
-            postCraftable = postQuality.non_craftable;
+            postCraftable = postQuality->non_craftable;
 
-        if (postCraftable == nullptr) return;
-        JsonPrices::CraftableElement postId;
-        auto element = std::get_if<std::vector<JsonPrices::CraftableElement>>(&(*postCraftable));
-        if (element != nullptr) {
+        if (!postCraftable.has_value()) return;
+        // JsonPrices::CraftableElement postId;
+        std::optional<JSON::BptfPrices::Element> postId;
+        if (std::holds_alternative<std::vector<JSON::BptfPrices::Element>>(postCraftable.value())) {
             // vector
-            postId = element->at(0);
+            postId = std::get<std::vector<JSON::BptfPrices::Element>>(postCraftable.value()).at(0);
         } else {
             // map
-            auto map = std::get<std::map<std::string, JsonPrices::CraftableElement>>(*postCraftable);
+            auto map = std::get<std::map<std::string, JSON::BptfPrices::Element>>(postCraftable.value());
             if ((recipeDefindex != -1 || toolDefindex != -1)) {
                 if (map.find(std::to_string(defindex)) == map.end()) return;
                 postId = map.at(std::to_string(defindex));
@@ -287,47 +289,18 @@ Item::Item(JsonInventory::InventoryDescription &itemData) {
                 return;
             }
         }
-        if (postId.currency == nullptr || postId.value == nullptr)
+        if (!postId->currency.has_value() || !postId->value.has_value())
             return;
-        currency = CURRENCY_JSON.at(*postId.currency);
-        price = *postId.value;
-    }
-}
-
-void Item::ToConsole() const {
-    using namespace ImGui;
-    if (TreeNode((void *)(intptr_t)this, name.c_str())) {
-        Text("Tradable: %s", tradable ? "Yes" : "No");
-        Text("Defindex: %d", defindex);
-        Text("Name: %s", name.c_str());
-        Text("Name Simple: %s", nameSimple.c_str());
-        Text("Craftable: %s", craftable ? "Yes" : "No");
-        Text("Australium: %s", australium ? "Yes" : "No");
-        Text("Killstreak: %d", killstreak);
-        Text("Quality: %d", quality);
-        Text("Quality Secondary: %d", qualitySecondary);
-        Text("Proper Name: %s", properName ? "Yes" : "No");
-        Text("Is Crate: %s", isCrate ? "Yes" : "No");
-        Text("Crate ID: %d", crateID);
-        Text("Effect ID: %d", effectID);
-        Text("Effect name: %s", effectName.c_str());
-        Text("Skin ID: %d", skinID);
-        Text("Skin Wear: %s", WEAR_STRINGS.at(skinWear).c_str());
-        Text("Tool Defindex: %d", toolDefindex);
-        Text("Tool Name: %s", toolName.c_str());
-        Text("Recipe Defindex: %d", recipeDefindex);
-        Text("Recipe Name: %s", recipeName.c_str());
-        Text("Price: %f", price);
-        Text("Currency: %s", TF2CURRENCY_STRINGS.at(currency).c_str());
-        TreePop();
+        currency = CURRENCY_JSON.at(postId->currency.value());
+        price = postId->value.value();
     }
 }
 
 float Item::getKeyPrice() {
-#define PRICES GLOBALS::scanner.config.itemPrices.response.items
+#define PRICES GLOBALS::scanner.config.itemPrices->response.items
     auto keyPriceCraftable = PRICES.at(CURRENCY_KEY).prices.at("6").tradable.craftable;
-    auto keyPriceVector = std::get<std::vector<JsonPrices::CraftableElement>>(*keyPriceCraftable);
-    auto keyPrice = *keyPriceVector.at(0).value;
+    auto keyPriceVector = std::get<std::vector<JSON::BptfPrices::Element>>(keyPriceCraftable.value());
+    auto keyPrice = keyPriceVector.at(0).value.value();
 
     if (currency == TF2CURRENCY::NONE)
         return 0.0f;
@@ -338,7 +311,7 @@ float Item::getKeyPrice() {
     else if (currency == TF2CURRENCY::HATS)
         return (4.0f / 3.0f) / keyPrice;
     else if (currency == TF2CURRENCY::USD)
-        return price / 2.2f; // placeholder key price, should work well enough
+        return price / 2.2f;  // placeholder key price, should work well enough
     else
-        return 0.0f; // literally can't happen but the compiler won't stop bugging me about it
+        return 0.0f;  // literally can't happen but the compiler won't stop bugging me about it
 }

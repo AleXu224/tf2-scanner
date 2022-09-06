@@ -1,22 +1,18 @@
-#include "components/ApiKeyPrompt.hpp"
-#include "components/LoadingScreen.hpp"
 #include "components/MainBody.hpp"
+#include "components/Overlay.hpp"
 #include "components/SideBar.hpp"
 #include "components/StatsInfo.hpp"
 #include "components/TopBar.hpp"
-#include "components/Overlay.hpp"
-#include "cpr/cpr.h"
-#include "fonts/IconsMaterialDesign.h"
 #include "fonts/MaterialIcons.cpp"
 #include "fonts/Roboto.cpp"
 #include "globals.hpp"
 #include "imgui.h"
-#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_opengl3_loader.h"
+#include "resources/bpscannerIcon.hpp"
 #include "GLFW/glfw3.h"
-#include "utilities/Texture.hpp"
+#include "imgui_internal.h"
 
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
@@ -34,6 +30,12 @@ int main(int, char**) {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
+    GLFWimage icon;
+    icon.pixels = (unsigned char*)ProgramIcon_data;
+    icon.height = 256;
+    icon.width = 256;
+    glfwSetWindowIcon(window, 1, &icon);
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -43,7 +45,18 @@ int main(int, char**) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 14.0f));
+    ImVector<ImWchar> font_ranges;
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
+    builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
+    builder.AddRanges(io.Fonts->GetGlyphRangesThai());
+    builder.AddRanges(io.Fonts->GetGlyphRangesVietnamese());
+    builder.AddRanges(io.Fonts->GetGlyphRangesCyrillic());
+    builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
+    builder.BuildRanges(&font_ranges);
+
+    GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 14.0f, nullptr, font_ranges.Data));
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 12.0f));
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 19.0f));
     GLOBALS::FONTS.push_back(io.Fonts->AddFontFromMemoryCompressedTTF(Roboto_compressed_data, Roboto_compressed_size, 17.0f));
@@ -75,7 +88,6 @@ int main(int, char**) {
     t.detach();
 
     bool show_demo_window = false;
-    bool drawerOpened = false;
 
     // Overlays added at the bottom so they will always be under the other overlays
     // These will also not be removed when the overlay is closed
@@ -83,7 +95,7 @@ int main(int, char**) {
     Overlay::addOverlay(new StatsInfo());
     Overlay::addOverlay(new ConsoleWindow());
     Overlay::addOverlay(new SideBar());
-    
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         if (ImGui::IsKeyPressed(GLFW_KEY_F12) && !io.WantCaptureKeyboard) {
@@ -99,7 +111,7 @@ int main(int, char**) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        
+
         MainBody();
         TopBar();
         Overlay::draw();
@@ -116,13 +128,6 @@ int main(int, char**) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
-
-        // This makes absolutely no sense but for some reason
-        // opening the drawer for 1 frame fixes a memory leak
-        if (!drawerOpened) {
-            GLOBALS::scanner.showDrawer = false;
-            drawerOpened = true;
-        }
     }
 
     // Cleanup

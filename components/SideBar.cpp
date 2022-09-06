@@ -1,9 +1,9 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "SideBar.hpp"
-
 #include "../globals.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "misc/cpp/imgui_stdlib.h"
+#include "imgui_stdlib.h"
 #include "../utilities/Animation.hpp"
 #include "string"
 #include "thread"
@@ -137,14 +137,11 @@ void ScanTypeButton(ScanType buttonType, const float &buttonWidth, const float &
 }
 
 void ScanTypeSelection() {
-    auto *io = &ImGui::GetIO();
     const int padding = 16;
     const int height = 32;
     const int width = GetWindowSize().x - padding * 2;
     const int buttonCount = 2;
     const float buttonWidth = width / buttonCount;
-
-    ImDrawList *draw_list = GetWindowDrawList();
 
     ScanType &scanType = GLOBALS::scanner.scanType;
 
@@ -173,7 +170,6 @@ bool Tab(std::string tabName, bool tabActive) {
     if (!tabActive) return ret;
 
     const float underlineHeight = 2;
-    const float underlineWidth = tabWidth;
     ImVec2 underLinePos = {GetItemRectMin().x, GetItemRectMin().y + tabHeight - underlineHeight};
     draw_list->AddRectFilled(underLinePos, GetItemRectMax(), ImColor(COLORS::SECONDARY));
     return ret;
@@ -324,6 +320,10 @@ void SideBar::draw() {
             });
             t.detach();
         }
+        static auto timeBetweenRequestsInput = CustomInput("Time between requests", GLOBALS::scanner.config.timeBetweenRequests, "Time between requests in seconds");
+        static auto requestTimeoutInput = CustomInput("Request timeout", GLOBALS::scanner.config.requestTimeout, "Request timeout in seconds");
+        timeBetweenRequestsInput.draw();
+        requestTimeoutInput.draw();
     }
 
     End();

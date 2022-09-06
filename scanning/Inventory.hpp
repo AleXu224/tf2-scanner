@@ -15,13 +15,13 @@ class Inventory {
     bool success = false;
     std::string steamid;
 
+    bool steamErr = false;
+
     Inventory(std::string steamid);
 
     void GetInventory();
 
     float getCurrencyInInventory();
-
-    void ToConsole();
 };
 
 #endif  // BPSCANNNER_INVENTORY_HPP

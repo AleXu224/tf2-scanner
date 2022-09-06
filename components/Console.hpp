@@ -3,10 +3,10 @@
 
 #include <imgui.h>
 
-#include <../scanning/Inventory.hpp>
-#include <../scanning/Item.hpp>
-#include <../scanning/Player.hpp>
-#include <../components/Overlay.hpp>
+#include "../scanning/Inventory.hpp"
+#include "../scanning/Item.hpp"
+#include "../scanning/Player.hpp"
+#include "../components/Overlay.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -45,17 +45,8 @@ class Output {
 class Console {
    public:
     std::vector<Output> output;
-    std::vector<Player> playerList;
-    std::vector<Inventory> inventoryList;
-    std::vector<Item> itemList;
 
     void addOutput(std::string message, SEVERITY severity = SEVERITY::INFO);
-    void addOutput(Player &player);
-    void addOutput(Inventory &inventory);
-    void addOutput(Item &item);
-
-    // void addOutput(Inventory inventory, int severity = 0);
-    // void addOutput(Item item, int severity = 0);
 
     void printOutput();
 };
