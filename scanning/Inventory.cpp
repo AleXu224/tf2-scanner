@@ -106,25 +106,6 @@ void Inventory::GetInventory() {
     success = true;
 }
 
-void Inventory::ToConsole() {
-    using namespace ImGui;
-    if (TreeNode("Inventory")) {
-        Text("Scrap: %d", scrapCount);
-        Text("Keys: %d", keysCount);
-        Text("Success: %s", success ? "Yes" : "No");
-        std::string itemsName = "Items (" + std::to_string(items.size()) + ")";
-        if (TreeNode(itemsName.c_str())) {
-            InputText("Search", search, 32);
-            for (Item &item : items) {
-                if (item.name.find(search) == std::string::npos) continue;
-                item.ToConsole();
-            }
-            TreePop();
-        }
-        TreePop();
-    }
-}
-
 float Inventory::getCurrencyInInventory() {
     float currency = keysCount;
     currency += (scrapCount / 9.0f) / GLOBALS::scanner.config.getKeyPrice();

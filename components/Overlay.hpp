@@ -13,6 +13,7 @@ class OverlayBase {
     bool canClose = false;
 
     virtual void draw() = 0;
+    virtual ~OverlayBase() = default;
 };
 
 class StatusIndicator : public OverlayBase {

@@ -97,40 +97,15 @@ class Item {
     std::string workingName;
 
    public:
-    bool tradable = true;
-
-    int defindex = -1;
     std::string name;
-    std::string nameSimple;  // name without prefixes or suffixes
-    bool craftable = true;
-    bool australium = false;
-    KILLSTREAK killstreak = KILLSTREAK::NONE;
     QUALITY quality = QUALITY::UNIQUE;
     QUALITY qualitySecondary = QUALITY::NONE;
-
-    bool properName = false;  // wether the name has "The" in it or not
-
-    bool isCrate = false;
-    int crateID = -1;
-
-    int effectID = -1;
-    std::string effectName;
-
-    std::string imageUrl;  // This only contains the last part of the url, not the whole thing
-
-    int skinID = -1;
-    WEAR skinWear = WEAR::NONE;
-
-    int toolDefindex = -1;
-    std::string toolName;
-
-    int recipeDefindex = -1;
-    std::string recipeName;
-
-    bool isFestivized = false;
-
     TF2CURRENCY currency = TF2CURRENCY::NONE;
+    std::string imageUrl;  // This only contains the last part of the url, not the whole thing
+    int skinID = -1;
+    int effectID = -1;
     float price = -1;
+    bool tradable = true;
 
     bool fail = false;
 
@@ -138,5 +113,5 @@ class Item {
 
     float getKeyPrice();
 
-    void ToConsole() const;
+    // void ToConsole() const;
 };

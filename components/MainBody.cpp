@@ -99,7 +99,7 @@ void CustomTooltip(std::string text) {
 void UserItem(int &playerIndex, int &itemIndex) {
     InvisibleButton("Item", ImVec2(64, 64));
     ImDrawList *draw_list = GetWindowDrawList();
-    #define item players[playerIndex].inventory.items[itemIndex] 
+    auto &item = players[playerIndex].inventory.items[itemIndex];
 
     if (item.qualitySecondary != QUALITY::NONE) {
         const ImVec2 secondary_pos_max = {GetItemRectMax().x, GetItemRectMax().y - 48};

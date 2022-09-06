@@ -24,8 +24,6 @@ class Player {
     void getLevel();
     void getHistories();
     void getHours();
-
-    void ToConsole();
 };
 
 #endif  // BPSCANNER_PLAYER_HPP

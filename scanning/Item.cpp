@@ -35,6 +35,20 @@ const std::map<std::string, TF2CURRENCY> CURRENCY_JSON = {
     {"usd", TF2CURRENCY::USD}};
 
 Item::Item(JSON::SteamInventory::Description &itemData) {
+    int defindex = -1;
+    std::string nameSimple;  // name without prefixes or suffixes
+    bool craftable = true;
+    bool australium = false;
+    bool properName = false;  // wether the name has "The" in it or not
+    bool isCrate = false;
+    int crateID = -1;
+    std::string effectName;
+    WEAR skinWear = WEAR::NONE;
+    int toolDefindex = -1;
+    std::string toolName;
+    int recipeDefindex = -1;
+    std::string recipeName;
+
     if (itemData.tradable == 0) tradable = false;
 
     name = workingName = itemData.market_name;
@@ -124,14 +138,11 @@ Item::Item(JSON::SteamInventory::Description &itemData) {
 
     // Killstreak
     if (workingName.find("Killstreak ") != std::string::npos) {
-        killstreak = KILLSTREAK::BASIC;
         workingName.replace(workingName.find("Killstreak "), 11, "");
 
         if (workingName.find("Specialized ") != std::string::npos) {
-            killstreak = KILLSTREAK::SPECIALIZED;
             workingName.replace(workingName.find("Specialized "), 12, "");
         } else if (workingName.find("Professional ") != std::string::npos) {
-            killstreak = KILLSTREAK::PROFFESIONAL;
             workingName.replace(workingName.find("Professional "), 13, "");
         }
     }
@@ -189,7 +200,6 @@ Item::Item(JSON::SteamInventory::Description &itemData) {
     }
 
     if (workingName.find("Festivized ") != std::string::npos) {
-        isFestivized = true;
         workingName.erase(workingName.find("Festivized "), 11);
     }
 
@@ -283,35 +293,6 @@ Item::Item(JSON::SteamInventory::Description &itemData) {
             return;
         currency = CURRENCY_JSON.at(postId->currency.value());
         price = postId->value.value();
-    }
-}
-
-void Item::ToConsole() const {
-    using namespace ImGui;
-    if (TreeNode((void *)(intptr_t)this, name.c_str())) {
-        Text("Tradable: %s", tradable ? "Yes" : "No");
-        Text("Defindex: %d", defindex);
-        Text("Name: %s", name.c_str());
-        Text("Name Simple: %s", nameSimple.c_str());
-        Text("Craftable: %s", craftable ? "Yes" : "No");
-        Text("Australium: %s", australium ? "Yes" : "No");
-        Text("Killstreak: %d", killstreak);
-        Text("Quality: %d", quality);
-        Text("Quality Secondary: %d", qualitySecondary);
-        Text("Proper Name: %s", properName ? "Yes" : "No");
-        Text("Is Crate: %s", isCrate ? "Yes" : "No");
-        Text("Crate ID: %d", crateID);
-        Text("Effect ID: %d", effectID);
-        Text("Effect name: %s", effectName.c_str());
-        Text("Skin ID: %d", skinID);
-        Text("Skin Wear: %s", WEAR_STRINGS.at(skinWear).c_str());
-        Text("Tool Defindex: %d", toolDefindex);
-        Text("Tool Name: %s", toolName.c_str());
-        Text("Recipe Defindex: %d", recipeDefindex);
-        Text("Recipe Name: %s", recipeName.c_str());
-        Text("Price: %f", price);
-        Text("Currency: %s", TF2CURRENCY_STRINGS.at(currency).c_str());
-        TreePop();
     }
 }
 

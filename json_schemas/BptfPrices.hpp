@@ -1,6 +1,7 @@
 #pragma once
 #include "assert.h"
 #include "map"
+#include "unordered_map"
 #include "optional"
 #include "string"
 #include "vector"
@@ -100,7 +101,7 @@ class Price {
 class Item {
    public:
     std::vector<int> defindex;
-    std::map<std::string, Price> prices;
+    std::unordered_map<std::string, Price> prices;
 
     Item(yyjson_val *obj) {
         {  // defindex

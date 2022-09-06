@@ -6,8 +6,7 @@
 using namespace ImGui;
 
 static int instances = 0;
-InfoCard::InfoCard(std::string message) : transition(0.0f, 1.0f, 0.2f, TransitionType::easeInOutCubic), timer(5.0f) {
-    this->message = message;
+InfoCard::InfoCard(std::string message) : message(message), transition(0.0f, 1.0f, 0.2f, TransitionType::easeInOutCubic), timer(5.0f) {
     id = ++instances;
 }
 
@@ -43,7 +42,7 @@ void InfoCard::draw() {
     std::stringstream ss;
     ss << "InfoCard###" << id;
     Begin(ss.str().c_str(), nullptr, FLAGS);
-    Text(message.c_str());
+    Text("%s", message.c_str());
     End();
 
     PopStyleVar(2);
