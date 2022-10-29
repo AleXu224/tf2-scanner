@@ -29,10 +29,7 @@ class Overlay {
     static void cleanup();
 
    public:
-    // static inline std::vector<OverlayComponent> components = {};
     static inline std::vector<OverlayBase *> overlays = {};
-    // static void init();
-    // static void addOverlay(std::function<void()> draw, OverlayBG bg = OverlayBG::Visible);
     static void addOverlay(OverlayBase *overlay);
     static void draw();
     static void pop();
