@@ -6,3 +6,4 @@
 /.vscode/
 /cmake-build-debug-visual-studio/
 /cmake-build-relwithdebinfo-visual-studio/
+/cmake-build-release-clang/
