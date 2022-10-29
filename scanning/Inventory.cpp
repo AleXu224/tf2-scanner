@@ -18,7 +18,7 @@ void Inventory::GetInventory() {
     steamErr = false;
     consoleLog("Getting inventory for " + steamid, SEVERITY::INFO);
 
-    std::string url = "https://steamcommunity.com/inventory/" + steamid + "/440/2?l=english&count=4000";
+    std::string url = "https://steamcommunity.com/inventory/" + steamid + "/440/2?l=english&count=2000";
 
     std::unique_ptr<JSON::SteamInventory::SteamInventory> inventoryData;
 
