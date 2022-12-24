@@ -1,3 +1,6 @@
+# Sadly Steam crippled this scanner in an update to the inventory API a few months ago.
+You will still be able to scan but at a really slow rate (1 user per few minutes)
+
 # TF2 Scanner
 ## [Download here](https://github.com/AleXu224/tf2-scanner/releases/latest)
 
