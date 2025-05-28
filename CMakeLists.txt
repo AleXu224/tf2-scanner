@@ -1,78 +1,38 @@
-cmake_minimum_required(VERSION 3.22)
-project(bpscanner)
+cmake_minimum_required(VERSION 3.30)
+set(VCPKG_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/glt/vcpkg")
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+project(tf2scanner)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG")
-# set(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+file(GLOB_RECURSE all_files CONFIGURE_DEPENDS "src/*.cpp" "src/*.cc" "src/*.h")
 
-add_executable(
-        bpscanner 
-        main.cpp 
-        fonts/Roboto.cpp 
-        fonts/MaterialIcons.cpp 
-        components/TopBar.hpp 
-        components/TopBar.cpp 
-        components/StatsInfo.cpp 
-        components/StatsInfo.hpp 
-        globals.hpp 
-        components/MainBody.cpp 
-        components/MainBody.hpp 
-        globals.cpp 
-        components/SideBar.cpp 
-        components/SideBar.hpp 
-        scanning/Scanner.cpp 
-        scanning/Scanner.hpp 
-        scanning/Config.cpp 
-        scanning/Config.hpp 
-        components/Console.cpp 
-        components/Console.hpp 
-        json_schemas/ItemSchema.hpp
-        json_schemas/SteamInventory.hpp
-        json_schemas/SteamPlayer.hpp
-        json_schemas/BptfPrices.hpp
-        json_schemas/TfSkins.hpp
-        json_schemas/TFEffects.hpp
-        json_schemas/SteamGames.hpp
-        json_schemas/SteamLevel.hpp
-        json_schemas/GithubReleases.hpp
-        json_schemas/TFMarket.hpp
-        scanning/Player.hpp 
-        scanning/Player.cpp 
-        scanning/Inventory.hpp 
-        scanning/Inventory.cpp 
-        scanning/Item.hpp 
-        scanning/Item.cpp 
-        utilities/stb_image.h
-        utilities/Texture.hpp
-        utilities/Texture.cpp
-        utilities/stb_image_resize.h
-        utilities/Animation.hpp
-        utilities/Animation.cpp
-        components/ApiKeyPrompt.hpp
-        components/ApiKeyPrompt.cpp
-        components/LoadingScreen.hpp
-        components/LoadingScreen.cpp
-        components/Overlay.hpp
-        components/Overlay.cpp
-        components/InfoCard.hpp
-        components/InfoCard.cpp
-        resources/bpscanner.rc
-        resources/bpscannerIcon.hpp
+add_executable(tf2scanner main.cpp ${all_files})
+target_compile_features(tf2scanner PUBLIC cxx_std_23)
+set_target_properties(tf2scanner PROPERTIES CXX_EXTENSIONS OFF)
+target_include_directories(tf2scanner PUBLIC src)
+
+if (MSVC)
+    # target_compile_options(tf2scanner PUBLIC /fsanitize=address)
+    target_compile_options(tf2scanner PUBLIC /std:c++latest /bigobj)
+    target_compile_definitions(tf2scanner PUBLIC _DISABLE_STRING_ANNOTATION _DISABLE_VECTOR_ANNOTATION)
+else ()
+    target_compile_options(tf2scanner PUBLIC -Wall -Wextra -Wno-unused-parameter -Werror)
+    # target_link_options(tf2scanner PUBLIC -fsanitize=address,undefined)
+    # target_link_options(tf2scanner PUBLIC -fsanitize=undefined,thread)
+endif ()
+
+add_subdirectory(glt)
+include_directories(glt/include)
+target_link_libraries(tf2scanner PUBLIC glt)
+
+include(FetchContent)
+
+FetchContent_Declare(
+        glaze
+        GIT_REPOSITORY https://github.com/stephenberry/glaze.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
 )
-        
-find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIRS})
+FetchContent_MakeAvailable(glaze)
+target_link_libraries(tf2scanner PUBLIC glaze::glaze)
 
-find_package(glfw3 CONFIG REQUIRED)
-find_package(imgui CONFIG REQUIRED)
-find_package(cpr CONFIG REQUIRED)
-find_package(Boost REQUIRED)
-find_package(yyjson CONFIG REQUIRED)
-
-target_link_libraries(bpscanner PRIVATE ${OPENGL_LIBRARIES})
-target_link_libraries(bpscanner PRIVATE imgui::imgui)
-target_link_libraries(bpscanner PRIVATE glfw)
-target_link_libraries(bpscanner PRIVATE cpr::cpr)
-target_link_libraries(bpscanner PRIVATE Boost::boost)
-target_link_libraries(bpscanner PRIVATE yyjson::yyjson)
