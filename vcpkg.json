@@ -1,5 +1,5 @@
 {
-  "name": "glt",
+  "name": "tf2-scanner",
   "version-string": "0.1",
   "dependencies": [
     "glfw3",
@@ -7,6 +7,8 @@
     "asio",
     "openssl",
     "skyr-url",
+    "tl-expected",
+    "range-v3",
     "catch2",
     "utfcpp",
     "glm",
